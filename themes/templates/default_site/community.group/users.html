@@ -1,0 +1,102 @@
+<?php 
+	$this->EE =& get_instance();
+	$seg1 = $this->EE->uri->segment(1);
+	$seg2 = $this->EE->uri->segment(2);
+	$seg3 = $this->EE->uri->segment(3);
+	$seg4 = $this->EE->uri->segment(4);
+	$myUser = $this->EE->session->userdata('member_id');
+
+	if($seg1 == "community" && $seg2 == "users" && $seg3 == "profile" && $seg4 == "" && $myUser != 0) {
+		header("Location: /community/users/profile/".$myUser);
+		exit(); // important to keep this here
+	}
+	else if($seg1 == "community" && $seg2 == "users" && $seg3 == "profile" && $seg4 == "0"){
+		header("Location: /community/users/login");
+		exit();
+	} 
+?>
+{snip_browser_sniffer}<!DOCTYPE html><!-- ### template - coummunity.group/users.html ### -->
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>>
+
+<head>
+
+<title>{if segment_3 == "profile"}{exp:zoo_visitor:details member_id='{segment_4}'}{visitor:member_firstname} {visitor:member_lastname}{/exp:zoo_visitor:details}{if:elseif segment_3 == "register"}Register{if:elseif segment_3 == "login"}Login{if:elseif segment_3 == "email"}Email{if:elseif segment_3 == "change-password"}Change Password{if:elseif segment_3 == "edit"}Edit Profile{if:elseif segment_3 == "edit-interests"}Edit Interests{if:elseif segment_3 == "documents"}My Documents{if:elseif segment_3 == "picture"}Edit Picture{if:elseif segment_3 == "select-expertise"}Select Expertise{if:else}{structure:page:title}{/if} : Members : {site_name}</title>
+
+{if segment_3 == "profile"}
+
+{snip_global_default_meta_ogp_data}
+
+{snip_users_meta_ogp}
+
+{if:else}
+
+{snip_global_default_meta_ogp_data}
+{if segment_3 != "change-password" AND segment_3 != "edit" AND segment_3 != "select-expertise" AND segment_3 != "documents" AND segment_3 != "picture"}
+{snip_page_meta_ogp}
+{/if}
+{/if}
+
+<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" />{!-- include the global_styles css template --}
+<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" />{!-- include the global_styles css template --}
+<link rel="stylesheet" href="{stylesheet='global/jquery.Jcrop.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/validationEngine.jquery.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/template.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/bootstrap.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='pi_guide/jquery.fancybox.css'}" type="text/css" />
+
+{snip_global_header_links}
+{snip_global_header_meta}
+
+</head>
+
+{exp:switchee variable="{segment_1}/{segment_2}/{segment_3}" parse="inward"}
+	
+	{!-- begin index view --}
+	{case value="community/users/edit"}<!-- using edit -->
+		{embed="users/edit"}
+	{/case}
+	{case value="community/users/select-expertise"}<!-- using edit-interests -->
+		{embed="users/edit-interests"}
+	{/case}
+	{case value="community/users/picture"}<!-- using picture -->
+		{embed="users/picture"}
+	{/case}
+	{case value="community/users/email"}<!-- using email -->
+		{embed="users/email"}
+	{/case}
+	{case value="community/users/documents"}<!-- using documents -->
+		{embed="users/documents"}
+	{/case}
+	{case value="community/users/change-password"}<!-- using change password -->
+		{embed="users/change-password"}
+	{/case}
+	{case value="community/users/forgot-password"}<!-- using forgot password -->
+		{embed="users/forgot-password"}
+	{/case}
+
+	{case value="community/users/profile"}<!-- using profile -->
+		{embed="users/profile"}
+	{/case}
+	
+	{case value="community/users/register"}<!-- using register -->
+		{embed="users/register"}
+	{/case}
+	{case value="community/users/login"}<!-- using login -->
+		{embed="users/login"}
+	{/case}
+	{case value="community/users/reset-password"}<!-- using reset password -->
+		{embed="users/reset-password"}
+	{/case}
+	
+	{case value=""}<!-- using empty -->
+		{embed="users/index"}
+	{/case}
+	{case default="yes"}<!-- using default -->
+		{embed="users/index"}
+	{/case}
+	
+	{!-- end index view --}
+	 
+{/exp:switchee}
+
+</html>

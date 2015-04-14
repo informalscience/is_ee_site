@@ -1,0 +1,320 @@
+<!DOCTYPE html>{!-- template home.group/index.html --}
+{snip_browser_sniffer}
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>>
+<head>
+
+<title>{site_name} : Home</title>
+
+{snip_global_meta_ogp}
+
+<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" />{!-- include the global_styles css template --}
+<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" />{!-- include the global_styles css template --}
+
+{snip_global_header_links}
+
+{snip_global_header_meta}
+<meta name="p:domain_verify" content="2bf3f268895597f13129c25e271035f9"/>
+</head>
+
+<body id="{structure:top:slug}" class="home<?php if( (isset($browser)) && (isset($version)) ) { echo ' '.$browser .' v'. $version; } else { echo 'MSIE or Other'; } ?>">{!-- We grab the page top-levelslug as id and parent and page slugs as super-added classes --}
+
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding --}
+
+	<div id="externalMastheadWrap">{!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding --}
+			
+			{snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+
+			{snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+			
+			{snip_home_slideshow}
+	
+	</div>{!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding --}
+	
+	<div id="mainContentArea">{!-- begin .mastheadMainContent - fixed width, fixed height, centered --}
+		
+		<!-- ########## BEGIN HOME PAGE SEARCH BLOCK ########## -->
+		{snip_home_search}
+		{snip_home_browse}
+		<!-- tooltip content comes from searchTooltipText user-created global variable - EE Control Panel Path: Design -> Templates -> Global Variables -->
+		<!-- ########## END HOME PAGE SEARCH BLOCK ########## -->
+
+		<div class="homeContentRow" style="margin-bottom:0px;">{!-- begin #homeAssetsRow - fixed width, fixed height, centered --}
+		
+			{exp:channel:entries channel="ch_assets" limit="3" sort="asc" disable="pagination|member_data|categories" dynamic="no"}
+				<div class="homeAssetsColumn{if count == total_results} last{if:elseif count == "1"} first{if:else} middle{/if}">
+					<div class="homeAssetBlock">
+						<div class="blockHead"><h3><a href="{site_url}{asset_detail_path}">{title}</a></h3></div>
+						{asset_excerpt}
+						<a href="{site_url}{asset_detail_path}" class="blueButton">{link_text}<span class="arrowCircle">&nbsp;</span></a>
+					</div>
+				</div>
+			{/exp:channel:entries}
+			
+			<div class="clearBoth">&nbsp;</div>
+			
+		</div>{!-- end #homeAssetsRow - fixed width, fixed height, centered --}
+		<br />
+		<div class="homeContentRow">{!-- begin #homeContentRow - fixed width, maybe fixed height, centered or lefted --}
+		
+			<div class="externalFullBlock tabbed">{!-- begin .externalFullTabbedBlock - fixed width, maybe fixed height, lefted --}
+		
+				<div class="internalFullBlock tabbed">{!-- begin .internalFullTabbedBlock - fixed width, maybe fixed height, lefted --}
+		
+					<div class="tabsBlock">{!-- begin .tabsBlock - maybe fixed height, lefted --}
+					
+					 <a id="recent_resources_link" href="#" class="first active"><h3 class="transparent">Recently Added Resources</h3></a>
+						<a id="most_viewed_resources_link" href="#" class="last"><h3 class="transparent">Most Viewed</h3></a>
+					
+						<div class="clearBoth">&nbsp;</div>
+						
+					</div>{!-- end .tabsBlock - maybe fixed height, lefted --}
+					
+					<div class="bodyBlock">{!-- begin .bodyBlock - maybe fixed height, lefted --}
+				
+	
+				<?php
+					require_once('/var/www/ee/get_data.php');
+					require_once('/var/www/ee/ncs_tools/parse_single_result.php');
+					$this->EE =& get_instance();
+				
+					// START RECENT RESOURCE
+					$recent_resource_html = "";
+					$recent_resource_html.= '<div id="recent_resources"><ul>';
+
+					$resources_url = "http://api.informalscience.org/search/json?sortDescendingBy=dateAdded&n=50";
+					$recent_results = json_decode(get_data($resources_url),true);
+					if($recent_results != "" && isset($recent_results['results'])){
+						$count = 0;
+						$recent_resources = $recent_results['results'];
+						foreach($recent_resources as $single_result){
+							
+							$single_record = $single_result['record'];
+      				$parsed_record = parse_single_result($single_record);
+							
+							if($parsed_record['title'] == "")	continue;
+
+							$single_id = $parsed_record['ncs_id'];
+
+							$image_url = "";
+							// resource image exist?
+							if($single_id != ""){
+								$does_image_exist_query = "SELECT * FROM ncs_project WHERE ncs_id = '{$single_id}' ";
+								$image_results = $this->EE->db->query($does_image_exist_query);
+								if($image_results->num_rows()){
+									foreach($image_results->result_array() as $row){
+										$image_url = $row['main_image'];
+									}
+								}
+							}
+
+							$count++;
+							$li_class = 'top';
+							if($count == 2) $li_class = 'topRight';
+							if($count == 3) $li_class = 'bottom';
+							if($count == 4) $li_class = 'bottomRight';
+							if($count == 5)	break;
+
+							$recent_resource_html.= '<li class="'.$li_class.'">';
+							if($image_url != ""){
+								$recent_resource_html.= '<img height="80" width="80" src="{site_url}/images/projects/logos/'.$image_url.'">';
+							}
+							$recent_resource_html.= '<a href="'.$parsed_record['record_url'].'">'.$parsed_record['title'].'</a></li>';
+
+						}
+					}
+
+					$recent_resource_html.= '</ul><div class="clearBoth">&nbsp;</div><a href="{site_url}search/informal-commons" class="blueButton">VIEW ALL RESOURCES<span class="arrowCircle">&nbsp;</span></a></div>';
+					echo $recent_resource_html;
+					// END RECENT RESOURCE
+
+					// START POPULAR RESOURCE
+					$most_viewed_query =
+					"SELECT ncs_id, view_count, main_image FROM ncs_project
+					UNION SELECT ncs_id, view_count, instruments AS main_image FROM ncs_evaluation
+					UNION SELECT ncs_id, view_count, instruments AS main_image FROM ncs_reference
+					UNION SELECT ncs_id, view_count, instruments AS main_image FROM ncs_research
+					ORDER BY view_count DESC LIMIT 0,4";
+
+					$most_viewed_results = $this->EE->db->query($most_viewed_query);
+					$ncs_ids = array();
+					$main_images = array();
+
+					if($most_viewed_results->num_rows()){
+						foreach($most_viewed_results->result_array() as $row){
+							$ncs_ids[] = $row['ncs_id'];
+							$main_images[] = $row['main_image'];
+						}
+					}
+
+					$popular_resource_html = "";
+					$popular_resource_html.= '<div id="most_viewed_resources"><ul>';
+
+					$count = 0;
+					foreach($ncs_ids as $key=>$single_id){
+						$resource_url = 'http://api.informalscience.org/record/'.$single_id;
+						$single_result = json_decode(get_data($resource_url),true);
+						
+						$single_record = $single_result['record'];
+      			$parsed_record = parse_single_result($single_record);
+
+						$image_url = "";
+						$image_url = $main_images[$key];
+
+						$count++;
+						$li_class = 'top';
+						if($count == 2) $li_class = 'topRight';
+						if($count == 3) $li_class = 'bottom';
+						if($count == 4) $li_class = 'bottomRight';
+
+						$popular_resource_html.= '<li class="'.$li_class.'">';
+						if($image_url != ""){
+							$popular_resource_html.= '<img height="80" width="80" src="{site_url}/images/projects/logos/'.$image_url.'">';
+						}
+						$popular_resource_html.= '<a href="'.$parsed_record['record_url'].'">'.$parsed_record['title'].'</a></li>';
+					}
+
+					$popular_resource_html.= '</ul><div class="clearBoth">&nbsp;</div><a href="{site_url}search/informal-commons" class="blueButton">VIEW ALL RESOURCES<span class="arrowCircle">&nbsp;</span></a></div>';
+					echo $popular_resource_html;
+					// END POPULAR RESOURCE
+
+				?>
+		
+				</div>{!-- end .bodyBlock - maybe fixed height, lefted --}
+			
+					<div class="clearBoth">&nbsp;</div>
+					
+					<div class="footerBlock">{!-- begin .footerBlock --}
+					
+						&nbsp;
+					
+					</div>{!-- end .footerBlock --}
+					
+					<div class="clearBoth">&nbsp;</div>
+					
+				</div>{!-- end .internalInformalStemLearningBlock - fixed width, maybe fixed height, lefted --}
+		
+			</div>{!-- end .externalInformalStemLearningBlock - fixed width, maybe fixed height, lefted --}
+			
+			<div class="clearBoth">&nbsp;</div>
+			
+		</div>{!-- end #homeContentRow - fixed width --}
+
+		{snip_home_network}
+	
+		<div class="clearBoth">&nbsp;</div>
+		
+		<div id="externalSocialMediaSharingBlock">
+		{snip_scroll_to_top}
+		{snip_social_media_sharing}
+		</div>
+
+		<div class="clearBoth">&nbsp;</div>
+				
+	</div>{!-- end #mainContentArea - fixed width, fixed height, centered --}
+	
+	{snip_global_footer}{!-- include global_footer snippet --}
+
+</div>{!-- end #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding --}
+
+{snip_bring_js}
+<script type="text/javascript">
+$(document).ready(function() {
+	// show - hide for search vs browse
+	$('#browseResourceType').show();
+	$('#browseSearchKeyword').hide();
+	$('#bring_up_browse_resource').on('click',function(){
+		$('#browseResourceType').hide();
+		$('#browseSearchKeyword').show();
+		return false;
+	});
+	$('#bring_up_browse_keyword').on('click',function(){
+		$('#browseResourceType').show();
+		$('#browseSearchKeyword').hide();
+		return false;
+	});
+
+	// javascript for showing / hiding tabs for Recent Site Activity
+	$('#recent_group_discussions').show();
+	$('#new_members').hide();
+	$('#new_wikis').hide();
+	$('#get_involved').hide();
+
+	// show Recent Group Discussions - hide all else
+	$('#recent_group_discussions_link').on('click',function(){
+		$('#recent_group_discussions').show();
+		$('#new_members').hide();
+		$('#new_wikis').hide();
+	 $('#get_involved').hide();
+		$('#recent_group_discussions_link').addClass('active');
+		$('#new_members_link').removeClass('active');
+		$('#new_wikis_link').removeClass('active');
+	 $('#get_involved_link').removeClass('active');
+		return false;
+	});
+
+	// show New Members - hide all else
+	$('#new_members_link').on('click',function(){
+		$('#recent_group_discussions').hide();
+		$('#new_members').show();
+		$('#new_wikis').hide();
+	 $('#get_involved').hide();
+		$('#recent_group_discussions_link').removeClass('active');
+		$('#new_members_link').addClass('active');
+		$('#new_wikis_link').removeClass('active');
+	$('#get_involved_link').removeClass('active');
+		return false;
+	});
+
+	// show New Evidence Wikis - hide all else
+	$('#new_wikis_link').on('click',function(){
+		$('#recent_group_discussions').hide();
+		$('#new_members').hide();
+	 $('#get_involved').hide();
+		$('#new_wikis').show();
+		$('#recent_group_discussions_link').removeClass('active');
+		$('#new_members_link').removeClass('active');
+	 $('#get_involved_link').removeClass('active');
+		$('#new_wikis_link').addClass('active');
+		return false;
+	});
+	
+	// show Get Involved - hide all else
+	$('#get_involved_link').on('click',function(){
+		$('#recent_group_discussions').hide();
+		$('#new_members').hide();
+	 $('#new_wikis').hide();
+		$('#get_involved').show();
+		$('#recent_group_discussions_link').removeClass('active');
+		$('#new_members_link').removeClass('active');
+	 $('#new_wikis_link').removeClass('active');
+		$('#get_involved_link').addClass('active');
+		return false;
+	});
+
+	// javascript for showing / hiding tabs for Recently Added
+	$('#recent_resources').show();
+	$('#most_viewed_resources').hide();
+
+	// show Recent Resources
+	$('#recent_resources_link').on('click',function(){
+		$('#recent_resources').show();
+		$('#most_viewed_resources').hide();
+		$('#recent_resources_link').addClass('active');
+		$('#most_viewed_resources_link').removeClass('active');
+		return false;
+	});
+
+	// show Most Viewed
+	$('#most_viewed_resources_link').on('click',function(){
+		$('#most_viewed_resources').show();
+		$('#recent_resources').hide();
+		$('#most_viewed_resources_link').addClass('active');
+		$('#recent_resources_link').removeClass('active');
+		return false;
+	});
+
+});
+</script>
+
+</body>
+</html>

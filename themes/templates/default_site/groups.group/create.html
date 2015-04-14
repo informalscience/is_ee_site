@@ -1,0 +1,339 @@
+{snip_community_redirect}
+<!-- begin embed groups/create -->
+<?php
+
+$this->EE =& get_instance();
+
+$my_id = $this->EE->session->userdata('member_id');
+$member_id = $my_id;
+$site_url = $this->EE->config->config['site_url'];
+
+$group_access = false;
+$is_admin = false;
+
+// are we an admin?
+if($this->EE->session->userdata['group_id'] == 1){
+	$group_access = true;
+	$is_admin = true;
+}
+// are we logged in?
+if($my_id){
+	$group_access = true;
+}
+
+// if we don't have the proper permissions...redirect them to the no-access page
+if(!$group_access){
+	header('Location: '.$site_url.'community/groups/no-access');
+	exit();
+}
+
+// database settings
+require_once('/var/www/settings.php');
+$db = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+
+$group_name = "";
+$group_description = "";
+$group_image_url = "";
+$group_admin = "";
+$group_admin_name = "";
+$group_is_public = 0;
+$form_error = array();
+$form_success = "";
+
+if($_POST){
+
+	$form_validation = true;
+
+	if(isset($_POST['group_name'])){
+		$group_name = $_POST['group_name'];
+	}
+	else{
+		$form_validation = false;
+		$form_error[] = "Please fill out group name";
+	}
+	if(isset($_POST['group_description'])){
+		$group_description = $_POST['group_description'];
+	}
+	if(isset($_POST['group_is_public'])){
+		if($_POST['group_is_public'] == "YES"){
+			$group_is_public = 1;	
+		}
+	}
+	// these next two validation shouldn't ever fail...
+	if(isset($_POST['group_admin'])){
+		$group_admin = $_POST['group_admin'];
+	}
+	else{
+		$form_validation = false;
+	}
+	if(isset($_POST['group_admin_name'])){
+		$group_admin_name = $_POST['group_admin_name'];
+	}
+	else{
+		$form_validation = false;
+	}
+
+	$db_group_name = $db->real_escape_string($group_name);
+	$db_group_description = $db->real_escape_string($group_description);
+	$db_group_is_public = $group_is_public;
+
+	$db_group_admin = $db->real_escape_string($group_admin);
+	$db_group_admin_name = $db->real_escape_string($group_admin_name);	
+
+	// does group already exist?
+	$does_group_exist_query = "SELECT COUNT(*) FROM groups WHERE name LIKE '{$db_group_name}' ";
+	$results = $db->query($does_group_exist_query)->fetch_row();
+	if($results[0] > 0){
+		$form_validation = false;
+		$form_error[] = "Group already exists";
+	}
+
+	$group_id = "";
+	$board_id = "";
+	$parent_forum_id = "";
+	if($form_validation){
+		$query_status = true;
+		
+		// insert group data into group table
+		$group_query = "INSERT INTO groups (name,description,is_public) VALUES ('{$db_group_name}','{$db_group_description}','{$db_group_is_public}')";
+		if($query_status){
+			if($db->query($group_query)){
+				$group_id = $db->insert_id;
+			}
+			else{
+				$query_status = false;
+				$form_error[] = "Error inserting group into database";
+			}
+		}
+		
+		// insert group admin data into group members table
+		$members_query = "INSERT INTO groups_members (group_id,member_id,status,is_admin) VALUES ('{$group_id}','{$db_group_admin}','1','1')";
+		if($query_status){
+			if(!$db->query($members_query)){
+				$query_status = false;
+				$form_error[] = "Error inserting admin into database";
+			}	
+		}
+
+		// create a board for the group
+		$time_created = time();
+		$forum_name = $db->real_escape_string(preg_replace("/[^A-Za-z0-9]/", '', $group_name));
+		if($db->query("SELECT * FROM exp_forum_boards WHERE board_name = '{$forum_name}';")->num_rows > 0) $forum_name .= rand();
+		$forum_url = $site_url.'community/groups/forum/'.$forum_name;
+		$board_query = "
+		INSERT INTO `exp_forum_boards` 
+		(`board_label`, `board_name`, `board_enabled`, `board_forum_trigger`, `board_site_id`, 
+		 `board_alias_id`, `board_allow_php`, `board_php_stage`, `board_install_date`, `board_forum_url`, 
+		 `board_default_theme`, `board_upload_path`, `board_topics_perpage`, `board_posts_perpage`, 
+		 `board_topic_order`, `board_post_order`, `board_hot_topic`, `board_max_post_chars`, 
+		 `board_post_timelock`, `board_display_edit_date`, `board_text_formatting`, `board_html_formatting`, 
+		 `board_allow_img_urls`, `board_auto_link_urls`, `board_notify_emails`, `board_notify_emails_topics`, 
+		 `board_max_attach_perpost`, `board_max_attach_size`, `board_max_width`, `board_max_height`, 
+		 `board_attach_types`, `board_use_img_thumbs`, `board_thumb_width`, `board_thumb_height`, 
+		 `board_forum_permissions`, `board_use_deft_permissions`, `board_recent_poster_id`, 
+		 `board_recent_poster`, `board_enable_rss`, `board_use_http_auth`)
+		VALUES
+		('{$db_group_name}', '{$forum_name}', 'y', '', 1, 
+			0, 'y', 'o', '{$time_created}', '{$forum_url}', 
+			'default', '/var/www/ee/images/forum_attachments/', 25, 100, 
+			'r', 'a', 10, 6000, 
+			0, 'n', 'xhtml', 'safe', 
+			'n', 'y', '', '', 
+			3, 25000, 250, 250, 
+			'all', 'y', 100, 100, 
+			'a:8:{s:14:\"can_view_forum\";s:7:\"|6|5|4|\";s:15:\"can_view_hidden\";s:5:\"|6|5|\";s:15:\"can_view_topics\";s:9:\"|6|3|5|4|\";s:15:\"can_post_topics\";s:5:\"|6|5|\";s:14:\"can_post_reply\";s:5:\"|6|5|\";s:10:\"can_report\";s:5:\"|6|5|\";s:16:\"can_upload_files\";s:5:\"|6|5|\";s:10:\"can_search\";s:7:\"|6|5|4|\";}',
+			'y', 0, NULL, 'y', 'n');";
+		if($query_status){
+			if($db->query($board_query)){
+				$board_id = $db->insert_id;
+			}
+			else{
+				$query_status = false;
+				$form_error[] = "Error inserting forum data (board creation) into database";
+			}
+		}
+
+		// create admin for the board
+		$admin_query = 
+		"INSERT INTO `exp_forum_administrators` (`board_id`, `admin_group_id`, `admin_member_id`)
+		VALUES ('{$board_id}', 0, '{$db_group_admin}');";
+		if($query_status){
+			if(!$db->query($admin_query)){
+				$query_status = false;
+				$form_error[] = "Error inserting forum admin data into database";
+			}
+		}
+
+		// create the parent forum category for the group
+		$parent_forum_query ="INSERT INTO `exp_forums` 
+		(`board_id`, `forum_name`, `forum_description`, `forum_is_cat`, `forum_parent`, `forum_order`, `forum_status`, `forum_total_topics`, `forum_total_posts`, `forum_last_post_id`, `forum_last_post_type`, `forum_last_post_title`, `forum_last_post_date`, `forum_last_post_author_id`, `forum_last_post_author`, `forum_permissions`, `forum_topics_perpage`, `forum_posts_perpage`, `forum_topic_order`, `forum_post_order`, `forum_hot_topic`, `forum_max_post_chars`, `forum_post_timelock`, `forum_display_edit_date`, `forum_text_formatting`, `forum_html_formatting`, `forum_allow_img_urls`, `forum_auto_link_urls`, `forum_notify_moderators_topics`, `forum_notify_moderators_replies`, `forum_notify_emails`, `forum_notify_emails_topics`, `forum_enable_rss`, `forum_use_http_auth`)
+		VALUES
+		('{$board_id}', '{$db_group_name}', '', 'y', NULL, 1, 'o', 0, 0, NULL, 'p', NULL, 0, NULL, NULL, 'a:8:{s:14:\"can_view_forum\";s:11:\"|1|3|4|5|6|\";s:15:\"can_view_hidden\";s:7:\"|1|5|6|\";s:15:\"can_view_topics\";s:11:\"|1|3|4|5|6|\";s:15:\"can_post_topics\";s:7:\"|1|5|6|\";s:14:\"can_post_reply\";s:7:\"|1|5|6|\";s:10:\"can_report\";s:7:\"|1|5|6|\";s:16:\"can_upload_files\";s:7:\"|1|5|6|\";s:10:\"can_search\";s:11:\"|1|3|4|5|6|\";}', 25, 100, 'r', 'a', 10, 6000, 0, 'n', 'xhtml', 'safe', 'n', 'y', 'n', 'n', '', '', 'n', 'n');";
+		if($query_status){
+			if($db->query($parent_forum_query)){
+				$parent_forum_id = $db->insert_id;
+			}
+			else{
+				$query_status = false;
+				$form_error[] = "Error inserting forum category data into database";
+			}
+		}
+
+		// create the child forums and create the moderator for the group
+		$child_forum_names = array('Group Forum');
+		$count = 2;
+		foreach($child_forum_names as $single_name){
+			$child_forum_id = "";
+
+			$child_query = "INSERT INTO `exp_forums` 
+			(`board_id`, `forum_name`, `forum_is_cat`, `forum_parent`, `forum_order`, `forum_status`, `forum_total_topics`, `forum_total_posts`, `forum_last_post_id`, `forum_last_post_type`, `forum_last_post_title`, `forum_last_post_date`, `forum_last_post_author_id`, `forum_last_post_author`, `forum_permissions`, `forum_topics_perpage`, `forum_posts_perpage`, `forum_topic_order`, `forum_post_order`, `forum_hot_topic`, `forum_max_post_chars`, `forum_post_timelock`, `forum_display_edit_date`, `forum_text_formatting`, `forum_html_formatting`, `forum_allow_img_urls`, `forum_auto_link_urls`, `forum_notify_moderators_topics`, `forum_notify_moderators_replies`, `forum_notify_emails`, `forum_notify_emails_topics`, `forum_enable_rss`, `forum_use_http_auth`)
+			VALUES
+			('{$board_id}', '{$single_name}', 'n', '{$parent_forum_id}', '{$count}', 'o', 0, 0, NULL, 'p', NULL, 0, NULL, NULL, 'a:8:{s:14:\"can_view_forum\";s:11:\"|1|3|4|5|6|\";s:15:\"can_view_hidden\";s:7:\"|1|5|6|\";s:15:\"can_view_topics\";s:11:\"|1|3|4|5|6|\";s:15:\"can_post_topics\";s:7:\"|1|5|6|\";s:14:\"can_post_reply\";s:7:\"|1|5|6|\";s:10:\"can_report\";s:7:\"|1|5|6|\";s:16:\"can_upload_files\";s:7:\"|1|5|6|\";s:10:\"can_search\";s:11:\"|1|3|4|5|6|\";}', 25, 100, 'r', 'a', 10, 6000, 0, 'n', 'xhtml', 'safe', 'n', 'y', 'n', 'n', '', '', 'y', 'n');";
+			$count++;
+			if($query_status){
+				if($db->query($child_query)){
+					$child_forum_id = $db->insert_id;
+				}
+				else{
+					$query_status = false;
+					$form_error[] = "Error inserting child forums into database";
+				}
+			}
+
+			$child_moderator_query = "INSERT INTO `exp_forum_moderators` 
+			(`board_id`, `mod_forum_id`, `mod_member_id`, `mod_member_name`, `mod_group_id`, `mod_can_edit`, `mod_can_move`, `mod_can_delete`, `mod_can_split`, `mod_can_merge`, `mod_can_change_status`, `mod_can_announce`, `mod_can_view_ip`)
+			VALUES
+			('{$board_id}', '{$child_forum_id}', '{$db_group_admin}', '{$db_group_admin_name}', 0, 'y', 'y', 'y', 'y', 'y', 'y', 'y', 'n');";
+			if($query_status){
+				if(!$db->query($child_moderator_query)){
+					$query_status = false;
+					$form_error[] = "Error inserting moderator data into database";
+				}
+			}
+
+		}
+
+		// link up the forum with the group
+		$group_forum_query = "INSERT INTO `groups_forums`
+		(`group_id`,`forum_name`)
+		VALUES
+		('{$group_id}','{$forum_name}');";
+		if($query_status){
+			if(!$db->query($group_forum_query)){
+				$query_status = false;
+				$form_error[] = "Error inserting group name into database";
+			}
+		}
+
+		// successfully entered all the information?
+		if($query_status){
+			$this->EE->db->query("INSERT INTO groups_forum_subscriptions_threads (group_id, member_id) VALUES ('{$group_id}','{$member_id}') ");
+			$this->EE->db->query("INSERT INTO groups_forum_subscriptions_replies (group_id, member_id) VALUES ('{$group_id}','{$member_id}') ");
+			$url = $site_url."community/groups/details/?id=".$group_id;
+			header("Location: $url") ;
+			exit();
+			// $form_success = "<span>Success!</span>Created group and associated forums!";
+		}
+		
+	}
+
+}
+
+?>
+<!-- begin embed groups/create -->
+<body>
+
+<a name="top"></a>
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper --}
+
+<div id="externalMastheadWrap">{!-- begin #externalMastheadWrap --}
+<div id="internalMastheadWrap">{!-- begin #internalMastheadWrap --}
+      
+{snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+{snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+{snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+
+<script type="text/javascript">
+// provide faux active states for primary and secondary nav elements without having to add pages into structure  
+	var navelement1 = document.getElementById('nav-sub-community');
+		if(navelement1) {
+			navelement1.className += navelement1.className ? ' parent-active' : '';
+		}
+	var navelement2 = document.getElementById('nav-sub-sub-groups');
+		if(navelement2) {
+			navelement2.className += navelement2.className ? ' parent-active' : '';
+		}
+</script>
+    
+</div>{!-- end .internalMastheadWrap --}
+</div>{!-- end .externalMastheadWrap --}
+  
+<div id="mainContentArea">{!-- begin .mastheadMainContent --}
+
+<div class="content singleColumn">
+	<div class="fullContentRow top">
+		<div class="externalFullBlock">
+			<div class="internalFullBlock">
+				<div class="blockHead">
+					<h1 class="specialHeader">Create Group</h1>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+	<?php
+		if(!empty($form_error)) echo '<div class="form_error bottomMargin">Your form had the following errors: '.implode(". ",$form_error).'</div>';
+		if($form_success != "") echo '<div class="form_success bottomMargin">'.$form_success.'</div>';
+	?>
+
+<form id="group_submit" method="post">
+<input type="hidden" name="XID" value="{XID_HASH}" /> 
+<div class="projectFormField noTopM">
+	<label class="label left selectTop">Group Name</label>
+	<input class="validate[required] projectFieldFull left" id="group_name" name="group_name" value="<?= $group_name ?>"/>
+</div>
+
+<div class="projectFormField">
+	<label class="label left" for="group_description">Group Description</label>
+	<textarea class="validate[required] projectTextArea bottomMargin left" id="group_description" name="group_description"><?= $group_description ?></textarea>
+<?php if($is_admin): ?>
+	<div class="publicGroupLabel">
+	<label for="group_is_public">Is this a public group?<span class="requiredField">*</span></label>
+	<input type="checkbox" name="group_is_public" id="group_is_public" value="YES">
+	</div>
+<?php endif; ?>
+</div>
+
+
+<div>
+	<input type="hidden" name="group_admin" value="{member_id}">
+	<input type="hidden" name="group_admin_name" value="{screen_name}">
+	<input type="submit" class="blueButtonPlain marginTop" value="Submit"/>
+</div>
+
+
+</form>
+
+<div id="externalSocialMediaSharingBlock">
+	{snip_scroll_to_top}
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+</div>{!-- end #mainContentArea --}
+
+{snip_global_footer}{!-- include global_footer snippet --}
+
+</div>{!-- end #externalPageWrapper --}
+
+<!-- START JAVASCRIPT -->
+{snip_bring_js}
+<script type="text/javascript">
+$(document).ready(function() {
+	$('#group_submit').validationEngine();
+});
+</script>
+<!-- END JAVASCRIPT -->
+
+</body>
+<!-- end embed groups/create -->

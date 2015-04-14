@@ -1,0 +1,1080 @@
+<?php
+
+require_once('/var/www/ee/get_data.php');
+require_once('/var/www/ee/ncs_tools/parse_single_result.php');
+
+$this->EE =& get_instance();
+
+// has access to member functions relating to project
+$my_id = $this->EE->session->userdata('member_id');
+$has_access = true;
+if(!$my_id){
+  $has_access = false;
+}
+
+$what_resource = "";
+$what_resource = $this->EE->uri->segment(2);
+$record_found = true;
+
+// is correct URL segment set?
+if($what_resource == ""){
+  $record_found = false;
+}
+
+if($record_found){
+  // hit the NCS url -- see if we get valid results
+  $base_url = API_URL.'record/'.$what_resource;
+  $record_results = json_decode(get_data($base_url),true);
+  if($record_results == ""){
+    $record_found = false;
+  }
+}
+
+
+
+
+// these results are parsed later - (go to second half of this file)
+
+?>
+
+<?php
+
+require_once('/var/www/ee/get_data.php');
+require_once('/var/www/ee/ncs_tools/parse_single_result.php');
+require_once('/var/www/ee/ncs_tools/sticky_html_writer.php');
+
+$query = "SELECT sticky_resources.type, sticky_resources.ncs_id, ncs_project.main_image 
+FROM sticky_resources 
+LEFT JOIN ncs_project 
+ON sticky_resources.ncs_id=ncs_project.ncs_id 
+WHERE type LIKE 'evaluation%' 
+ORDER BY position";
+
+//echo $query;
+//exit;
+$results = $this->EE->db->query($query);
+
+$ids = array();
+$db_results = array();
+foreach($results->result_array() as $row){
+  $ids[] = $row["ncs_id"];
+  if(!isset($db_results[$row["type"]])){
+    $db_results[$row["type"]] = array();
+  }
+  $db_results[$row["type"]][] = $row;
+}
+
+$ids_string = implode("+OR+", $ids);
+
+$recent_url = API_URL."search/json?qq=/key//record/administrative/recordID:(".$ids_string.")&n=200";
+
+$ncs_results = array();
+
+$recent_results = json_decode(get_data($recent_url),true);
+if($recent_results != "" && isset($recent_results['results'])){
+  foreach($recent_results['results'] as $single_result){
+    
+    $single_record = $single_result['record'];
+    $parsed_record = parse_single_result($single_record);
+    $single_id = $parsed_record['ncs_id'];
+
+    $ncs_results[$single_id] = array('title' => $parsed_record['title'], 'description' => $parsed_record['short_description'], 'record_url' => $parsed_record['record_url']);
+  }
+}
+
+// Load the url of the actual category
+function getCategoryUrl($actual, $category){
+  $s_results2 = $actual->EE->db->query(" SELECT * FROM sticky_categories WHERE type = '{$category}' ");
+  $url = "#";
+  if( count( $s_results2->result_array() ) >= 1 ){
+    foreach($s_results2->result_array() as $row){
+      $url = $row["url"];
+    }
+  }
+  return $url;
+}
+
+?>
+
+
+<?php if(!$record_found && $what_resource != ""): ?>{redirect="404"}<? endif; ?>
+<!DOCTYPE html><!-- evaluation/index.html -->
+{snip_browser_sniffer}
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>>
+
+<?php if($what_resource == ""): ?>
+
+
+<!-- **** START OF REGULAR RESOURCE INDEX PAGE **** -->
+
+{snip_browser_sniffer}<!DOCTYPE html><!-- ### template - global.group/1column_static_pages.html ### -->
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>>
+<head>
+<title>{structure:page:title} : {site_name}</title>
+{snip_global_default_meta_ogp_data}
+{snip_page_meta_ogp}
+<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" /><!-- include the global_styles css template -->
+<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" />{!-- include the global_styles css template --}
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript" src="/js/jquery.min.js"></script>
+<script type="text/javascript" src="/js/browse.js"></script>
+<script type="text/javascript" src="/js/show.js"></script>
+<script type="text/javascript" src="/js/jquery.fancybox.js"></script>
+<link rel="stylesheet" href="/pi_guide/jquery.fancybox.css?v=2.1.0" media="screen" />
+{snip_global_header_links}
+{snip_global_header_meta}
+
+  <link rel="stylesheet" href="{stylesheet='evaluation/evaluation2.css'}" type="text/css" />{!-- include the css template --}
+  
+  
+  <!--[if IE]>
+  <style media="screen" type="text/css">
+    .resources-block1 img {
+      margin-left:-2px !important;
+      margin-top: -2px !important;  
+    }
+    
+    .resources-block5 img {
+      margin-left:-2px !important;
+      margin-top: -2px !important;  
+    }
+  
+    .resources-block3 img {
+        margin-left:-2px !important;
+        margin-top: -2px !important;  
+      }
+  </style>
+  <![endif]-->
+  
+</head>
+<body id="{structure:top:slug}" class="{structure:parent:slug} {structure:page:slug}  static">{!-- We grab the page top-level slug as id and parent aand page slugs as super-added classes --}
+<a name="top"></a>
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding --}
+  <div id="externalMastheadWrap">{!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding --}
+    <div id="internalMastheadWrap">{!-- begin #internalMastheadWrap - fixed width, maybe fixed height too --}
+      {snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+      {snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+      {snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+    </div>{!-- end .internalMastheadWrap - fixed width, fixed height --}
+  </div>{!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding --}
+  <div id="mainContentArea">{!-- begin .mastheadMainContent - fixed width, fixed height, centered --}
+{!-- begin broader impacts template --}
+<link rel="stylesheet" href="{stylesheet='evaluation/evaluationlanding.css'}" type="text/css" />{!-- include the css template --}
+<div id="sidebar">
+  <div class="related-links">
+    <h2>SUBMIT A REPORT</h2>
+          <p>Share reports from evaluation activities conducted in informal STEM education projects. </p>
+            <p><a class="blueButton" href="/evaluation/submit-evaluation">Submit<span class="arrowCircle">&nbsp;</span></a></p>
+  </div>
+  <div class="current-topics">
+    <h2>CURRENT TOPICS</h2> 
+    {exp:channel:entries channel="ch_blog" limit="3" sort="desc" style="linear" category="30" disable="pagination|member_data|categories" dynamic="no"}
+      <a href="{page_uri}">
+        <h4 >{title}</h4>
+      </a>
+      <p class="date">{entry_date format='%F %j, %Y'} </p>
+      <p>{post_summary_excerpt}</p>
+      <div class="separator"></div>
+    {/exp:channel:entries}
+    <p><a class="blueButton" style="margin-top:15px;margin-bottom:12px" href="http://informalscience.org/perspectives/blog/category/30">View more<span class="arrowCircle">&nbsp;</span></a></p>
+  </div>    
+    <script type="text/javascript">
+      jQuery( document ).ready(function() {
+        jQuery(".current-topics").find(".separator").last().remove();
+      });
+    </script>
+  <div class="selected-links">
+    <h2>RECENTLY ADDED</h2>
+    <!--get the 3 most recently added NCS evaluation reports-->
+      <?php
+        $recent_url = API_URL."search/json?resourceType=Evaluation+Reports&sortDescendingBy=dateAdded&n=3";
+        $recent_results = json_decode(get_data($recent_url),true);
+        if($recent_results != "" && isset($recent_results['results'])){
+          $count = 0;
+          foreach($recent_results['results'] as $single_result){
+            $date = $single_result["record"]["administrative"]["entryDate"]["values"][0]["value"];
+            $count++;
+            $single_record = $single_result['record'];
+            
+            $parsed_record = parse_single_result($single_record);
+            
+            $date = strtotime( $date );
+            
+            //shorter_description]
+            //Get the first 15 words of the shorter description
+            $intro = explode(" ", $parsed_record['shorter_description']);
+            $intro = implode(" ", array_splice($intro, 0, 15));
+            // Display the element
+            $separator = ($count == 3 ) ? "" : "<div class='separator'></div>" ;
+            echo '<a  href="'.$parsed_record['record_url'].'"><h4>'.$parsed_record['title'].'</h4></a>';
+            echo '<p class="date recentlyAddedDate" style="border-bottom:none;margin-bottom:10px">'. date("F j, Y", $date) .'</p>';
+            echo '<p class="last-link">'.$intro.' [...] </p>';
+            echo $separator;
+          }
+          echo '<p class="last-link"><a class="blueButton " href="http://informalscience.org/evaluation/browse?type=evaluations&search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3FresourceType%3DEvaluation%2BReports%26sortDescendingBy%3DbeginDate#topSearch">View more<span class="arrowCircle">&nbsp;</span></a></p>';
+        }
+        ?>  
+    </div>
+</div>
+<div id="main">
+  {exp:channel:entries channel="dynamic_landing_pages" limit="1" sort="desc" disable="pagination|member_data|categories" dynamic="no"}
+  <div class="top">
+      <h1>{page_heading}</h1>
+      <img src="/images/broaderimpacts/undeline.gif">
+      <p>{top_content_block}</p>
+  <div class="networkToggleResources">
+    <div class="leftToggleColResources">
+      <div class="resourceTypeBlock" id="divIcon1">
+        <a href="#box1"  class="fancybox" id="frameworks">
+          <img id="icon1" alt="{lightbox_title_1}" src="/images/uploads/sticky/1b.png">
+          <h4>{lightbox_title_1}</h4>
+        </a>
+      </div>
+      <div class="resourceTypeBlock right" id="divIcon2">
+        <a href="#box2"  class="fancybox" id="associations" >
+          <img id="icon2" alt="{lightbox_title_2}" src="/images/uploads/sticky/2b.png">
+          <h4>{lightbox_title_2}</h4>
+        </a>
+      </div>
+    </div>
+    <div class="leftToggleColResources">
+      <div class="resourceTypeBlock" id="divIcon3">
+        <a href="#box3"  class="fancybox" id="evaluation">
+          <img id="icon3" alt="{lightbox_title_3}" src="/images/uploads/sticky/3b.png">
+          <h4>{lightbox_title_3}</h4>
+        </a>
+      </div>
+      <div class="resourceTypeBlock right" id="divIcon4">
+        <a href="#box4"  class="fancybox" id="syntheses" ><img id="icon4" alt="{lightbox_title_4}" src="/images/uploads/sticky/4b.png">
+          <h4>{lightbox_title_4}</h4>
+        </a>
+      </div>
+    </div>    
+    <div class="leftToggleColResources">
+      <div class="resourceTypeBlock" id="divIcon5">
+        <a href="#box5"  class="fancybox" id="directories">
+          <img id="icon5" alt="{lightbox_title_5}" src="/images/uploads/sticky/5b.png">
+          <h4>{lightbox_title_5}</h4>
+        </a>
+      </div>
+      <div class="resourceTypeBlock right"  id="divIcon6">
+        <a href="#box6"  class="fancybox" id="openDiscussion" >
+          <img id="icon6" alt="{lightbox_title_6}" src="/images/uploads/sticky/6b.png">
+          <h4>{lightbox_title_6}</h4>
+        </a>
+      </div>
+    </div>
+    </div>  
+  </div> 
+<!--modal windows -->
+  <div id="box1" class="lightbox">
+  <h3>{lightbox_title_1}</h3>
+    {lightbox_1}
+  </div>
+  <div id="box2" class="lightbox">
+  <h3>{lightbox_title_2}</h3>
+    {lightbox_2}
+  </div>
+  
+  <div id="box3" class="lightbox">
+  <h3>{lightbox_title_3}</h3>
+    {lightbox_3}
+  </div>
+  
+  <div id="box4" class="lightbox">
+  <h3>{lightbox_title_4}</h3>
+    {lightbox_4}
+  </div>
+  
+  <div id="box5" class="lightbox">
+  <h3>{lightbox_title_5}</h3>
+    {lightbox_5}
+  </div>
+  
+  <div id="box6" class="lightbox">
+  <h3>{lightbox_title_6}</h3>
+    {lightbox_6}
+  </div>
+  <!-- end modal windows-->
+
+        <div class="top" style="margin-top:338.5px">
+            <h1 >{heading_2}</h1>
+            <img src="/images/broaderimpacts/undeline.gif">
+      <p>{content_heading_2}
+      </p>
+        </div>
+    <div class="resources"><!--todo: add spacing with css and remove <p> and <br /> tags -->
+      <a href="/evaluation/evaluation-resources/pi-guide#5-1-1">  
+        <div class="resources-block1" style="height:300px">
+          <img src="/images/uploads/sticky/Image1.png" /> <!--todo: change image path to /images/uploads/dynamiclandingpages -->
+          <h6>Key elements of an evaluation</h6><p></p>
+        </div>
+      </a>
+      <a href="/evaluation/evaluation-resources/pi-guide#5-4">    
+        <div class="resources-block2" style="height:110px;background-color:#19526C;"> 
+          <h6 style="margin-top:30px">Developing Evaluation Questions</h6><p></p><br />
+        </div>
+      </a>  
+        <a href="/evaluation/evaluation-resources/pi-guide#5-3-2">
+        <div class="resources-block3" style="height:300px">
+          <img src="/images/uploads/sticky/Image2.png">
+          <h6>Understanding theory of change</h6><p></p>
+        </div>
+      </a>
+           <a href="/evaluation/evaluation-resources/pi-guide#5-5">
+        <div class="resources-block4" style="height:105px">
+        <h6>Developing indicators of success</h6><p></p>
+        </div>
+          </a>
+          <a href="/evaluation/evaluation-resources/pi-guide#5-3">      
+              <div class="resources-block5" style="margin-top:-185px; height:300px;" >
+                <img src="/images/uploads/sticky/Image3.png">
+          <h6>Defining goals and outcomes</h6><p></p>   
+              </div>
+        
+          </a>
+          <a href="/evaluation/evaluation-resources/pi-guide#chapter6">     
+              <div class="resources-block6" style="height:105px">
+                  <h6>Reporting and diseminating Results</h6><p></p>
+              </div>
+          </a>        
+    </div>
+<div class="clearBoth">&nbsp;</div>
+<div class="browse">
+  <h1>BROWSE EVALUATION REPORTS</h1>
+          <img src="/images/broaderimpacts/undeline.gif">
+          <p><b>Select a Learning Environment:</b></p>
+          <article>
+          <a href="#div1" class="browse-icons icon_er1"></a>
+          <a href="#div2" class="browse-icons icon_er2"></a>
+          <a href="#div3" class="browse-icons icon_er3"></a>
+          <a href="#div4" class="browse-icons icon_er4"></a>
+          <a href="#div5" class="browse-icons icon_er5" style="padding-right: 0px; border-right: none;"></a>
+          </article>
+          
+          <div id="div1" class="browse-content">
+            <p>Choose Evaluation Type:</p>
+              <p><a href="#te-result1" class="link blueButton spaceButton">Formative</a>  <a href="#te-result2" class="link blueButton spaceButton">Front-end</a>  <a href="#te-result3" class="link blueButton spaceButton">Remedial</a>  <a href="#te-result4" class="link blueButton">Summative</a></p>
+          </div>
+          <div id="div2" class="browse-content">
+            <p>Choose Evaluation Type:</p>
+              <p><a href="#leh-result1" class="link blueButton spaceButton">Formative</a> <a href="#leh-result2" class="link blueButton spaceButton">Front-end</a> <a href="#leh-result3" class="link blueButton spaceButton">Remedial</a>  <a href="#leh-result4" class="link blueButton ">Summative</a></p>
+          </div>
+          <div id="div3" class="browse-content">
+            <p>Choose Evaluation Type:</p>
+              <p><a href="#cpm-result1" class="link blueButton spaceButton">Formative</a>  <a href="#cpm-result2" class="link blueButton spaceButton">Front-end</a>  <a href="#cpm-result3" class="link blueButton spaceButton">Remedial</a>  <a href="#cpm-result4" class="link blueButton">Summative</a></p>
+          </div>
+          <div id="div4" class="browse-content">
+            <p>Choose Evaluation Type:</p>
+              <p><a href="#esc-result1" class="link blueButton spaceButton">Formative</a>  <a href="#esc-result2" class="link blueButton spaceButton">Front-end</a> <a href="#esc-result3" class="link blueButton spaceButton">Remedial</a> <a href="#esc-result4" class="link blueButton">Summative</a></p>
+          </div>
+          <div id="div5" class="browse-content">
+            <p>Choose Evaluation Type:</p>
+              <p><a href="#m-result1" class="link blueButton spaceButton">Formative</a>  <a href="#m-result2" class="link blueButton spaceButton">Front-end</a>  <a href="#m-result3" class="link blueButton spaceButton">Remedial</a>  <a href="#m-result4" class="link blueButton">Summative</a></p>
+          </div>
+
+          <!--Evaluation Media and Technology -->
+
+          <div id="te-result1" class="result">
+            <?php $check_string = "evaluation_media-technology_formative";
+                              $url = getCategoryUrl($this, $check_string);            
+            ?>
+            <?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+            <a href="<?php echo $url; ?>" target="blank" class="showMoreResults"><button class="moreResultsButton" >Show More Results</button></a>
+          </div>
+
+          <div id="te-result2" class="result">
+            <?php 
+              $check_string = "evaluation_media-technology_front-end"; 
+                $url = getCategoryUrl($this, $check_string);  
+            ?>
+            <?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+            <a href="<?php echo $url; ?>" target="blank"><button class="moreResultsButton">Show More Results</button></a>
+          </div>
+
+          <div id="te-result3" class="result">
+            <?php 
+              $check_string = "evaluation_media-technology_remedial"; 
+              $url = getCategoryUrl($this, $check_string);  
+            ?>
+            <?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+            <a href="<?php echo $url; ?>" target="blank"><button class="moreResultsButton" >Show More Results</button></a>
+          </div>
+
+          <div id="te-result4" class="result">
+            <?php 
+              $check_string = "evaluation_media-technology_summative"; 
+              $url = getCategoryUrl($this, $check_string);  
+            ?>
+            <?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+            <a href="<?php echo $url; ?>" target="blank"><button class="moreResultsButton" >Show More Results</button></a>
+          </div>
+
+          <!--Evaluation Public Programs -->
+
+          <div id="leh-result1" class="result">
+            <?php 
+              $check_string = "evaluation_public-programs_formative"; 
+              $url = getCategoryUrl($this, $check_string);  
+            ?>
+            <?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+            <a href="<?php echo $url; ?>" target="blank"><button class="moreResultsButton" >Show More Results</button></a>
+          </div>
+
+          <div id="leh-result2" class="result">
+            <?php 
+              $check_string = "evaluation_public-programs_front-end"; 
+              $url = getCategoryUrl($this, $check_string);  
+            ?>
+            <?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+            <a href="<?php echo $url; ?>" target="blank"><button class="moreResultsButton">Show More Results</button></a>
+          </div>
+
+          <div id="leh-result3" class="result">
+            <?php 
+              $check_string = "evaluation_public-programs_remedial"; 
+              $url = getCategoryUrl($this, $check_string);  
+            ?>
+            <?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+            <a href="<?php echo $url; ?>" target="blank"><button class="moreResultsButton">Show More Results</button></a>
+          </div>
+
+          <div id="leh-result4" class="result">
+            <?php 
+              $check_string = "evaluation_public-programs_summative"; 
+              $url = getCategoryUrl($this, $check_string);  
+            ?>
+            <?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+            <a href="<?php echo $url; ?>" target="blank"><button class="moreResultsButton">Show More Results</button></a>
+          </div>
+
+          <!--Evaluation Professional Development -->
+
+          <div id="cpm-result1" class="result">
+            <?php 
+              $check_string = "evaluation_professional-development_formative"; 
+              $url = getCategoryUrl($this, $check_string); 
+            ?>
+            <?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+            <a href="<?php echo $url; ?>" target="blank"><button class="moreResultsButton">Show More Results</button></a>
+          </div>
+
+          <div id="cpm-result2" class="result">
+            <?php 
+              $check_string = "evaluation_professional-development_front-end"; 
+              $url = getCategoryUrl($this, $check_string); 
+            ?>
+            <?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+            <a href="<?php echo $url; ?>" target="blank"><button class="moreResultsButton">Show More Results</button></a>
+          </div>
+
+          <div id="cpm-result3" class="result">
+            <?php 
+              $check_string = "evaluation_professional-development_remedial"; 
+              $url = getCategoryUrl($this, $check_string); 
+            ?>
+            <?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+            <a href="<?php echo $url; ?>" target="blank"><button class="moreResultsButton">Show More Results</button></a>
+          </div>
+
+          <div id="cpm-result4" class="result">
+            <?php 
+              $check_string = "evaluation_professional-development_summative"; 
+              $url = getCategoryUrl($this, $check_string); 
+            ?>
+            <?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+            <a href="<?php echo $url; ?>" target="blank"><button class="moreResultsButton">Show More Results</button></a>
+          </div>
+
+          <!--Evaluation Exhibitions -->
+
+          <div id="esc-result1" class="result">
+            <?php 
+              $check_string = "evaluation_exhibitions_formative"; 
+              $url = getCategoryUrl($this, $check_string); 
+            ?>
+            <?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+            <a href="<?php echo $url; ?>" target="blank"><button  class="moreResultsButton">Show More Results</button></a>
+          </div>
+
+          <div id="esc-result2" class="result">
+            <?php 
+              $check_string = "evaluation_exhibitions_front-end"; 
+              $url = getCategoryUrl($this, $check_string); 
+            ?>
+            <?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+            <a href="<?php echo $url; ?>" target="blank"><button class="moreResultsButton">Show More Results</button></a>
+          </div>
+
+          <div id="esc-result3" class="result">
+            <?php 
+              $check_string = "evaluation_exhibitions_remedial"; 
+              $url = getCategoryUrl($this, $check_string); 
+            ?>
+            <?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+            <a href="<?php echo $url; ?>" target="blank"><button class="moreResultsButton">Show More Results</button></a>
+          </div>
+
+          <div id="esc-result4" class="result">
+            <?php 
+              $check_string = "evaluation_exhibitions_summative"; 
+              $url = getCategoryUrl($this, $check_string); 
+            ?>
+            <?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+            <a href="<?php echo $url; ?>" target="blank"><button class="moreResultsButton">Show More Results</button></a>
+          </div>
+
+          <!--Evaluation Education programs -->
+
+          <div id="m-result1" class="result">
+            <?php 
+              $check_string = "evaluation_education-programs_formative"; 
+              $url = getCategoryUrl($this, $check_string); 
+            ?>
+            <?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+            <a href="<?php echo $url; ?>" target="blank"><button class="moreResultsButton">Show More Results</button></a>
+          </div>
+
+          <div id="m-result2" class="result">
+            <?php 
+              $check_string = "evaluation_education-programs_front-end"; 
+              $url = getCategoryUrl($this, $check_string); 
+            ?>
+            <?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+            <a href="<?php echo $url; ?>" target="blank"><button class="moreResultsButton">Show More Results</button></a>
+          </div>
+
+          <div id="m-result3" class="result">
+            <?php 
+              $check_string = "evaluation_education-programs_remedial"; 
+              $url = getCategoryUrl($this, $check_string); 
+            ?>
+            <?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+            <a href="<?php echo $url; ?>" target="blank"><button class="moreResultsButton">Show More Results</button></a>
+          </div>
+
+          <div id="m-result4" class="result">
+            <?php 
+              $check_string = "evaluation_education-programs_summative"; 
+              $url = getCategoryUrl($this, $check_string); 
+            ?>
+            <?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+            <a href="<?php echo $url; ?>" target="blank"><button class="moreResultsButton">Show More Results</button></a>
+          </div>
+  
+</div>
+{/exp:channel:entries} 
+</div>
+{!-- end begin broader impacts template --}
+    <div class="clearBoth">&nbsp;</div>
+      <div id="externalSocialMediaSharingBlock">
+        {snip_scroll_to_top}
+        {snip_social_media_sharing}
+      </div>
+    
+    <div class="clearBoth">&nbsp;</div>
+   
+  </div>{!-- end #mainContentArea --}
+  
+  {snip_global_footer}{!-- include global_footer snippet --}
+  
+  <!-- bring script -->
+  {snip_bring_js}
+  <!-- show/hide script -->
+  {snip_show_hide_script}
+
+
+</div>{!-- end #externalPageWrapper --}
+
+{snip_bring_piguide_js}
+<script type='text/javascript'>
+$(document).ready(function() {
+  // fancybox js
+  $('.fancybox').fancybox();
+  
+  // Hover images
+  $('#divIcon1').mouseenter(function(){$('#icon1').attr('src', '/images/uploads/sticky/1a.png');});
+    $('#divIcon1').mouseleave(function(){$('#icon1').attr('src', '/images/uploads/sticky/1b.png');});
+  
+  $('#divIcon2').mouseenter(function(){$('#icon2').attr('src', '/images/uploads/sticky/2a.png');});
+    $('#divIcon2').mouseleave(function(){$('#icon2').attr('src', '/images/uploads/sticky/2b.png');});
+  
+  $('#divIcon3').mouseenter(function(){$('#icon3').attr('src', '/images/uploads/sticky/3a.png');});
+    $('#divIcon3').mouseleave(function(){$('#icon3').attr('src', '/images/uploads/sticky/3b.png');});
+  
+  $('#divIcon4').mouseenter(function(){$('#icon4').attr('src', '/images/uploads/sticky/4a.png');});
+    $('#divIcon4').mouseleave(function(){$('#icon4').attr('src', '/images/uploads/sticky/4b.png');});
+  
+  $('#divIcon5').mouseenter(function(){$('#icon5').attr('src', '/images/uploads/sticky/5a.png');});
+    $('#divIcon5').mouseleave(function(){$('#icon5').attr('src', '/images/uploads/sticky/5b.png');});
+  
+  $('#divIcon6').mouseenter(function(){$('#icon6').attr('src', '/images/uploads/sticky/6a.png');});
+    $('#divIcon6').mouseleave(function(){$('#icon6').attr('src', '/images/uploads/sticky/6b.png');});
+  
+  // Preload the images to avoid delay
+    var loadimages=new Array();
+    function preloadimages(){
+    for (i=0;i<preloadimages.arguments.length;i++){
+      loadimages[i]=new Image()
+      loadimages[i].src=preloadimages.arguments[i]
+    }
+    }
+    preloadimages("/images/uploads/sticky/1a.png", "/images/uploads/sticky/2a.png", "/images/uploads/sticky/3a.png",  
+          "/images/uploads/sticky/4a.png", "/images/uploads/sticky/5a.png", "/images/uploads/sticky/6a.png"
+               );
+});
+</script>
+</body>
+<!-- **** END OF REGULAR RESOURCE INDEX PAGE **** -->
+<?php else: ?>
+<?php
+
+// parse results
+if($record_found && isset($record_results['record'])){
+  $record = $record_results['record'];
+  $parsed_record = parse_single_result($record);
+
+  $record_ncs_id = $what_resource;
+
+  $record_people_string = "";
+  $record_add_yourself_string = "";
+    
+  // increment view count for the evaluation
+    $does_evaluation_exist_results = $this->EE->db->query("SELECT * FROM ncs_evaluation where ncs_id = '{$what_resource}' ");
+    if($does_evaluation_exist_results->num_rows < 1){
+    $increment_query = "INSERT INTO ncs_evaluation (view_count, ncs_id) VALUES (1,'{$what_resource}') ";
+    }
+    else{
+      $view_count = 0;
+      foreach($does_evaluation_exist_results->result_array() as $row){
+        if($row['view_count'] != "") $view_count = $row['view_count'];
+      }
+      $view_count++;
+      $increment_query = "UPDATE ncs_evaluation SET view_count='{$view_count}' WHERE ncs_id = '{$what_resource}' ";
+    }
+    $this->EE->db->query($increment_query);
+  // end increment count
+
+  // start contributors
+    if(count($parsed_record['contributors']) > 0){
+      foreach($parsed_record['contributors'] as $sv){
+        $tmp_people_string = '<div>';
+        if($sv['id'] != ""){
+          $tmp_id = $sv['id'];
+          // get picture for member if it exists
+          // 38 is the channel id for members, field 107 is the column for member profile pictures
+          $get_picture_query = 
+          "SELECT exp_members.member_id,exp_channel_data.field_id_107 FROM exp_members 
+          LEFT JOIN exp_channel_titles ON exp_members.member_id=exp_channel_titles.author_id 
+          LEFT JOIN exp_channel_data ON exp_channel_titles.entry_id=exp_channel_data.entry_id 
+          WHERE exp_members.member_id = '{$tmp_id}' AND exp_channel_titles.channel_id=38";
+          $picture_results = $this->EE->db->query($get_picture_query);
+          if($picture_results->num_rows() > 0){
+            foreach($picture_results->result_array() as $row){
+              $tmp_people_string.= '<div class="teamPhoto">';
+              $tmp_people_string.= '<img width="80" height="80" src="';
+              if($row['field_id_107'] != ""){
+                $tmp_people_string.= '{site_url}images/member_profile_pics/'.$row['field_id_107'];
+              }
+              else {
+                $tmp_people_string.= '{site_url}images/member_profile_pics/small/mystery-person-small.jpg';
+              }
+              $tmp_people_string.= '" />';
+              $tmp_people_string.= '</div>';
+            }
+          }
+          $tmp_people_string.= '<div class="rightProfileSide"><div class="teamName">'.'<a href="{site_url}community/users/profile/'.$tmp_id.'">'.$sv['firstname'].'<br />'.$sv['lastname'].'</a>'.'</div>';
+        }
+        else{ // if they don't have a CMS id, allow a user to associate themselves with this person
+          $tmp_people_string.= '<div class="teamPhoto"><img width="80" height="80" src="{site_url}images/member_profile_pics/small/mystery-person-small.jpg" /></div>';
+          $tmp_people_string.= '<div class="rightProfileSide"><div class="teamName">'.$sv['firstname'].'<br />'.$sv['lastname'].'</div>';
+          $record_add_yourself_string.= '<div>';
+          $record_add_yourself_string.= '<input type="radio" title="'.$sv['role'].'" name="name" value="'.$sv['name'].'"/>';
+          $record_add_yourself_string.= '<span>'.$sv['name'].'</span>';
+          $record_add_yourself_string.= '<input type="hidden" class="person_organization" value="'.$sv['org'].'" />';
+          $record_add_yourself_string.= '</div>';
+        }
+        $tmp_people_string.= '<div class="teamRole">'.$sv['role'].'</div>';
+        $tmp_people_string.= '</div></div>';
+        $record_people_string_array[] = $tmp_people_string;
+      }
+    }
+    // convert people into one large string
+    $record_people_string = implode('<div class="sidebarHR"></div>',$record_people_string_array);
+    $record_people_string.= '<div class="lastProfileSectionDiv"></div>';
+  // end contributors
+
+  // set status depending on if begin / end dates are set
+    if($parsed_record['begin_date'] == "" && $parsed_record['end_date'] == "") $record_status = 'Unknown';
+    if($parsed_record['end_date'] != "") $record_status = "Ended";
+    if($parsed_record['begin_date'] != "" && $parsed_record['end_date'] == "") $record_status = "Current";
+  // end set status
+
+  // get report data about the evaluation
+    $record_reports = "";
+    $evaluation_report_query = "SELECT * FROM ncs_evaluation where ncs_id = '{$record_ncs_id}' ";
+    $evaluation_report_results = $this->EE->db->query($evaluation_report_query);
+    if($evaluation_report_results->num_rows() > 0){
+      foreach($evaluation_report_results->result_array() as $row){
+        $record_reports = $row['report'];
+      }
+    }
+
+    $resource_document_link_html = "";
+    $link_exists = false;
+
+    if($record_reports != ""){
+      $link_exists = true;
+      $resource_document_link_html.= '<a target="_blank" href="/images/evaluation/'.$record_reports.'">'.$record_reports.'</a>';  
+    }
+  // end get report data
+
+}
+
+?>
+<!-- **** START OF RESOURCE DETAIL PAGE **** -->
+<head>
+
+<!-- begin title / meta / ogp -->
+
+<?php
+
+$meta_title = ($parsed_record['title'] != "") ? $parsed_record['title'] : "Resource Title";
+  $meta_description = ($parsed_record['description'] != "") ? $parsed_record['description'] : "Resource Description";
+  $meta_description = str_replace('"', "'", $meta_description);
+  $meta_description = strip_tags($meta_description); // strip html tags from description
+  $meta_description = substr($meta_description,0,403).'...'; // truncate description if greater than 403 characters + add elipse if truncation required
+$meta_picture_url = "{site_url}images/branding_plus/caise_devise_wordle.gif";
+
+?>
+
+<title><?= $meta_title ?>: Evaluations: {site_name}</title>
+
+<meta name="keywords" content="{metaEvaluationDetailPage}" />
+<meta name="description" content="<?= $meta_description ?>" />
+
+<meta property="og:type" content="article" />
+<meta property="og:title" content="<?= $meta_title ?>" />
+<meta property="og:url" content="{site_url}{segment_1}/{segment_2}/{segment_3}" />
+<meta property="og:image" content="<?= $meta_picture_url ?>" />
+<meta property="og:site_name" content="InformalScience" />
+<meta property="og:description" content="<?= $meta_description ?>" />
+
+<!-- end title / meta / ogp -->
+
+<link rel="stylesheet" href="{stylesheet='global/validationEngine.jquery.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/template.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" /><!-- include the global_styles css template -->
+<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" /><!-- include the global_styles css template -->
+<link rel="stylesheet" href="{stylesheet='global/carousel_bootstrap.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/bootstrap.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='pi_guide/jquery.fancybox.css'}" type="text/css" />
+
+{snip_global_header_links}
+
+{snip_global_header_meta}
+
+</head>
+
+<body class="evaluationDetail">
+ 
+<div id="externalPageWrapper"><!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+<div id="externalMastheadWrap"><!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+  
+<div id="internalMastheadWrap"><!-- begin #internalMastheadWrap - fixed width, maybe fixed height too -->
+
+{snip_global_tool_bar}<!-- include global_tool_bar snippet -->
+
+{snip_global_logo_and_nav}<!-- include global_logo_and_nav snippet -->
+
+{snip_global_sub_nav}<!-- include global_sub_nav snippet -->
+<script type="text/javascript">
+// provide faux active states for primary and secondary nav elements without having to add pages into structure  
+  var navelement1 = document.getElementById('nav-sub-evaluation');
+    if(navelement1) {
+      navelement1.className += navelement1.className ? ' parent-active' : '';
+    }
+</script>
+    
+</div><!-- end .internalMastheadWrap - fixed width, fixed height -->
+  
+</div><!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+  
+<div id="mainContentArea" style="margin-top: 20px;"><!-- begin .mastheadMainContent - fixed width, fixed height, centered -->
+<div style="width:980px; margin: 0 auto;">
+
+<?php if($record_found): ?>
+
+  <!-- RESOURCE OPTIONS -->
+  <?php if($has_access): ?>
+    <div class="projectOptionsPanel">
+      <div class="sectionHeading"><h2>Evaluation Options</h2></div>
+      <div class="projectOptionsContainer">
+        <a id="add_yourself" href="#" class="toggleButton active">Add Yourself To Evaluation Team</a>
+          <div id="add_yourself_div" class="projectOptionsAddY">
+            <form id="form_add_yourself" method="post">
+              <input type="hidden" name="XID" value="{XID_HASH}" />
+              <div class="projectOptionsIntContainer" style="width: 840px;">
+                <p class="clearMarginTop">Is this your work? Follow these steps to connect your profile to this resource.</p>
+                <div class="addLeftCol">
+                  <h5>1. Choose Your Role:</h5>
+                  <ul class="addYourself">
+                    <li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Principal Investigator" />Principal Investigator</label></li>
+                    <li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Co-Principal Investigator" />Co-Principal Investigator</label></li>
+                    <li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Contributor" />Contributor</label></li>
+                    <li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Evaluator" />Evaluator</label></li>
+                    <li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Former Principal Investigator" />Former Principal Investigator</label></li>
+                    <li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Former Co-Principal Investigator" />Former Co-Principal Investigator</label></li>
+                    <li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Author" />Author</label></li>
+                    <li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Project Manager" />Project Manager</label></li>
+                    <li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Contact" />Contact</label></li>
+                    <li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Publisher" />Publisher</label></li>
+                    <li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Editor" />Editor</label></li>
+                  </ul>
+                </div>
+                <h5>2: List Your Organization:</h5><br/><input autocomplete="off" class="evalOrgField validate[required]" type="text" name="organization" />
+                <div class="associateYourself">
+                  <div class="existing_names left">
+                    <h5>3. Connect Your Profile:</h5>
+                    <div class="projectConnectInfo">
+                      <p>For NSF funded resources, some team member names have been automatically added from FASTLNE abstracts. Select your name and press "ADD" to connect your user profile.</p>
+                      <p>If your name does not currently appear on this resource, when you press "ADD", your name will be connected as it appears on your profile. All changes are subject to approval before being displayed.</p>
+                    </div>
+                    <ul class="addYourself" style="width: 170px;"> 
+                      <?= $record_add_yourself_string ?>
+                    </ul>
+                  </div>
+                  <input type="hidden" readonly="readonly" name="current_ncs_id" value="<?= $record_ncs_id ?>'" />
+                  <input type="hidden" readonly="readonly" name="current_user" value="{screen_name}" />
+                  <input type="hidden" readonly="readonly" name="current_user_id" value="{member_id}" />
+                  <!-- SUBMITTER FIELDS -->
+                  {exp:zoo_visitor:details}
+                    <input readonly="readonly" type="hidden" name="submitter_firstname" value="{visitor:member_firstname}"/>
+                    <input readonly="readonly" type="hidden" name="submitter_lastname" value="{visitor:member_lastname}"/>
+                    <input readonly="readonly" type="hidden" name="submitter_email" value="{email}"/>
+                    <input readonly="readonly" type="hidden" name="submitter_id" value="{member_id}"/>
+                  {/exp:zoo_visitor:details}
+                  <!-- END SUBMITTER FIELDS -->
+                  <div class="projectOptionsBut">
+                    <input type="submit" name="submit_add_yourself" value="Add" class="blueButtonPlain marginTop" />
+                    <a id="reset_me" class="blueButtonPlain marginTop" />Deselect</a>
+                  </div>
+                </div>
+              </div>
+            </form>
+        </div>
+      </div>
+    </div>
+  <?php endif; ?>
+  <!-- END RESOURCE OPTIONS -->
+
+  <!-- RESOURCE DETAILS -->
+  <div class="projectDetailContent">
+    <div class="sectionHeading"><h2>Evaluation Details</h2></div>
+
+    <div class="projectTitleBg projectTitleNoImage"><div class="projectTitle"><?= $parsed_record['title'] ?></div></div>
+
+    <?php if($parsed_record['organization_string']): ?>
+      <div class="projectFieldHeading">Lead Organization: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['organization_string'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['resource_type_string']): ?>
+      <div class="projectFieldHeading">Resource Type: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['resource_type_string'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['env_type_string']): ?>
+      <div class="projectFieldHeading">Environment Type: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['env_type_string'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['audience_string']): ?>
+      <div class="projectFieldHeading">Audience(s): </div>
+      <div class="projectDetailEntry"><?= $parsed_record['audience_string'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['content_string']): ?>
+      <div class="projectFieldHeading">Content: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['content_string'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['description']): ?>
+      <div class="projectFieldHeading">Description: </div>
+      <div class="projectDetailEntry"><p style="float: left; width: 440px; margin-top: 0px;"><?= $parsed_record['description']; ?></p></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['citation']['publication']): ?>
+      <div class="projectFieldHeading">Citation Publication Name: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['citation']['publication'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['begin_date']): ?>
+      <div class="projectFieldHeading">Date Created: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['begin_date'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['citation']['id_type'] && $parsed_record['citation']['id']): ?>
+      <div class="projectFieldHeading">Citation Identifier: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['citation']['id_type'] ?> <?= $parsed_record['citation']['id'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['citation']['volume']): ?>
+      <div class="projectFieldHeading">Citation Volume: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['citation']['volume'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['citation']['number']): ?>
+      <div class="projectFieldHeading">Citation Number: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['citation']['number'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['citation']['page']): ?>
+      <div class="projectFieldHeading">Citation Starting Page: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['citation']['page'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['funding_source_string']): ?>
+      <div class="projectFieldHeading">Funder(s): </div>
+      <div class="projectDetailEntry"><?= $parsed_record['funding_source_string'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($resource_document_link_html): ?>
+      <div class="projectFieldHeading">Document Link: </div>
+      <div class="projectDetailEntry"><?= $resource_document_link_html ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+  </div>
+  <!-- END RESOURCE DETAIL -->
+
+  <!-- SIDEBAR -->
+  <div class="sidebar right marginTop">
+
+    <?php if($has_access): ?><a href="#" class="projectOptionsTogButton">Show Evaluation Options</a><?php endif; ?>
+
+    <div class="projectSidebar">
+      <div class="sectionHeading"><h2>Team Members</h2></div>
+      <div class="projectInfo withPadding">
+        <?= $record_people_string ?>
+      </div>
+    </div>
+
+    <?php if(count($parsed_record['related_projects']) > 0): ?>
+      <div class="projectSidebar">
+      <div class="sectionHeading"><h2>Associated Projects</h2></div>
+      <ul class="projectLinks">
+      <?php for($i=0; $i<count($parsed_record['related_projects']); $i++): ?>
+        <?php echo '<li'.(($i < count($parsed_record['related_projects'])-1) ? '':'class="last"').'>' ?>
+        <a href="<?= $parsed_record['related_projects'][$i]['url'] ?>">
+        <?php if($parsed_record['related_projects'][$i]['title'] != ""): ?>
+          <?= $parsed_record['related_projects'][$i]['title'] ?>
+        <?php else: ?>
+          <?= $parsed_record['related_projects'][$i]['url']; ?>
+        <?php endif; ?>
+        </a>
+        </li>
+      <?php endfor; ?>
+      </ul>
+      </div>
+    <?php endif; ?>
+
+    <?= $parsed_record['related_evaluation_html'] ?>
+  </div>
+  <!-- END SIDEBAR -->
+
+<?php endif; ?>
+
+</div>
+
+<div class="clearBoth">&nbsp;</div>   
+<div id="externalSocialMediaSharingBlock">
+  {snip_scroll_to_top}
+  {snip_social_media_sharing}
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+</div><!-- end #mainContentArea - fixed width, fixed height, centered -->
+
+{snip_global_footer}<!-- include global_footer snippet -->
+
+</div><!-- end #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+<?php
+
+  // grab organization list and convert to JS array for bootstrap
+  $org_results = $this->EE->db->query("SELECT name FROM organizations");
+  $orgs = array();
+  foreach($org_results->result_array() as $row){
+    $orgs[] = $row['name'];
+  }
+  $js_orgs = json_encode($orgs);
+
+?>
+{snip_bring_js}
+<script type="text/javascript">
+$(document).ready(function() {
+  // project options panel
+  $('.projectOptionsPanel').hide();
+  $('.projectOptionsTogButton').on('click',function(){
+    $('.projectOptionsPanel').toggle();
+    $(this).toggleClass('hideOptions');
+    if($(this).text() == 'Show Evaluation Options'){
+      $(this).text('Hide Evaluation Options');
+    }
+    else{
+      $(this).text('Show Evaluation Options'); 
+    }
+    return false;
+  });
+
+  // predictive search for organization fields - using bootstrap
+  var organizations = <?php echo $js_orgs; ?>;
+  $('#myOrganization').typeahead({source: organizations, items:6})
+
+  // predictive search for organization fields
+  var organizations = <?php echo $js_orgs; ?>;
+  $('input[name=organization]').typeahead({source: organizations, items:6})
+
+  // claim your name in the project options window!
+  $('input[name=name]').on('change', function(){
+    var role = $(this).attr('title');
+    $('input[value="'+role+'"]').attr('checked','checked');
+    $('input[name=organization]').val('');
+    $('input[name=organization]').val($(this).siblings('.person_organization').val());
+  });
+
+  // reset add yourself form
+  $('#reset_me').on('click',function(){
+    $('#form_add_yourself').trigger('reset');
+  });
+
+  // add yourself form validation and submit
+  $('#form_add_yourself').validationEngine();
+  $('#form_add_yourself').ajaxForm({
+    target: '#add_yourself_div',
+    url: '{site_url}process_edits_from_detail.php'
+  });
+
+});
+</script>
+
+</body>
+<!-- **** END OF RESOURCE DETAIL PAGE **** -->
+<?php endif; ?>
+
+</html>

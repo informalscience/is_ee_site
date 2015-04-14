@@ -1,0 +1,50 @@
+{snip_community_redirect}
+{redirect="404"}
+<!-- start embed groups/lost -->
+<body>
+
+<a name="top"></a>
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper --}
+
+<div id="externalMastheadWrap">{!-- begin #externalMastheadWrap --}
+<div id="internalMastheadWrap">{!-- begin #internalMastheadWrap --}
+      
+{snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+{snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+{snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+
+<script type="text/javascript">
+// provide faux active states for primary and secondary nav elements without having to add pages into structure  
+	var navelement1 = document.getElementById('nav-sub-community');
+		if(navelement1) {
+			navelement1.className += navelement1.className ? ' parent-active' : '';
+		}
+	var navelement2 = document.getElementById('nav-sub-sub-groups');
+		if(navelement2) {
+			navelement2.className += navelement2.className ? ' parent-active' : '';
+		}
+</script>
+    
+</div>{!-- end .internalMastheadWrap --}
+</div>{!-- end .externalMastheadWrap --}
+  
+<div id="mainContentArea">{!-- begin .mastheadMainContent --}
+
+<div class="warning_error">It seems like you are lost...did you try to go to a group page that does not exist? Click <a href='{path=community/groups}'>here</a> to go back to the group index page.</div>
+
+<div class="clearBoth">&nbsp;</div>
+<div id="externalSocialMediaSharingBlock">
+  {snip_scroll_to_top}
+  {!--{snip_social_media_sharing}--}
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+</div><!-- end #mainContentArea - fixed width, fixed height, centered -->
+
+{snip_global_footer}<!-- include global_footer snippet -->
+
+</div><!-- end #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+
+</body>
+<!-- end embed groups/lost -->

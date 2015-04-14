@@ -1,0 +1,27 @@
+<?php
+
+require_once('/var/www/ee/get_data.php');
+
+$db = $this->EE->db;
+
+function delete_not_found_entries($which_table, $db){
+	print "<pre>";
+	$s_results = $db->query(" SELECT * FROM $which_table WHERE ncs_id NOT LIKE 'hold%' ");
+	foreach($s_results->result_array() as $row){
+		$id = $row["ncs_id"];
+		$s = file_get_contents("http://api.informalscience.org/record/".$id);
+		if(strpos($s, "Error loading record") !== false){
+			print $s;
+			print "<br /><br />";
+			$db->query(" DELETE FROM $which_table WHERE ncs_id='{$id}' ");
+		}
+	}	
+	print "</pre>";
+}
+
+delete_not_found_entries("ncs_project", $db);
+delete_not_found_entries("ncs_evaluation", $db);
+delete_not_found_entries("ncs_research", $db);
+delete_not_found_entries("ncs_reference", $db);
+
+?>

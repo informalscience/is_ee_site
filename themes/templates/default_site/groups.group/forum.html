@@ -1,0 +1,169 @@
+{snip_community_redirect}
+<!-- begin embed groups/forum -->
+<?php
+
+$this->EE =& get_instance();
+
+$what_forum = $this->EE->uri->segment(4);
+$my_id = $this->EE->session->userdata('member_id');
+$is_member = false;
+$site_url = $this->EE->config->config['site_url'];
+
+$does_group_exist_query = 
+"SELECT groups.*, groups_forums.forum_name, exp_forum_boards.board_id, exp_forums.forum_id
+FROM groups 
+LEFT JOIN groups_forums ON groups.id=groups_forums.group_id
+LEFT JOIN exp_forum_boards ON groups_forums.forum_name=exp_forum_boards.board_name
+LEFT JOIN exp_forums ON exp_forums.board_id=exp_forum_boards.board_id
+WHERE forum_order=2 AND groups_forums.forum_name = '{$what_forum}' ";
+$group_results = $this->EE->db->query($does_group_exist_query);
+if($group_results->num_rows()){
+  $group_data = $group_results->result_array();
+  $group_data = $group_data[0];
+  $group_id = $group_data['id'];
+}
+
+// do we have enough permission to view/edit group? comment/uncomment code depending on privilege level (super-admin, group-admin, group-member, logged-in, anyone)
+  $group_access = false;
+  $is_admin = false;
+  $is_member = false;
+  $is_pending_member = false;
+  $is_logged_in = false;
+
+  // are we a super admin?
+  if($this->EE->session->userdata['group_id'] == 1){
+    $group_access = true;
+    $is_admin = true;
+  }
+
+  // get all group member data - this will be used to see if user is a group admin, group member, or group pending member
+  $current_members = array();
+  $pending_members = array();
+  $all_members_query = 
+  "SELECT groups_members.member_id, groups_members.status, groups_members.is_admin, exp_members.screen_name 
+  FROM groups_members
+  LEFT JOIN exp_members 
+  ON groups_members.member_id=exp_members.member_id 
+  WHERE groups_members.group_id = '{$group_id}' ";
+
+  $members_results = $this->EE->db->query($all_members_query);
+  if($members_results->num_rows()){
+    foreach($members_results->result_array() as $row){
+      
+      if($row['is_admin'] == 1){
+        $current_members[] = $row;
+
+        // are we the group admin?
+        if($row['member_id'] == $my_id){
+          $group_access = true;
+          $is_admin = true;
+        }
+      }
+      else if($row['status'] == 1){
+        $current_members[] = $row;
+
+        // are we a member?
+        if($row['member_id'] == $my_id){
+          $group_access = true;
+          $is_member = true;
+        }
+      }
+      else if($row['status'] == 0){
+        $pending_members[] = $row;
+
+        // are we a pending member?
+        if($row['member_id'] == $my_id){
+          // $group_access = true;
+          $is_pending_member = true;
+        }
+      }
+
+    }
+  }             
+
+  // are we logged in?
+  if($my_id){
+    // $group_access = true;
+    $is_logged_in = true;
+  }
+  // do we just not care who views this page?
+  // $group_access = true;
+
+// is this a public group?
+$is_public = false;
+if($group_data['is_public'] == 1){
+	$is_public = true;
+	$group_access = true;
+}
+
+if(!$group_access){
+  if(!$is_logged_in){
+    header( 'Location: '.$site_url.'community/groups/no-access/login?redirect='.rawurlencode($_SERVER['REQUEST_URI']) );
+  }
+  else if(!$is_pending_member){
+    header('Location: '.$site_url.'community/groups/no-access/pending');
+  }
+  else if(!$is_member){
+    header('Location: '.$site_url.'community/groups/no-access/member');
+  }
+  else if(!$is_admin){
+    header('Location: '.$site_url.'community/groups/no-access/admin');
+  }
+  else{
+    header('Location: '.$site_url.'community/groups/no-access');  
+  }
+  exit();
+}
+
+?>
+{snip_group_heading}
+<body>
+
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper --}
+
+<div id="externalMastheadWrap">{!-- begin #externalMastheadWrap --}
+<div id="internalMastheadWrap">{!-- begin #internalMastheadWrap --}
+			
+{snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+{snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+{snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+
+<script type="text/javascript">
+// provide faux active states for primary and secondary nav elements without having to add pages into structure  
+	var navelement1 = document.getElementById('nav-sub-community');
+		if(navelement1) {
+			navelement1.className += navelement1.className ? ' parent-active' : '';
+		}
+	var navelement2 = document.getElementById('nav-sub-sub-groups');
+		if(navelement2) {
+			navelement2.className += navelement2.className ? ' parent-active' : '';
+		}
+</script>
+		
+</div>{!-- end .internalMastheadWrap --}
+</div>{!-- end .externalMastheadWrap --}
+	
+<div id="mainContentArea">{!-- begin .mastheadMainContent --}
+
+<?= $group_top_box ?>
+<?= $group_tools ?>
+
+{exp:forum board="{segment_4}" }
+
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+<div id="externalSocialMediaSharingBlock">
+	{snip_scroll_to_top}
+	{!--{snip_social_media_sharing}--}
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+</div>{!-- end #mainContentArea --}
+
+{snip_global_footer}{!-- include global_footer snippet --}
+
+</div>{!-- end #externalPageWrapper --}
+
+</body>
+<!-- end embed groups/forum -->

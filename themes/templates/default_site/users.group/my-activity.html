@@ -1,0 +1,104 @@
+<?php
+$this->EE =& get_instance();
+$member_id = $this->EE->uri->segment(4);
+require_once('/var/www/ee/get_data.php');
+
+$my_url = "http://api.informalscience.org/search/json?contributorId=".$member_id."&n=100";
+$my_results = json_decode(get_data($my_url),true);
+$my_results_found = true;
+
+$my_resource_html['Projects'] = "";
+$my_resource_html['Evaluation Reports'] = "";
+$my_resource_html['Research Articles'] = "";
+$my_resource_html['Reference and Other'] = "";
+
+if($my_results != "" && isset($my_results['results']) && $my_results['results'] != ""){
+	$results = $my_results['results'];
+	foreach($results as $single_result){
+		$my_html = "";
+		$single_title = "";
+		$single_contributor = "";
+		$single_url = "";
+		$single_title = $single_result['record']['resource']['title']['values'][0]['value'];
+		if(isset($single_result['record']['icSpecific']['recordUrl']['values'][0]['value'])){
+			$single_url = $single_result['record']['icSpecific']['recordUrl']['values'][0]['value'];
+		}
+		$contributors = $single_result['record']['resource']['contributor']['values'];
+		foreach($contributors as $single_value){
+			if(isset($single_value['contributorId']['values'][0]['value']) && $single_value['contributorId']['values'][0]['value'] == $member_id){
+				$single_contributor = $single_value['role']['values'][0]['value'];
+			}
+		}
+
+		$my_html = '<li><span>Is '.$single_contributor.' on <a href="'.$single_url.'">'.$single_title.'</a></span></li>';
+		if(isset($single_result['record']['resource']['resourceType']['values'])){
+			$resource_types = $single_result['record']['resource']['resourceType']['values'];
+			$is_project = false;
+			$is_eval = false;
+			$is_research = false;
+			$is_other = false;
+			foreach($resource_types as $single_resource){
+				if(isset($single_resource['value'])){
+					if(strpos($single_resource['value'], 'Project Descriptions') !== false){
+						$is_project = true;
+					}
+					else if(strpos($single_resource['value'],'Evaluation Reports') !== false){
+						$is_eval = true;
+					
+					}
+
+					//excluding research and evaluation instruments from other
+					
+					else if(strpos($single_resource['value'], 'Research and Evaluation Instruments') !== false){
+						$is_other = false;
+					}
+
+					else if(strpos($single_resource['value'], 'Research Products') !== false){
+						$is_research = true;
+					}
+					else {
+						$is_other = true;
+					}
+				}
+			}
+			if($is_project)	$my_resource_html['Projects'].= $my_html;
+			if($is_eval) $my_resource_html['Evaluation Reports'].= $my_html;
+			if($is_research) $my_resource_html['Research Articles'].= $my_html;
+			if($is_other)	$my_resource_html['Reference and Other'].= $my_html;
+		}
+
+	}
+}
+
+?>
+
+<div class="halfColumn left"> 
+	<div class="profileContent participation">
+	
+		<div class="profileSectionHeading">
+			<img class="profileSectionIcon" src="{site_url}images/profile_section/profile-section-icons-participation-25x25.png" alt="{visitor:username}'s Participation" />
+			<h2>My Participation</h2>
+		</div><!-- end .profileSectionHeading -->
+		
+		<div class="sectionContentBlock">
+			<?php
+			foreach($my_resource_html as $key=>$value){
+				echo '<div class="participationSubSection">';
+				echo '<div class="subSectionTitle">'.$key.'</div>';
+				echo '<ul class="isBulleted myResources">';
+				if($value != ""){
+					echo $value;
+				}
+				else {
+					echo '<li><span>No resources linked...yet.</span></li>';
+				}
+				echo '</ul>';
+				echo '<div class="clearBoth">&nbsp;</div>';
+				echo '</div>';
+			}
+			?>
+			<a href="#" class="showHideChanger showDetails right" style="margin-top:-10px;">show additional participation</a>
+		</div><!-- end .sectionContentBlock -->
+		
+	</div><!-- end .profileContent .participation -->
+</div><!-- end .halfColumn .Left -->

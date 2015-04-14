@@ -1,0 +1,136 @@
+{if segment_2!="category" AND segment_2!="categories"}{redirect="404"}{/if}
+{snip_browser_sniffer}<!DOCTYPE html><!-- ### template - help.group/index.html ### -->
+
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>>
+<head>
+
+<title>{if segment_2 == "category"}Help Articles{if segment_3 == 'all'} in All Categories{if:elseif segment_3 ==""} in All Categories{if:else} in the {exp:query sql="SELECT cat_name FROM `exp_categories` WHERE cat_id = '{segment_3}' LIMIT 0,1 "} {cat_name}{/exp:query} Category{/if}{if:else}{structure:page:title}{/if} : {site_name}</title>{!-- native EE title would be {exp:channel:entries channel="ch_home"}{title}{/exp:channel:entries} --}
+
+<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" /><!-- include the global_styles css template -->
+<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" />{!-- include the global_styles css template --}
+
+{snip_global_header_links}
+
+{snip_global_header_meta}
+
+</head>
+
+<body id="{structure:top:slug}" class="{structure:parent:slug} {structure:page:slug}  static">{!-- We grab the page top-level slug as id and parent aand page slugs as super-added classes --}
+
+<a name="top"></a>
+
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding --}
+
+  <div id="externalMastheadWrap">{!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding --}
+    
+    <div id="internalMastheadWrap">{!-- begin #internalMastheadWrap - fixed width, maybe fixed height too --}
+          
+      {snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+      
+      {snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+      
+      {snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+        
+    </div>{!-- end .internalMastheadWrap - fixed width, fixed height --}
+    
+  </div>{!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding --}
+    
+  <div id="mainContentArea">{!-- begin .mastheadMainContent - fixed width, fixed height, centered --}
+
+    <div class="content singleColumn">
+  
+      <div class="fullContentRow top">
+        <div class="externalFullBlock">
+          <div class="internalFullBlock">
+            <div class="blockHead">
+              <h1 class="specialHeader">Help Articles{if segment_3 == 'all'} in All Categories{if:elseif segment_3 ==""} in All Categories{if:else} in the {exp:query sql="SELECT cat_name FROM `exp_categories` WHERE cat_id = '{segment_3}' LIMIT 0,1 "}{cat_name}{/exp:query} Category{/if}</h1>
+            </div><!-- end .blockHead -->
+          </div><!-- end .internalFullBlock -->
+        </div><!-- end .externalFullBlock -->
+      </div><!-- end .fullContentRow .top -->
+    
+    </div><!-- end .content .singleColumn -->
+      
+    <div id="twoThirdsContentColumn" class="content twoThirdsContentColumn floatLeft">
+    
+      
+      {exp:channel:entries
+        channel="ch_help"
+        sort="desc"
+        disable="member_data" 
+        dynamic="no" 
+        show_empty="no" 
+        paginate="bottom" 
+        limit="10"
+        category='{segment_3}'
+      }
+
+      {if no_results}{!-- need some styling in this block --}
+      
+        <p>There are no {embed:channel_type} posts to be found in this category</p>
+        <p>Try one of these categories instead:</p>
+    
+        <ul>
+          {exp:channel:categories channel="ch_help" style="linear" show_empty="no" sort="desc" disable="pagination|member_data" dynamic="no"}
+            <li>
+              <a href="{site_url}help/category/{category_id}">{category_name}</a> 
+              ({exp:query sql="SELECT COUNT(entry_id) AS the_count FROM `exp_category_posts` WHERE cat_id = '{category_id}'"}{the_count}{/exp:query})
+            </li>
+          {/exp:channel:categories}
+        </ul>
+      
+      {/if}
+        
+      <div class="fullContentRow">{!-- begin .fullContentRow --}
+        <div class="externalFullBlock postList">{!-- begin .externalFullBlock --}
+          <div class="itemBlock{if post_listing_image == ""} noImage{/if}">
+            <div class="itemImageBlock">
+              <a href="{url_title_path='help'}"><img class="postListingImage" src="{post_listing_image}" alt="{title}" class="clearfix" /></a>
+            </div>
+            <h3><a href="{url_title_path='help'}">{title}</a></h3>
+            <p>Posted on {entry_date format='%F %d, %Y'} by {author} in {categories backspace="3"} <a 
+            href="/help/category/{category_id}">{category_name}</a> / {/categories}</p>
+            {if post_summary_excerpt_long}{post_summary_excerpt_long}{if:else}{post_summary_excerpt}{/if}{!-- use long excerpt, if available; if not use short excerpt --}
+            {!-- Trevor, if you want to make the 'long' excerpt longer, go here: http://75.101.149.150/admin.php?D=cp&C=admin_content&M=field_edit&field_id=155&group_id=9 --}
+            {!-- Similarly, if you want to make the 'short' excerpt shorter, go here: http://75.101.149.150/admin.php?D=cp&C=admin_content&M=field_edit&field_id=17&group_id=9 --}
+          </div>{!-- end .itemBlock --}
+        </div>{!-- end .externalFullBlock --}
+      </div>{!-- end .fullContentRow --}
+  
+      {snip_perspectives_pagination}
+  
+      {/exp:channel:entries}
+          
+      <div class="clearBoth">&nbsp;</div>
+    
+    </div><!-- end #twoThirdsContentColumn .content .twoThirdsContentColumn .floatLeft -->
+
+    <div id="oneThirdContentColumn" class="floatRight">
+    
+      {snip_help_categories_sidebar}
+      
+    </div><!-- end #oneThirdContentColumn .floatRIght -->
+  
+    <div class="clearBoth">&nbsp;</div>
+    
+      <div id="externalSocialMediaSharingBlock">
+        {snip_scroll_to_top}
+        {!-- snip_social_media_sharing --}
+      </div>
+    
+    <div class="clearBoth">&nbsp;</div>
+  
+  </div>{!-- end #mainContentArea --}
+  
+  {snip_global_footer}{!-- include global_footer snippet --}
+  
+  <!-- bring script -->
+  {snip_bring_js}
+  <!-- show/hide script -->
+  {snip_show_hide_script}
+
+</div>{!-- end #externalPageWrapper --}
+
+</body>
+</html>   
+    

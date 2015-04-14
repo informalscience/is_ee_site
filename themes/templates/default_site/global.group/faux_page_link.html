@@ -1,0 +1,4 @@
+<?php // this template serves ONLY to redirect pages using the faux_page_link field - this functionality is only available for pages using the Simple Page Content channel
+ header( "Location: {exp:channel:entries limit="1"}{faux_page_link}{/exp:channel:entries}" );
+ exit;
+?>

@@ -1,0 +1,104 @@
+{snip_browser_sniffer}<!DOCTYPE html><!-- ### template - perspectives.group/newsletter_detail.html ### -->
+
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>>
+<head>
+
+<title>{structure:page:title} : Newsletter : {site_name}</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+{!-- do not add metadata directly into this template, add a conditional area into snip_global_default_meta_ogp_data to target this page by its unique url segments --}
+{!-- using conditionals, target a case where segment_2 == "newsletter" AND segment_3 != "" AND segment_3 != "archive" --}
+
+{snip_global_default_meta_ogp_data}
+
+{snip_page_meta_ogp}
+
+<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" /><!-- include the global_styles css template -->
+<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" />{!-- include the global_styles css template --}
+
+{snip_global_header_links}
+
+{snip_global_header_meta}
+
+</head>
+
+<body id="{structure:top:slug}" class="{structure:parent:slug} {structure:page:slug}">{!-- We grab the page top-levelslug as id and parent aand page slugs as super-added classes --}
+ 
+{!-- {exp:structure:breadcrumb here_as_title="yes" inc_here="yes"} --}{!-- BREADCRUMBS ARE NOT USED ON HOME PAGE - just saving code --}
+
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding --}
+
+<div id="externalMastheadWrap">{!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding --}
+  
+<div id="internalMastheadWrap">{!-- begin #internalMastheadWrap - fixed width, maybe fixed height too --}
+      
+{snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+
+{snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+
+{snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+    
+</div>{!-- end .internalMastheadWrap - fixed width, fixed height --}
+  
+</div>{!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding --}
+  
+<div id="mainContentArea">{!-- begin .mastheadMainContent - fixed width, fixed height, centered --}
+
+<div class="content singleColumn">
+
+  <div class="fullContentRow">
+          
+    <div class="blockHead">
+      <h1 class="specialHeader">The Newsletter for {structure:page:title}</h1>
+    </div>   
+          
+  </div>
+
+</div>
+
+{exp:query sql="SELECT title as currentTitle FROM exp_channel_titles WHERE exp_channel_titles.channel_id = '6' AND exp_channel_titles.status = 'open' ORDER by entry_date DESC LIMIT 1"}
+<?php $currentNewsletter = "{currentTitle}"; echo "<!-- ".$currentNewsletter." -->"; ?>
+{/exp:query}
+
+<div style="margin-bottom:20px;">
+	{exp:channel:entries channel="ch_newsletter" limit="1" dynamic="no"}
+  	<a class="blueButtonCurrentNewsletter<?php if ($currentNewsletter == "{structure:page:title}") { echo " active"; } else { echo " inactive"; } ?>" href="{page_url}"><div class="icon">&nbsp;</div><span>Current Newsletter</span></a>
+  {/exp:channel:entries}
+  <a class="blueButtonPastNewsletters{if segment_3 == "archive"} active{if:else} inactive{/if}" href="/{segment_1}/{segment_2}_output/{segment_3}"><div class="icon">&nbsp;</div><span>View the Standalone Version of this newsletter<!-- (for Trevor) --></span></a>  
+  <a class="blueButtonPastNewsletters{if segment_3 == "archive"} active{if:else} inactive{/if} last" href="/{segment_1}/{segment_2}/archive/"><div class="icon">&nbsp;</div><span>Past Newsletters</span></a>
+</div>
+
+<div class="newsletterDisplayWrap">
+
+  <!-- begin displaying content from the wysiwyg editor  -->
+  {exp:channel:entries channel="ch_newsletter" limit="1"}
+    {newsletter_content}
+  {/exp:channel:entries}
+
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+		
+  <div id="externalSocialMediaSharingBlock">
+    {snip_scroll_to_top}
+    {snip_social_media_sharing}
+  </div>
+
+<div class="clearBoth">&nbsp;</div>
+ 
+</div>{!-- end #mainContentArea --}
+
+{snip_global_footer}{!-- include global_footer snippet --}
+
+<!-- bring script -->
+{snip_bring_js}
+<!-- show/hide script -->
+{snip_show_hide_script}
+
+</div>{!-- end #externalPageWrapper --}
+
+<!-- ### END NEWSLETTER DETAIL TEMPLATE ### -->
+
+</body>
+</html>

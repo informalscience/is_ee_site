@@ -1,0 +1,357 @@
+<?php
+
+require_once('/var/www/ee/get_data.php');
+require_once('/var/www/ee/ncs_tools/parse_single_result.php');
+
+$category = "{segment_2}";
+$subcategory = "{segment_3}";
+$filter = "{segment_4}";
+
+
+if($category){
+	// grab list and convert to JS array for bootstrap
+	$r_results = $this->EE->db->query("
+SELECT ncs_id, ncs_evaluation.title FROM ncs_evaluation
+WHERE title != '' AND ncs_id NOT LIKE 'hold%'
+UNION
+SELECT ncs_id, ncs_project.title FROM ncs_project
+WHERE title != '' AND ncs_id NOT LIKE 'hold%'
+UNION
+SELECT ncs_id, ncs_reference.title FROM ncs_reference
+WHERE title != '' AND ncs_id NOT LIKE 'hold%'
+UNION
+SELECT ncs_id, ncs_research.title FROM ncs_research
+WHERE title != '' AND ncs_id NOT LIKE 'hold%'
+		");
+	$rs = array();
+	foreach($r_results->result_array() as $row){
+		$tmp = array();
+		$tmp['title'] = $row['title'];
+		$tmp['ncs_id'] = $row['ncs_id'];
+		$rs[] = $tmp;
+	}
+	$js_resources = json_encode($rs);
+
+	$s_results = $this->EE->db->query(" SELECT * FROM sticky_resources WHERE type = '{$category}_{$subcategory}_{$filter}' ");
+	$ss = array();
+	$ids = array();
+	foreach($s_results->result_array() as $row){
+		$ss[] = $row;
+		$ids[] = $row["ncs_id"];
+	}
+	$sticky_resources = json_encode($ss);	
+
+	$ids_string = implode("+OR+", $ids);
+}
+
+?>
+<!DOCTYPE html>
+<html ng-app="stickyApp">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no">
+  <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+  [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+		display: none !important;
+	}
+	</style>
+</head>
+<body>
+
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container">
+		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+			    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+			      Outreach for Scientists <span class="caret"></span>
+			    </a>
+			    <ul class="dropdown-menu" role="menu">
+			      <li><a href="/sticky/outreach/technology-engineering/media-cyberlearning">Technology Engineering | Media & Cyberlearning</a></li>
+			      <li><a href="/sticky/outreach/technology-engineering/public-programs">Technology Engineering | Public Programs</a></li>
+			      <li><a href="/sticky/outreach/technology-engineering/exhibits">Technology Engineering | Exhibits</a></li>
+			      <li><a href="/sticky/outreach/technology-engineering/professional-development">Technology Engineering | Professional Development</a></li>
+			      <li><a href="/sticky/outreach/life-ecology-health/media-cyberlearning">Life Ecology Health | Media & Cyberlearning</a></li>
+			      <li><a href="/sticky/outreach/life-ecology-health/public-programs">Life Ecology Health | Public Programs</a></li>
+			      <li><a href="/sticky/outreach/life-ecology-health/exhibits">Life Ecology Health | Exhibits</a></li>
+			      <li><a href="/sticky/outreach/life-ecology-health/professional-development">Life Ecology Health | Professional Development</a></li>
+			      <li><a href="/sticky/outreach/chemical-physical-material/media-cyberlearning">Chemical Physical Material | Media & Cyberlearning</a></li>
+			      <li><a href="/sticky/outreach/chemical-physical-material/public-programs">Chemical Physical Material | Public Programs</a></li>
+			      <li><a href="/sticky/outreach/chemical-physical-material/exhibits">Chemical Physical Material | Exhibits</a></li>
+			      <li><a href="/sticky/outreach/chemical-physical-material/professional-development">Chemical Physical Material | Professional Development</a></li>
+			      <li><a href="/sticky/outreach/earth-space-climate/media-cyberlearning">Earth Space Climate | Media & Cyberlearning</a></li>
+			      <li><a href="/sticky/outreach/earth-space-climate/public-programs">Earth Space Climate | Public Programs</a></li>
+			      <li><a href="/sticky/outreach/earth-space-climate/exhibits">Earth Space Climate | Exhibits</a></li>
+			      <li><a href="/sticky/outreach/earth-space-climate/professional-development">Earth Space Climate | Professional Development</a></li>
+			      <li><a href="/sticky/outreach/mathematics/media-cyberlearning">Mathematics | Media & Cyberlearning</a></li>
+			      <li><a href="/sticky/outreach/mathematics/public-programs">Mathematics | Public Programs</a></li>
+			      <li><a href="/sticky/outreach/mathematics/exhibits">Mathematics | Exhibits</a></li>
+			      <li><a href="/sticky/outreach/mathematics/professional-development">Mathematics | Professional Development</a></li>
+			    </ul>
+		</li>
+		<li class="dropdown">
+			    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+			      Evaluation <span class="caret"></span>
+			    </a>
+			    <ul class="dropdown-menu" role="menu">
+			      <li><a href="/sticky/evaluation/media-technology/formative">Media and Technology | Formative</a></li>
+			      <li><a href="/sticky/evaluation/media-technology/front-end">Media and Technology | Front-end</a></li>
+			      <li><a href="/sticky/evaluation/media-technology/remedial">Media and Technology | Remedial</a></li>
+			      <li><a href="/sticky/evaluation/media-technology/summative">Media and Technology | Summative</a></li>
+			      <li><a href="/sticky/evaluation/public-programs/formative">Public Educational Programs| Formative</a></li>
+			      <li><a href="/sticky/evaluation/public-programs/front-end">Public Educational Programs| Front-end</a></li>
+			      <li><a href="/sticky/evaluation/public-programs/remedial">Public Educational Programs| Remedial</a></li>
+			      <li><a href="/sticky/evaluation/public-programs/summative">Public Educational Programs| Summative</a></li>
+			      <li><a href="/sticky/evaluation/professional-development/formative">Professional Development| Formative</a></li>
+			      <li><a href="/sticky/evaluation/professional-development/front-end">Professional Development| Front-end</a></li>
+			      <li><a href="/sticky/evaluation/professional-development/remedial">Professional Development| Remedial</a></li>
+			      <li><a href="/sticky/evaluation/professional-development/summative">Professional Development| Summative</a></li>
+			      <li><a href="/sticky/evaluation/exhibitions/formative">Exhibitions | Formative</a></li>
+			      <li><a href="/sticky/evaluation/exhibitions/front-end">Exhibitions | Front-end</a></li>
+			      <li><a href="/sticky/evaluation/exhibitions/remedial">Exhibitions | Remedial</a></li>
+			      <li><a href="/sticky/evaluation/exhibitions/summative">Exhibitions | Summative</a></li>
+			      <li><a href="/sticky/evaluation/education-programs/front-end">Education Programs | Formative</a></li>
+			      <li><a href="/sticky/evaluation/education-programs/formative">Education Programs | Remedial</a></li>
+			      <li><a href="/sticky/evaluation/education-programs/remedial">Education Programs | Front-end</a></li>
+			      <li><a href="/sticky/evaluation/education-programs/summative">Education Programs | Summative</a></li>
+			    </ul>
+		</li>
+      </ul>
+      </div>
+  </div>
+</nav>
+<div style="margin-top: 40px;"></div>
+
+<div class="container" ng-controller="stickyCtrl" ng-cloak class="ng-cloak">
+<?php if($category): ?>
+
+	<div class="page-header">
+	  <h1>Select Sticky Resources <small>{segment_2} | {segment_3} | {segment_4}</small></h1>
+	</div>
+
+	<form name="addSticky" novalidate ng-submit="formSubmit()">
+	<div class="form-group row">
+		<div class="col-sm-6 col-sm-offset-2">
+			<input class="form-control" autocomplete="off" type="text" name="evals" required ng-model="new_resource" typeahead-min-length="3" placeholder="select sticky {segment_2} by name" typeahead="r as r.title for r in getMatching($viewValue) | limitTo:10">
+		</div>
+		<button class="col-sm-2 btn btn-primary">ADD</button>
+	</div>
+	<div class="row">
+		<div class="col-sm-8 col-sm-offset-2 well">sticky {segment_2} to be added: {{new_resource.title}}</div>
+	</div>
+	</form>
+
+	<div class="row" ng-if="error">
+		<div class="alert alert-danger col-sm-8 col-sm-offset-2" role="alert">{{error}}</div>
+	</div>
+	<div class="row" ng-if="success">
+		<div class="alert alert-success col-sm-8 col-sm-offset-2" role="alert">{{success}}</div>
+	</div>
+
+	<div class="row">
+		<h2>current sticky resources for: <small>{segment_2} | {segment_3} | {segment_4}</small></h2>
+		<table class="table table-striped">
+			<thead>
+				<tr>
+				<th>Position</th>
+				<th>Name</th>
+				<th>NCS ID</th>
+				<th>Delete</th>
+				<th>Up</th>
+				<th>Down</th>
+			</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="r in sticky_resources | orderBy:'position'">
+					<td>{{r.position}}</td>
+					<td>{{r.title}}</td>
+					<td>{{r.ncs_id}}</td>
+					<td><span ng-click="removeFromList($index)" class="glyphicon glyphicon-remove"></span></td>
+					<td><span ng-if="!$first" ng-click="moveUp($index)" class="glyphicon glyphicon-circle-arrow-up"></span></td>
+					<td><span ng-if="!$last" ng-click="moveDown($index)" class="glyphicon glyphicon-circle-arrow-down"></span></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class="row">
+		<button class="col-sm-6 col-sm-offset-3 btn btn-danger" ng-click="saveToDB()">SAVE STICKY RESOURCES TO DATABASE</button>
+	</div>
+
+<!-- 	<div class="get-url" style="margin-top: 20px">
+		<?= $ids_string ?>
+	</div> -->
+
+	<div>
+	<?php
+		// $recent_url = API_URL."search/json?qq=/key//record/administrative/recordID:(".$ids_string.")";
+		// $recent_results = json_decode(get_data($recent_url),true);
+		// $all_results = array();
+		// if($recent_results != "" && isset($recent_results['results'])){
+		// 	foreach($recent_results['results'] as $single_result){
+				
+		// 		$single_record = $single_result['record'];
+		// 		$parsed_record = parse_single_result($single_record);
+		// 		$single_id = $parsed_record['ncs_id'];
+
+		// 		$all_results[$single_id] = array('title' => $parsed_record['title'], 'description' => $parsed_record['description'], 'record_url' => $parsed_record['record_url']);
+
+		// 	}
+		// }
+
+		// print "<pre>";
+		// print_r($all_results);
+		// print "</pre>";
+		// print("<br /><br /><br /><br />");
+		
+	?>
+	</div>
+
+<?php else: ?>
+	<div class="row">
+		<h2>please select an option from the navbar</h2>
+	</div>
+<?php endif; ?>
+</div> <!-- container -->
+
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.10.0/ui-bootstrap-tpls.js"></script>
+<script>
+angular.module('stickyApp', ['ui.bootstrap'])
+	.controller('stickyCtrl', ['$scope', '$http', function($scope, $http){
+		<?php if($category): ?>
+		$scope.resources = <?php echo $js_resources; ?>;
+		$scope.sticky_resources = <?php echo $sticky_resources; ?>;
+
+		$scope.getMatching = function(viewValue){
+			var matchingStuffs = [];
+
+			for (var i=0; i< $scope.resources.length; i++) {
+
+			  if (
+			    $scope.resources[i].title.toLowerCase().indexOf(viewValue.toLowerCase()) != -1 ||
+			    $scope.resources[i].ncs_id.toLowerCase().indexOf(viewValue.toLowerCase()) != -1 ) {
+
+			    matchingStuffs.push($scope.resources[i]);      
+			  }
+
+			}
+
+			return matchingStuffs;
+		}
+
+		for(var i=0; i < $scope.sticky_resources.length; i++){
+			$scope.sticky_resources[i].position = parseInt($scope.sticky_resources[i].position);
+		}
+
+		$scope.resource_type = '{segment_2}_{segment_3}_{segment_4}';
+
+		$scope.formSubmit = function(){
+			$scope.error = '';
+
+			var new_resource = $scope.new_resource;
+
+			if(!new_resource || typeof new_resource.title == 'undefined' || new_resource.title == ""){
+				$scope.error = "Must enter a resource name";
+				return;
+			}
+			var highestPosition = 0;
+			for(var i=0; i< $scope.sticky_resources.length; i++){
+				if($scope.sticky_resources[i].position > highestPosition){
+					highestPosition = $scope.sticky_resources[i].position;
+				}
+			}
+
+			var found = $scope.sticky_resources.reduce(function(previous, i){
+          if ($scope.new_resource.ncs_id === i.ncs_id) return true;
+          return previous;
+        }, false);
+      if (found){
+        $scope.error = "Duplicate resource!";
+        return;
+      }
+      else{
+      	new_resource.position = parseInt(highestPosition) + 1;
+        $scope.sticky_resources.push(new_resource);
+      }
+			$scope.new_resource = "";
+		}
+
+		var replace = function(index, newIndex){
+			console.log('replace');
+			var position = index + 1;
+			var newPosition = newIndex + 1;
+
+			var oldIndex, newElementIndex;
+
+			for(var i=0; i < $scope.sticky_resources.length; i++){
+				if($scope.sticky_resources[i].position == position){
+					oldIndex = i;
+				}
+				if($scope.sticky_resources[i].position == newPosition){
+					newElementIndex = i;
+				}
+			}
+			
+			var tmpPosition = $scope.sticky_resources[oldIndex].position;
+			$scope.sticky_resources[oldIndex].position = $scope.sticky_resources[newElementIndex].position;
+			$scope.sticky_resources[newElementIndex].position = tmpPosition;
+
+		}
+
+		$scope.removeFromList = function(index) {
+			console.log('remove from list');
+			var currentPosition = $scope.sticky_resources[index].position;
+			for(var i=0; i < $scope.sticky_resources.length; i++){
+				if(currentPosition < $scope.sticky_resources[i].position){
+					$scope.sticky_resources[i].position--;	
+				}
+				
+			}
+      $scope.sticky_resources.splice(index, 1);
+    }
+
+		$scope.moveUp = function(index){
+			console.log('move up');
+			var newIndex = index-1;
+			if(newIndex >= 0){
+				replace(index, newIndex);
+			}
+		}
+
+		$scope.moveDown = function(index){
+			console.log('move down');
+			var newIndex = index+1;
+			if(newIndex < $scope.sticky_resources.length){
+				replace(index, newIndex);
+			}
+		}
+
+		$scope.saveToDB = function(){
+			$http({
+				url: '/site_tools/sticky_save.php',
+				method: 'POST',
+				data: 'key=nioumlpwjbc4sctnkh21awio&type=' + $scope.resource_type + '&string=' + JSON.stringify($scope.sticky_resources),
+		    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+			})
+			.then(function(response){
+				console.log(response.data);
+				if(response.data.error){
+					$scope.error = response.data.error;
+				}
+				else{
+					$scope.success = response.data.success;
+				}
+			},
+			function(response){
+				$scope.error = "Error saving to DB";
+				console.log(response);
+			})
+		}
+		<?php endif; ?>
+
+	}])
+</script>
+
+</body>
+</html>

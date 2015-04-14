@@ -1,0 +1,816 @@
+<?php
+
+$this->EE =& get_instance();
+
+$my_id = $this->EE->session->userdata('member_id');
+$site_url = $this->EE->config->config['site_url'];
+
+/* this member search is incredibly complicated because it has to be */
+// instead of us using native EE functionality, we have to do everything with SQL calls
+
+// parse GET data and generate member query
+$the_pristine_url = '{site_url}search/member-directory/?s=on';
+$the_current_url = $the_pristine_url;
+
+$url_parameters = array();
+
+$get_member_query = 
+"SELECT DISTINCT exp_members.member_id, exp_members.screen_name, exp_channel_data.field_id_94, exp_channel_data.field_id_107, exp_channel_data.entry_id
+FROM exp_members 
+LEFT JOIN exp_channel_titles ON exp_channel_titles.author_id=exp_members.member_id
+LEFT JOIN exp_channel_data ON exp_channel_titles.entry_id=exp_channel_data.entry_id
+LEFT JOIN exp_matrix_cols ON 1=1
+LEFT JOIN exp_matrix_data ON exp_matrix_data.entry_id=exp_channel_data.entry_id AND exp_matrix_data.field_id=exp_matrix_cols.field_id
+WHERE exp_channel_titles.channel_id=38 AND exp_channel_data.channel_id=38 AND exp_matrix_cols.col_name='org_name' AND (exp_members.group_id != 4 AND exp_members.group_id != 2) ";
+
+$select_field_01 = "";
+if(isset($_GET['field_01'])){
+	$select_field_01 = $_GET['field_01'];
+	$url_parameters['01'] = '&field_01='.$select_field_01;
+
+	$additional_query = sprintf(" AND exp_channel_data.field_id_104 LIKE '%%%s%%' ", $this->EE->db->escape_str($select_field_01));
+	$get_member_query.= $additional_query;
+} 
+$select_field_02 = "";
+if(isset($_GET['field_02'])){
+	$select_field_02 = $_GET['field_02'];
+	$url_parameters['02'] = '&field_02='.$select_field_02;
+
+	$additional_query = sprintf(" AND exp_channel_data.field_id_144 LIKE '%%%s%%' ", $this->EE->db->escape_str($select_field_02));
+	$get_member_query.= $additional_query;
+} 
+$select_field_03 = "";
+if(isset($_GET['field_03'])){
+	$select_field_03 = $_GET['field_03'];
+	$url_parameters['03'] = '&field_03='.$select_field_03;
+
+	$additional_query = sprintf(" AND exp_channel_data.field_id_145 LIKE '%%%s%%' ", $this->EE->db->escape_str($select_field_03));
+	$get_member_query.= $additional_query;
+} 
+$select_field_04 = "";
+if(isset($_GET['field_04'])){
+	$select_field_04 = $_GET['field_04'];
+	$url_parameters['04'] = '&field_04='.$select_field_04;
+
+	$additional_query = sprintf(" AND exp_channel_data.field_id_146 LIKE '%%%s%%' ", $this->EE->db->escape_str($select_field_04));
+	$get_member_query.= $additional_query;
+} 
+$select_field_05 = "";
+if(isset($_GET['field_05'])){
+	$select_field_05 = $_GET['field_05'];
+	$url_parameters['05'] = '&field_05='.$select_field_05;
+
+	$additional_query = sprintf(" AND exp_channel_data.field_id_147 LIKE '%%%s%%' ", $this->EE->db->escape_str($select_field_05));
+	$get_member_query.= $additional_query;
+} 
+$select_field_06 = "";
+if(isset($_GET['field_06'])){
+	$select_field_06 = $_GET['field_06'];
+	$url_parameters['06'] = '&field_06='.$select_field_06;
+
+	$additional_query = sprintf(" AND exp_channel_data.field_id_148 LIKE '%%%s%%' ", $this->EE->db->escape_str($select_field_06));
+	$get_member_query.= $additional_query;
+} 
+$select_field_07 = "";
+if(isset($_GET['field_07'])){
+	$select_field_07 = $_GET['field_07'];
+	$url_parameters['07'] = '&field_07='.$select_field_07;
+
+	$additional_query = sprintf(" AND exp_channel_data.field_id_149 LIKE '%%%s%%' ", $this->EE->db->escape_str($select_field_07));
+	$get_member_query.= $additional_query;
+} 
+$select_field_08 = "";
+if(isset($_GET['field_08'])){
+	$select_field_08 = $_GET['field_08'];
+	$url_parameters['08'] = '&field_08='.$select_field_08;
+
+	$additional_query = sprintf(" AND exp_channel_data.field_id_150 LIKE '%%%s%%' ", $this->EE->db->escape_str($select_field_08));
+	$get_member_query.= $additional_query;
+} 
+$select_field_09 = "";
+if(isset($_GET['field_09'])){
+	$select_field_09 = $_GET['field_09'];
+	$url_parameters['09'] = '&field_09='.$select_field_09;
+
+	$additional_query = sprintf(" AND exp_channel_data.field_id_151 LIKE '%%%s%%' ", $this->EE->db->escape_str($select_field_09));
+	$get_member_query.= $additional_query;
+} 
+$select_field_10 = "";
+if(isset($_GET['field_10'])){
+	$select_field_10 = $_GET['field_10'];
+	$url_parameters['10'] = '&field_10='.$select_field_10;
+
+	$additional_query = sprintf(" AND exp_channel_data.field_id_152 LIKE '%%%s%%' ", $this->EE->db->escape_str($select_field_10));
+	$get_member_query.= $additional_query;
+} 
+$select_field_11 = "";
+if(isset($_GET['field_11'])){
+	$select_field_11 = $_GET['field_11'];
+	$url_parameters['11'] = '&field_11='.$select_field_11;
+
+	$additional_query = sprintf(" AND exp_channel_data.field_id_153 LIKE '%%%s%%' ", $this->EE->db->escape_str($select_field_11));
+	$get_member_query.= $additional_query;
+}
+$search_field = "";
+if(isset($_GET['search'])){
+	$search_field = $_GET['search'];
+	$url_parameters['search'] = '&search='.$search_field;
+
+	$my_search = $this->EE->db->escape_str(urldecode($search_field));
+	$additional_query = sprintf(" AND (exp_members.screen_name LIKE '%%%s%%' OR exp_channel_data.field_id_94 LIKE '%%%s%%' OR exp_matrix_data.col_id_5 LIKE '%%%s%%')", $my_search,$my_search,$my_search);
+	$get_member_query.= $additional_query;
+}
+
+$the_current_url.= implode('',$url_parameters);
+
+// sorting logic
+$sort_member_link = '<li><a href="'.$the_current_url.'&sort=member">Member Last Name A-Z</a></li>';
+$sort_org_link = '<li><a href="'.$the_current_url.'&sort=institution">Organization A-Z</a></li>';
+if(isset($_GET['sort'])){
+	$sort_field = $_GET['sort'];
+	if($sort_field == 'member'){
+		$additional_query = " ORDER BY exp_channel_data.field_id_91";
+		$get_member_query.= $additional_query;
+		$sort_member_link = '<li class="active"><a href="'.$the_current_url.'">Member Last Name A-Z</a></li>';
+		$the_current_url.= '&sort=member';
+	}
+	if($sort_field == 'institution'){
+		$additional_query = " ORDER BY exp_matrix_data.col_id_5";	
+		$get_member_query.= $additional_query;
+		$sort_org_link = '<li class="active"><a href="'.$the_current_url.'">Organization A-Z</a></li>';
+		$the_current_url.= '&sort=institution';
+	}
+}
+else{
+	$get_member_query.= " ORDER BY exp_members.join_date DESC";
+}
+
+// sorting html
+	$sorting_html = "";
+ 	$sorting_html.= '<div id="topSearch" class="projectListingToggle clearMarginBottom" style="position:relative;">';  
+	$sorting_html.= '<span class="toggleTitle search">Sort By:</span>';
+  $sorting_html.= '<ul class="toggleSort search noTopM">';
+	$sorting_html.= $sort_member_link;
+	$sorting_html.= $sort_org_link;
+	$sorting_html.= '</ul>';
+  $sorting_html.= '</div>';
+
+$members_found = true;
+
+$num_of_entries = $this->EE->db->query($get_member_query)->num_rows();
+if(!$num_of_entries){
+	$members_found = false;
+}
+
+$entries_per_page = 10; 
+$total_pages = ceil($num_of_entries/$entries_per_page);
+
+// get page number
+	if(!isset($_GET['page'])){
+		$current_page = 1;
+	}
+	else{
+		if($_GET['page'] < 1){
+			$current_page = 1;
+		}
+		elseif($_GET['page'] > $total_pages){
+			$current_page = $total_pages;
+		}
+		else{
+			$current_page = $_GET['page'];  
+		}
+	}
+
+// pagination results
+	$first_page = 1;
+	$last_page = $total_pages;
+	$second_page = min(2,$last_page);
+	$prev_page = max(1,$current_page-1);
+	$two_prev = max(1,$current_page-2);
+	$three_prev = max(1,$current_page-3);
+	$second_to_last = max(1,$last_page-1);
+	$next_page = min($last_page,$current_page+1);
+	$two_next = min($last_page,$current_page+2);
+	$three_next = min($last_page,$current_page+3);
+
+	$all_pages = array($current_page,$first_page,$second_page,$prev_page,$last_page,$second_to_last,$next_page,$two_prev,$three_prev,$two_next,$three_next);
+	$all_pages = array_filter(array_unique($all_pages));
+	sort($all_pages);
+	if($current_page > $second_page + 4){
+		$all_pages[2] = '...';
+	}
+	if($current_page < $second_to_last - 4){
+		$all_pages[count($all_pages)-3] = '...';
+	}
+
+// create pagination html
+	$pagination_html = "";
+	$pagination_html.= '<div class="pagination">';
+	if($total_pages > 0){
+		foreach($all_pages as $single_page){
+			if($current_page == $single_page || $single_page == '...'){
+				if($single_page == '...'){
+					$pagination_html.= '<span class="page">';
+				}
+				else{
+					$pagination_html.= '<span class="page active">'; 
+				}
+				$pagination_html.= $single_page;
+				$pagination_html.= '</span>';
+			}
+			else {
+				$pagination_html.= '<a class="page first" href="'.$the_current_url.'&page='.$single_page.'">';
+				$pagination_html.= $single_page;
+				$pagination_html.= '</a>';
+			}
+		}
+		// previous and next page buttons
+		$pagination_html.= '<div class="paginationToggle">';
+		if($current_page > 1){
+			$pagination_html.= '<a class="previousPage" href="'.$the_current_url.'&page='.($current_page-1).'">';
+			$pagination_html.= '<img src="/images/uploads/left.jpg" />';
+			$pagination_html.= '</a>';
+		}
+		if($current_page < $last_page){
+			$pagination_html.= '<a class="nextPage" href="'.$the_current_url.'&page='.($current_page+1).'">';
+			$pagination_html.= '<img src="/images/uploads/right.jpg" />';
+			$pagination_html.= '</a>';
+		}
+		$pagination_html.= '</div>';
+	}
+	$pagination_html.= '</div>';
+	if(!$members_found) $pagination_html = "";
+
+// add page number to SQL query
+	$max = ' LIMIT '.($current_page-1)*$entries_per_page.','.$entries_per_page;
+	$get_member_query.= ' '.$max;
+	
+$all_members = array();
+$member_results = $this->EE->db->query($get_member_query);
+$number_of_members = $member_results->num_rows();
+if($number_of_members > 0){
+	foreach($member_results->result_array() as $row){
+		$my_name = "";
+		$my_name = $row['screen_name'];
+		$my_title = "";
+		$my_title = $row['field_id_94'];
+		$my_img = "";
+		$my_img = $row['field_id_107'];
+		$all_members[] = array('member_id'=>$row['member_id'],'entry_id'=>$row['entry_id'],'name'=>$my_name,'title'=>$my_title,'img'=>$my_img);
+	}
+}
+
+$beg_count = ($current_page-1) * $entries_per_page + 1;
+$end_count = $beg_count + $number_of_members-1;
+$member_count_html = "";
+if($members_found){
+	$member_count_html.= '<p class="clearMarginTop">Displaying members 2-'.$beg_count.' - '.$end_count.' of '.$num_of_entries.'</p>';
+}
+else{
+	$member_count_html.= '<p>No members found</p>';
+}
+
+$all_member_html = "";
+foreach($all_members as $single_member){
+	$single_member_id = $single_member['member_id'];
+	$single_entry_id = $single_member['entry_id'];
+	$single_name = $single_member['name'];
+	$single_title = $single_member['title'];
+	$single_img = $single_member['img'];
+	$single_org_string = "";
+
+	$single_org_array = array();
+	$single_member_organization_query = "SELECT col_id_5 FROM exp_matrix_data WHERE field_id=95 AND entry_id='{$single_entry_id}' ";
+	$single_org_results = $this->EE->db->query($single_member_organization_query);
+	if($single_org_results->num_rows()){
+		foreach($single_org_results->result_array() as $row){
+			$single_org_array[] = $row['col_id_5'];
+		}
+	}
+	$single_org_string = implode(', ',$single_org_array);
+
+	$single_member_html = "";
+	$single_member_html.= '<div class="userListItemWrap">';
+	$single_member_html.= '<a href="{site_url}community/users/profile/'.$single_member_id.'" class="userblueButton">View Profile</a>';
+	if($single_img != ''){
+		$single_member_html.= '<a href="{site_url}community/users/profile/'.$single_member_id.'"><img class="userListThumb" src="{site_url}images/member_profile_pics/small/'.$single_img.'" /></a>';  
+	}
+	else{
+		$single_member_html.= '<a href="{site_url}community/users/profile/'.$single_member_id.'"><img class="userListThumb" src="{site_url}images/member_profile_pics/small/mystery-person-small.jpg" /></a>';
+	}
+	$single_member_html.= '<div class="userName">';
+	$single_member_html.= '<a href="{site_url}community/users/profile/'.$single_member_id.'">'.$single_name.'</a>';
+	$single_member_html.= '</div>';
+	$single_member_html.= '<div class="userTitle">';
+	$single_member_html.= $single_title;
+	$single_member_html.= '</div>';
+	$single_member_html.= '<div class="userInstitution">';
+	$single_member_html.= $single_org_string;
+	$single_member_html.= '</div>';
+	$single_member_html.= '</div>';
+
+	$all_member_html.= $single_member_html;
+}
+
+
+// what are our current selections from the interest sidebar?
+	$current_selections_html = "";
+	$current_selections_html = '
+	<div class="fullContentRow">
+		<div class="threeUpListColumn last blogroll memberFilter">
+			<div class="threeUpListBlock">
+				<div class="blockHead">
+					<h3 class="blueBG">
+          	Current Selections
+            <span class="projectBrowseDeleteMain">&nbsp;</span>
+          </h3>          
+				</div>
+				<div class="projectInfo">
+					<ul class="projectBrowseOption">';
+	
+    foreach($url_parameters as $key=>$single_value){
+    
+		$new_url = "";
+		$new_parameters = $url_parameters;
+		unset($new_parameters[$key]);
+		$new_url.= $the_pristine_url.(implode('',$new_parameters));
+
+		$new_value = "";
+		$new_values = explode('=',$single_value);
+		$new_value = end($new_values);
+
+		$current_selections_html.= '<li>';
+		$current_selections_html.= '<a href="'.$new_url.'">';
+		$current_selections_html.= '<p>';
+		if($key == 'search') $current_selections_html.= 'Search Term: ';
+		$current_selections_html.= rawurldecode($new_value);
+		$current_selections_html.= '<span class="projectBrowseDelete">&nbsp;</span>';
+		$current_selections_html.= '</p>';
+		$current_selections_html.= '</a>';
+		$current_selections_html.= '</li>';
+	}
+	$current_selections_html.= '</ul>';
+	$current_selections_html.= '</div>';
+	$current_selections_html.= '</div>';
+	$current_selections_html.= '</div>';
+	$current_selections_html.= '</div>';
+	if(empty($url_parameters)) $current_selections_html = "";
+
+// sidebar search option fields
+$field_01_array = array("Science-technology center/museum","Zoo or aquarium","Natural history museum","Library","Children's museum","Nature or interpretive center","Planetarium","Botanical garden and/or arboretum","History museum","Art museum","Network","College/university","K-12");
+$field_02_array = array("National or regional association or professional organization","Community or youth organization","Public agency","Educational outreach organization","Private foundation");
+$field_03_array = array("Web/software design firm","Exhibit design/fabrication","Educational materials development organization");
+$field_04_array = array("Independent film or media producer","Television station or organization","Radio station or organization","Online media producer");
+$field_05_array = array("Independent evaluator","Research and evaluation organization","Evaluation group","In-house evaluator");
+$field_06_array = array("Art, music, and theater","Chemistry","Computing and information science","Ecology, forestry, and agriculture","Education and learning science","Engineering","General science","Geoscience and geography","Health and medicine","History/policy/law","Life science","Mathematics","Nature of science","Physics","Social science and psychology","Space science","Technology");
+$field_07_array = array("Media and Technology","Broadcast Media","Websites, Mobile Apps, and Online Media","Games, Simulations, and Interactives","Films and IMAX","Planetarium and Science on a Sphere","Public Educational Programs","Afterschool Programs","Summer and Extended Camps","Citizen Science Programs","Community Outreach Programs","Making and Tinkering Programs","Museum and Science Center Programs","Public Events and Festivals","Theater Programs","Library Programs","Park, Outdoor, and Garden Programs","Professional Development, Conferences, and Networks","Professional Development and Workshops","Conferences","Resource Centers and Networks","Exhibitions","Exhibitions:Museum and Science Center Exhibits","Exhibitions:Aquarium and Zoo Exhibits","Exhibitions:Parks, Outdoor, and Garden Exhibits","K-12 and Higher Education Programs","K-12 Programs","Higher Education Programs");
+$field_08_array = array("Midwest (IL, IN, IA, MI, MN, MO, OH, WI)","Mid-Atlantic (DC, DE, MD, NJ, NY, PA)","Mountain Plains (CO, KS, MT, NE, NM, ND, OK, SD, TX, WY)","New England (CT, NH, ME, RI, MA, VT)","Southeast (AL, AR, FL, GA, KY, LA, MS, NC, TN, VA, WV, SC)","Western (CA, OR, WA, AK, HI, NV, AZ, ID, UT)","Outside US");
+$field_09_array = array("Focus Groups","Interviews","Surveys / Questionnaires","Case Studies","Observation","Qualitative","Quasi-Experimental","Experimental","Statistical Analysis","Ethnographic","Other Methods and Tools");
+
+
+	$field_01_html = "";
+	$field_01_html = '
+	<div class="fullContentRow">
+		<div class="threeUpListColumn last blogroll memberFilter">
+			<div class="threeUpListBlock">
+				<div class="blockHead">
+					<h3 class="blueBG">
+          	Learning Institutions
+            <span class="projectBrowseDeleteMain projectBrowseExpand">&nbsp;</span>
+          </h3>
+				</div>
+				<div class="projectInfo">
+				<ul class="projectBrowseOption">';
+	foreach($field_01_array as $single_value){
+		$field_01_html.= '<li>';
+		$field_01_html.= '<a href="'.$the_current_url.'&field_01='.rawurlencode($single_value).'">';
+		$field_01_html.= '<p>'.$single_value.'</p>';
+		$field_01_html.= '</a>';
+		$field_01_html.= '</li>';
+	}
+	$field_01_html.= '</ul>';
+	$field_01_html.= '</div>';
+	$field_01_html.= '</div>';
+	$field_01_html.= '</div>';
+ 	$field_01_html.= '</div>';
+
+
+	// start field
+	$field_02_html = "";
+	$field_02_html = '
+	<div class="fullContentRow">
+		<div class="threeUpListColumn last blogroll memberFilter">
+			<div class="threeUpListBlock">
+				<div class="blockHead">
+					<h3 class="blueBG">
+          	Community groups, associations, <!-- public --> agencies
+            <span class="projectBrowseDeleteMain projectBrowseCollapse">&nbsp;</span>
+          </h3>
+				</div>
+				<div class="projectInfo" style="display:none;">
+				<ul class="projectBrowseOption">';
+	foreach($field_02_array as $single_value){
+		$field_02_html.= '<li>';
+		$field_02_html.= '<a href="'.$the_current_url.'&field_02='.rawurlencode($single_value).'">';
+		$field_02_html.= '<p>'.$single_value.'</p>';
+		$field_02_html.= '</a>';
+		$field_02_html.= '</li>';
+	}
+	$field_02_html.= '</ul>';
+	$field_02_html.= '</div>';
+	$field_02_html.= '</div>';
+	$field_02_html.= '</div>';
+	$field_02_html.= '</div>';
+
+
+	// start field
+	$field_03_html = "";
+	$field_03_html = '
+	<div class="fullContentRow">
+		<div class="threeUpListColumn last blogroll memberFilter">
+			<div class="threeUpListBlock">
+				<div class="blockHead">
+					<h3 class="blueBG">
+          	Materials &amp; educational software development
+            <span class="projectBrowseDeleteMain projectBrowseCollapse">&nbsp;</span>
+          </h3>
+				</div>
+				<div class="projectInfo" style="display:none;">
+				<ul class="projectBrowseOption">';
+	foreach($field_03_array as $single_value){
+		$field_03_html.= '<li>';
+		$field_03_html.= '<a href="'.$the_current_url.'&field_03='.rawurlencode($single_value).'">';
+		$field_03_html.= '<p>'.$single_value.'</p>';
+		$field_03_html.= '</a>';
+		$field_03_html.= '</li>';
+	}
+	$field_03_html.= '</ul>';
+	$field_03_html.= '</div>';
+	$field_03_html.= '</div>';
+	$field_03_html.= '</div>';
+	$field_03_html.= '</div>';
+
+	// start field
+	$field_04_html = "";
+	$field_04_html = '
+	<div class="fullContentRow">
+		<div class="threeUpListColumn last blogroll memberFilter">
+			<div class="threeUpListBlock">
+				<div class="blockHead">
+					<h3 class="blueBG">
+          	Media
+            <span class="projectBrowseDeleteMain projectBrowseCollapse">&nbsp;</span>
+          </h3>
+				</div>
+				<div class="projectInfo" style="display:none;">
+				<ul class="projectBrowseOption">';
+	foreach($field_04_array as $single_value){
+		$field_04_html.= '<li>';
+		$field_04_html.= '<a href="'.$the_current_url.'&field_04='.rawurlencode($single_value).'">';
+		$field_04_html.= '<p>'.$single_value.'</p>';
+		$field_04_html.= '</a>';
+		$field_04_html.= '</li>';
+	}
+	$field_04_html.= '</ul>';
+	$field_04_html.= '</div>';
+	$field_04_html.= '</div>';
+	$field_04_html.= '</div>';
+	$field_04_html.= '</div>';
+
+	// start field
+	$field_05_html = "";
+	$field_05_html = '
+	<div class="fullContentRow">
+		<div class="threeUpListColumn last blogroll memberFilter">
+			<div class="threeUpListBlock">
+				<div class="blockHead">
+					<h3 class="blueBG">
+          	Research and evaluation organizations
+            <span class="projectBrowseDeleteMain projectBrowseCollapse">&nbsp;</span>
+          </h3>
+				</div>
+				<div class="projectInfo" style="display:none;">
+				<ul class="projectBrowseOption">';
+	foreach($field_05_array as $single_value){
+		$field_05_html.= '<li>';
+		$field_05_html.= '<a href="'.$the_current_url.'&field_05='.rawurlencode($single_value).'">';
+		$field_05_html.= '<p>'.$single_value.'</p>';
+		$field_05_html.= '</a>';
+		$field_05_html.= '</li>';
+	}
+	$field_05_html.= '</ul>';
+	$field_05_html.= '</div>';
+	$field_05_html.= '</div>';
+	$field_05_html.= '</div>';
+	$field_05_html.= '</div>';
+
+	// start field
+	$field_06_html = "";
+	$field_06_html = '
+	<div class="fullContentRow">
+		<div class="threeUpListColumn last blogroll memberFilter">
+			<div class="threeUpListBlock">
+				<div class="blockHead">
+					<h3 class="blueBG">
+          	Content
+            <span class="projectBrowseDeleteMain projectBrowseCollapse">&nbsp;</span>
+          </h3>
+				</div>
+				<div class="projectInfo" style="display:none;">
+				<ul class="projectBrowseOption">';
+	foreach($field_06_array as $single_value){
+		$field_06_html.= '<li>';
+		$field_06_html.= '<a href="'.$the_current_url.'&field_06='.rawurlencode($single_value).'">';
+		$field_06_html.= '<p>'.$single_value.'</p>';
+		$field_06_html.= '</a>';
+		$field_06_html.= '</li>';
+	}
+	$field_06_html.= '</ul>';
+	$field_06_html.= '</div>';
+	$field_06_html.= '</div>';
+	$field_06_html.= '</div>';
+	$field_06_html.= '</div>';
+
+	// start field
+	$field_07_html = "";
+	$field_07_html = '
+	<div class="fullContentRow">
+		<div class="threeUpListColumn last blogroll memberFilter">
+			<div class="threeUpListBlock">
+				<div class="blockHead">
+					<h3 class="blueBG">
+          	Environment
+            <span class="projectBrowseDeleteMain projectBrowseCollapse">&nbsp;</span>
+          </h3>
+				</div>
+				<div class="projectInfo" style="display:none;">
+				<ul class="projectBrowseOption">';
+	foreach($field_07_array as $single_value){
+		$field_07_html.= '<li>';
+		$field_07_html.= '<a href="'.$the_current_url.'&field_07='.rawurlencode($single_value).'">';
+		$field_07_html.= '<p>'.$single_value.'</p>';
+		$field_07_html.= '</a>';
+		$field_07_html.= '</li>';
+	}
+	$field_07_html.= '</ul>';
+	$field_07_html.= '</div>';
+	$field_07_html.= '</div>';
+	$field_07_html.= '</div>';
+	$field_07_html.= '</div>';
+
+	// start field
+	$field_08_html = "";
+	$field_08_html = '
+	<div class="fullContentRow">
+		<div class="threeUpListColumn last blogroll memberFilter">
+			<div class="threeUpListBlock">
+				<div class="blockHead">
+					<h3 class="blueBG">
+          	Region
+            <span class="projectBrowseDeleteMain projectBrowseCollapse">&nbsp;</span>
+          </h3>
+				</div>
+				<div class="projectInfo" style="display:none;">
+				<ul class="projectBrowseOption">';
+	foreach($field_08_array as $single_value){
+		$field_08_html.= '<li>';
+		$field_08_html.= '<a href="'.$the_current_url.'&field_08='.rawurlencode($single_value).'">';
+		$field_08_html.= '<p>'.$single_value.'</p>';
+		$field_08_html.= '</a>';
+		$field_08_html.= '</li>';
+	}
+	$field_08_html.= '</ul>';
+	$field_08_html.= '</div>';
+	$field_08_html.= '</div>';
+	$field_08_html.= '</div>';
+	$field_08_html.= '</div>';
+
+	// start field
+	$field_09_html = "";
+	$field_09_html = '
+	<div class="fullContentRow">
+		<div class="threeUpListColumn last blogroll memberFilter">
+			<div class="threeUpListBlock">
+				<div class="blockHead">
+					<h3 class="blueBG">
+          	Research and Evaluation Methods and Tools
+            <span class="projectBrowseDeleteMain projectBrowseCollapse">&nbsp;</span>
+          </h3>
+				</div>
+				<div class="projectInfo" style="display:none;">
+				<ul class="projectBrowseOption">';
+	foreach($field_09_array as $single_value){
+		$field_09_html.= '<li>';
+		$field_09_html.= '<a href="'.$the_current_url.'&field_09='.rawurlencode($single_value).'">';
+		$field_09_html.= '<p>'.$single_value.'</p>';
+		$field_09_html.= '</a>';
+		$field_09_html.= '</li>';
+	}
+	$field_09_html.= '</ul>';
+	$field_09_html.= '</div>';
+	$field_09_html.= '</div>';
+	$field_09_html.= '</div>';
+  $field_09_html.= '</div>';
+
+// query to find position and other fields
+	$options_field_10 = "";$field_10_array = array();
+	$options_field_11 = "";$field_11_array = array();
+
+	$get_field_10_options =  "SELECT field_id_152 FROM exp_channel_data WHERE field_id_152 != '' ";
+	$get_field_10_results = $this->EE->db->query($get_field_10_options);
+	if($get_field_10_results->num_rows()){
+		foreach($get_field_10_results->result_array() as $row){
+			$options_field_10.= '||'.$row['field_id_152'];
+		}
+	}
+	$field_10_array = array_filter(array_unique(explode('||',$options_field_10)));
+	$field_10_html = '
+	<div class="fullContentRow">
+		<div class="threeUpListColumn last blogroll memberFilter">
+			<div class="threeUpListBlock">
+				<div class="blockHead">
+					<h3 class="blueBG">
+          	Position
+            <span class="projectBrowseDeleteMain projectBrowseCollapse">&nbsp;</span>
+          </h3>
+				</div>
+				<div class="projectInfo" style="display:none;">
+				<ul class="projectBrowseOption">';
+	foreach($field_10_array as $single_value){
+		$field_10_html.= '<li>';
+		$field_10_html.= '<a href="'.$the_current_url.'&field_10='.rawurlencode($single_value).'">';
+		$field_10_html.= '<p>'.$single_value.'</p>';
+		$field_10_html.= '</a>';
+		$field_10_html.= '</li>';
+	}
+	$field_10_html.= '</ul>';
+	$field_10_html.= '</div>';
+	$field_10_html.= '</div>';
+	$field_10_html.= '</div>';
+	$field_10_html.= '</div>';
+
+	$get_field_11_options =  "SELECT field_id_153 FROM exp_channel_data WHERE field_id_153 != '' ";
+	$get_field_11_results = $this->EE->db->query($get_field_11_options);
+	if($get_field_11_results->num_rows()){
+		foreach($get_field_11_results->result_array() as $row){
+			$options_field_11.= '||'.$row['field_id_153'];
+		}
+	}
+	$field_11_array = array_filter(array_unique(explode('||',$options_field_11)));
+	$field_11_html = '
+	<div class="fullContentRow">
+		<div class="threeUpListColumn last blogroll memberFilter">
+			<div class="threeUpListBlock">
+				<div class="blockHead">
+					<h3 class="blueBG">
+          	Other
+            <span class="projectBrowseDeleteMain projectBrowseCollapse">&nbsp;</span>
+          </h3>
+				</div>
+				<div class="projectInfo" style="display:none;">
+				<ul class="projectBrowseOption">';
+	foreach($field_11_array as $single_value){
+		$field_11_html.= '<li>';
+		$field_11_html.= '<a href="'.$the_current_url.'&field_11='.rawurlencode($single_value).'">';
+		$field_11_html.= '<p>'.$single_value.'</p>';
+		$field_11_html.= '</a>';
+		$field_11_html.= '</li>';
+	}
+	$field_11_html.= '</ul>';
+	$field_11_html.= '</div>';
+	$field_11_html.= '</div>';
+  $field_11_html.= '</div>';
+  $field_11_html.= '</div>';
+
+// construct interests html
+	$interest_html = "";
+	if($select_field_01 == ""){
+		$interest_html.= $field_01_html;
+	}
+	if($select_field_02 == ""){
+		$interest_html.= $field_02_html;
+	}
+	if($select_field_03 == ""){
+		$interest_html.= $field_03_html;
+	}
+	if($select_field_04 == ""){
+		$interest_html.= $field_04_html;
+	}
+	if($select_field_05 == ""){
+		$interest_html.= $field_05_html;
+	}
+	if($select_field_06 == ""){
+		$interest_html.= $field_06_html;
+	}
+	if($select_field_07 == ""){
+		$interest_html.= $field_07_html;
+	}
+	if($select_field_08 == ""){
+		$interest_html.= $field_08_html;
+	}
+	if($select_field_09 == ""){
+		$interest_html.= $field_09_html;
+	}
+	if($select_field_10 == ""){
+		$interest_html.= $field_10_html;
+	}
+	if($select_field_11 == ""){
+		$interest_html.= $field_11_html;
+	}
+
+?>
+<!DOCTYPE html><!-- ### TEMPLATE search/member-directory ### -->
+{snip_browser_sniffer}
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>>
+
+<head>
+  
+  <title>Search Members : {site_name}</title>
+  <link rel="stylesheet" href="{stylesheet='global/validationEngine.jquery.css'}" type="text/css" />
+  <link rel="stylesheet" href="{stylesheet='global/template.css'}" type="text/css" />
+  <link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" />
+  <link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" />
+  <link rel="stylesheet" href="{stylesheet='global/bootstrap.css'}" type="text/css" />
+  <link rel="stylesheet" href="{stylesheet='global/fancybox.css'}" type="text/css" />
+  
+  {snip_global_header_meta}
+  {snip_global_header_links}
+
+</head>
+
+<body id="community" class="community member-directory searchResultsPage">
+ 
+<div id="externalPageWrapper"><!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+<div id="externalMastheadWrap"><!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+<div id="internalMastheadWrap"><!-- begin #internalMastheadWrap - fixed width, maybe fixed height too -->
+
+{snip_global_tool_bar}<!-- include global_tool_bar snippet -->
+{snip_global_logo_and_nav}<!-- include global_logo_and_nav snippet -->
+{!--{snip_global_sub_nav}--}<!-- include global_sub_nav snippet -->
+    
+</div><!-- end .internalMastheadWrap - fixed width, fixed height --> 
+</div><!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+  
+<div id="mainContentArea" style="margin-top: 20px;"><!-- begin .mastheadMainContent - fixed width, fixed height, centered -->
+
+{snip_home_search}
+
+<div class="pageControlsBlockExt">
+	<div class="pageControlsBlockInt">
+		<div class="sectionHeading">
+			<h2>Sort Members</h2>
+		</div>
+		<?= $sorting_html ?>
+	</div>
+</div>
+
+<!-- begin left sidebar -->
+<div id="oneThirdContentColumn" class="floatLeft">
+
+<?= $current_selections_html ?>	
+<?= $interest_html ?>
+	
+</div>
+<!-- end left sidebar -->
+
+<!-- begin main content area -->
+<div id="twoThirdsContentColumn" class="content twoThirdsContentColumn floatRight">
+	
+	<?= $member_count_html ?>
+	<?= $all_member_html ?>
+	<?= $pagination_html ?>
+
+</div>
+<!-- end main content area -->
+
+<div class="clearBoth">&nbsp;</div>
+<div id="externalSocialMediaSharingBlock">
+  {snip_scroll_to_top}
+  {!--{snip_social_media_sharing}--}
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+</div>{!-- end #mainContentArea --}
+
+{snip_global_footer}{!-- include global_footer snippet --}
+
+</div>{!-- end #externalPageWrapper --}
+
+<!-- START JAVASCRIPT -->
+{snip_bring_js}
+<script>
+$(document).ready(function(){
+
+	// show/hide sidebar items - modified from projects/browse
+	$('.blockHead').on('click', function() {
+    $(this).siblings('.projectInfo').stop().toggle(200);
+    $(this).children().children('span').toggleClass('projectBrowseCollapse');
+    $(this).children().children('span').toggleClass('projectBrowseExpand');
+    return false;
+  });
+})
+</script>
+
+</body>
+</html>

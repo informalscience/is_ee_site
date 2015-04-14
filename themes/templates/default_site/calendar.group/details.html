@@ -1,0 +1,100 @@
+{snip_community_redirect}
+<!-- begin embed calendar/details -->
+<body>
+
+<div id="externalPageWrapper"><!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+<div id="externalMastheadWrap"><!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+<div id="internalMastheadWrap"><!-- begin #internalMastheadWrap - fixed width, maybe fixed height too -->
+
+{snip_global_tool_bar}<!-- include global_tool_bar snippet -->
+{snip_global_logo_and_nav}<!-- include global_logo_and_nav snippet -->
+{snip_global_sub_nav}<!-- include global_sub_nav snippet -->
+
+<script type="text/javascript">
+// provide faux active states for primary and secondary nav elements without having to add pages into structure  
+	var navelement1 = document.getElementById('nav-sub-community');
+		if(navelement1) {
+			navelement1.className += navelement1.className ? ' parent-active' : '';
+		}
+	var navelement2 = document.getElementById('nav-sub-sub-calendar');
+		if(navelement2) {
+			navelement2.className += navelement2.className ? ' parent-active' : '';
+		}
+</script>
+				 
+</div><!-- end .internalMastheadWrap - fixed width, fixed height -->  
+</div><!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+	
+<div id="mainContentArea"><!-- begin .mastheadMainContent - fixed width, fixed height, centered -->
+
+{exp:channel:entries status="open" channel="ch_calendar" show_expired="yes" show_future_entries="yes" limit="1" dynamic="no" url_title='{segment_4}'}
+
+<div class="communuity TopWrapper">
+
+<div class="communuity Top noTopM">
+	<img class="left"height="60" width="60" src="{if image != ""}{image}{if:else}/images/uploads/calendar-no-image-default.png{/if}" />	
+	<div class="community calendarEntry left">
+		<a class="listingTitle" href="{path=community/calendar/details}/{url_title}">{title}</a>
+		<br/>
+		<span class="listTitle"><b>Dates:</span>
+		<span class="listTitleEntry">{entry_date format="%F %d, %Y"} {if event_category != 'Funding'}- {expiration_date format="%F %d, %Y"}{/if}</b></span>
+		<br />
+		<span class="listTitle">Category:</span><span class="listTitleEntry">{event_category}</span>
+		{if event_category == 'Funding'}<br /><span class="listTitle">Funder:</span><span class="listTitleEntry"> {funding_source}</span>{/if}
+		{if event_category != 'Funding'}<br /><span class="listTitle">Institution:</span><span class="listTitleEntry"> {institution}</span>{/if}
+		{if event_category != 'Funding'}<br /><span class="listTitle">Host:</span><span class="listTitleEntry"> {host}</span>{/if}
+	</div>
+</div>
+<div class="clear"></div>
+
+{if event_category != 'Funding'}
+<div class="profileContent noTopM">
+<div class="profileSectionHeading">
+<img class="profileSectionIcon" src="/images/profile_section/profile-section-icons-bio-25x25.png" alt="description logo">
+<h2>Location</h2>
+</div>
+<div class="sectionContentBlock">
+<p>	
+	{if address_1}{address_1}<br />{/if}
+	{if address_2}{address_2}<br />{/if}
+	{if city}{city}, {/if}{if state_province}{state_province}, {/if}{if zip_code}{zip_code}, {/if}{country}
+</p>
+</div>
+{/if}
+</div>
+<div class="clear"></div>
+
+	
+
+<div class="profileContent noTopM">
+	<div class="profileSectionHeading">
+		<img class="profileSectionIcon" src="/images/uploads/calendar-description.png" alt="description logo">
+		<h2>Description</h2>
+	</div>
+	<div class="sectionContentBlock">
+		{event_description}
+		<div class="marginTop">
+			{event_category} Link: <a href="{event_link}">{event_link}</a>
+		</div>
+	</div>
+</div>
+
+</div>
+
+{/exp:channel:entries}
+
+<div id="externalSocialMediaSharingBlock">
+	{snip_scroll_to_top}
+	{snip_social_media_sharing}
+</div>
+
+<div class="clearBoth">&nbsp;</div> 
+</div><!-- end #mainContentArea - fixed width, fixed height, centered -->
+
+{snip_global_footer}<!-- include global_footer snippet -->
+
+</div><!-- end #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+</body>
+<!-- end embed calendar/details -->

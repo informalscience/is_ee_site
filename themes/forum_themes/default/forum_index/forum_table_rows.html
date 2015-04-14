@@ -1,0 +1,40 @@
+<tr>
+<td class="tableCellTwo" style="width:4%; border-right: none !important; border-left: none !important;" align="center"><a href="{path:viewforum}"><img src="{topic_marker}" width="43" height="33" border="0" alt="{forum_name}" title="{forum_name}" /></a></td>
+<td class="tableCellOne" style="width:46%; border-left: none !important;">
+<div class="forumName"><a href="{path:viewforum}" title="{forum_name}"><b>{forum_name}</b></a></div>
+	{if forum_description}<div class="forumDescription">{forum_description}</div>{/if}
+	{if forum_moderators}
+		<div class="forumLightLinks">{lang:moderated_by}
+			{moderators backspace='1'}
+			<?php
+				$profile_id = "";
+				$profile_string = '{path:member_profile}';
+				$profile_array = explode('/',$profile_string);
+				end($profile_array);
+				$profile_id = prev($profile_array);
+			?>
+			<a href="{path=community/users/profile}/<?= $profile_id ?>">{name}</a>,{/moderators}
+		</div>
+	{/if}
+</td>
+<td class="tableCellTwo" style="width:6%;" align="center">{total_topics}</td>
+<td class="tableCellTwo" style="width:6%; border-right: none !important;" align="center">{total_replies}</td>
+<td class="tableCellOne" style="width:38%; border-right: none !important;">
+<div class="tablePostInfo">
+	{if recent_post}
+		<a href="{path:recent_thread}">{title}</a><br />
+		{lang:posted_on} {last_post format="%m-%d-%Y %h:%i %A"}<br />
+		{lang:posted_by} 
+		<?php
+			$profile_id = "";
+			$profile_string = '{path:member_profile}';
+			$profile_array = explode('/',$profile_string);
+			end($profile_array);
+			$profile_id = prev($profile_array);
+		?>
+		<a href="{path=community/users/profile}/<?= $profile_id ?>">{author}</a>
+
+	{/if}
+</div>
+</td>
+</tr>

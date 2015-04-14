@@ -1,0 +1,218 @@
+<?php
+
+$this->EE =& get_instance();
+
+// has access to member functions relating to project
+	$my_id = $this->EE->session->userdata('member_id');
+	$has_access = true;
+	if(!$my_id){
+		$has_access = false;
+	}
+?>
+
+{snip_browser_sniffer}<!DOCTYPE html><!-- ### template - global.group/1column_static_pages.html ### -->
+
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>>
+<head>
+
+<title>{structure:page:title} : {site_name}</title>
+
+{snip_global_default_meta_ogp_data}
+
+{snip_page_meta_ogp}
+
+<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" /><!-- include the global_styles css template -->
+<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" />{!-- include the global_styles css template --}
+<link rel="stylesheet" href="{stylesheet='global/eisstyles.css'}" type="text/css" />{!-- include the global_styles css template --}
+<script src="/js/utilities.js" type="text/javascript"></script>
+
+{snip_global_header_links}
+
+{snip_global_header_meta}
+
+</head>
+
+<body id="{structure:top:slug}" class="{structure:parent:slug} {structure:page:slug}  static">{!-- We grab the page top-level slug as id and parent aand page slugs as super-added classes --}
+
+<a name="top"></a>
+
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding --}
+
+  <div id="externalMastheadWrap">{!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding --}
+    
+    <div id="internalMastheadWrap">{!-- begin #internalMastheadWrap - fixed width, maybe fixed height too --}
+          
+      {snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+      
+      {snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+      
+      {snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+        
+    </div>{!-- end .internalMastheadWrap - fixed width, fixed height --}
+    
+  </div>{!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding --}
+    
+  <div id="mainContentArea">{!-- begin .mastheadMainContent - fixed width, fixed height, centered --}
+     
+ <!-- <div style="width:980px; margin: 0 auto;"> -->
+ 
+ 
+    {exp:channel:entries channel="ch_simple_page_content" limit="1" disable="pagination|member_data" dynamic="yes"}
+      
+      {if add_a_page_content_header == "Yes"}{!-- Check to see if we have header title/content --}
+        <div class="content singleColumn">
+          <div class="fullContentRow top">
+            <div class="externalFullBlock">
+              <div class="internalFullBlock">
+                <div class="blockHead">
+                  <h1 class="specialHeader">{if alt_title_for_header != ""}{alt_title_for_header}{if:else}{title}{/if}</h1>
+                </div>{!-- end .blockHead --}
+                <div style="float:left;width:80px;height:80px;padding:10px;"><img style="width:80px;height:80px;" alt="EBSCO Host" src="/images/uploads/ebscohost.jpeg"></div>
+{if content_for_page_header != ""}{content_for_page_header}{/if}
+
+
+              </div>{!-- end .internalFullBlock --}
+            </div>{!-- end .externalFullBlock --}
+          </div>{!-- end .fullContentRow .top --}
+        </div>{!-- end .content .singleColumn --}
+      {/if}
+    
+      <div class="content singleColumn floatLeft">
+        
+        {!-- {if simple_page_content != ""}Check to see if we have page body content --}
+          <div class="fullContentRow top">{!-- begin .fullContentRow --}      
+            <div class="externalFullBlock">{!-- begin .externalFullBlock --}        
+            <div class="internalFullBlock">{!-- begin .internalFullBlock --}  
+		<div class="staticPage">  
+                {!-- {simple_page_content} --}
+<div class="clearBoth">&nbsp;</div>
+<div class="epbody">
+<div style="display:block;" class="epoutline">
+	{!-- <div style="padding-top:40px; padding-left:797px;"><a href="http://search.ebscohost.com/login.aspx?authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank"><img src="fullsite.png" border="0"></a></div> --}
+
+	{!-- <div style="padding-top:135px; padding-left:25px;"> --}
+
+<!-- ARE WE LOGGED IN? -->
+<?php if($has_access): ?>
+{!-- start EBSCO if logged in --}
+
+		{!-- <div style="margin-bottom:10px;"><span class="eptitle">Introducing the new Education Research Collection!</span></div> --}
+		<h3>Search The Education Research Complete Database</h3>
+		{!--<p>Search across areas of curriculum instruction as well as administration, policy, funding, and related social issues. Find content related to all levels of education from early childhood to higher education including: multilingual education, health education, and testing specialities.</p> --}
+	{!-- </div> --}
+
+	<!--- Search Box --->
+	<div class="epsearch">
+		<script src="http://support.ebscohost.com/eit/scripts/ebscohostsearch.js" type="text/javascript"></script>
+		<form id="ebscohostsearchtext" action="" onsubmit="return ebscoHostSearchGo(this);" name="otn" method="post">
+			<input id="ebscohostwindow" name="ebscohostwindow" type="hidden" value="1" />
+			<input id="ebscohosturl" name="ebscohosturl" type="hidden" value="http://search.ebscohost.com/login.aspx?direct=true&site=ehost-live&scope=site&type=0&mode=bool&lang=en&authtype=uid&authtype=uid&user=ns238303main&password=main&profile=ehost" />
+			<input id="ebscohostsearchsrc" name="ebscohostsearchsrc" type="hidden" value="url" />
+			<input id="ebscohostsearchmode" name="ebscohostsearchmode" type="hidden" value="+" />
+			<input id="ebscohostkeywords" name="ebscohostkeywords" type="hidden" value="" />
+			<input id="chkcollection" name="chkcollection" type="hidden" value="all" />
+			<table>
+			<tr>
+			<td valign="top"><input id="ebscohostsearchtext" name="ebscohostsearchtext" type="text" style="border: 1px solid #BCB8B8; box-shadow: 3px 3px 4px #c4c4c4; height:59px; width:750px; font-family:Arial,sans-serif; font-size:1.0em ;color:#777;padding-left:4px;padding-top:0px;height:39px" value="Enter any words to begin your search" class="cleardefault"/></td><td valign=top><INPUT type="image" name="search" src="/themes/wiki_themes/default/images/wiki-main-search.jpg" border="0"> </td>
+			<!-- <td valign="top"><input id="ebscohostsearchtext" name="ebscohostsearchtext" type="text" style="border-bottom: 1px solid #D36532; border-top: 1px solid #D36532; border-left: 1px solid #D36532; border-right: 1px solid #D36532; width:565px; font-family:calibri,arial;font-size:12pt;color:#867086;padding-left:10px;padding-top:4px;height:39px" value="Enter any words to begin your search" class="cleardefault"/></td><td valign=top><INPUT type="image" name="search" src="/themes/wiki_themes/default/images/wiki-main-search.jpg" border="0"> </td> -->
+			</tr>
+			</table>
+		</form>
+	</div>
+
+
+	<div style="padding-top:0px; padding-left:0px;">
+		<h3><span>Sample topics and keywords</span></h3>
+		<p>For targeted research, click a topic below to browse a diverse collection of material related to that area of interest.</p>
+	</div>
+	<div style="position:relative; margin:0; padding: 5px; 0 0 5px; width:100%;">
+		<div style="float:left; margin-right:30px; width:270px;">
+			<ul>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=After+School+Programs&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">After School Programs</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=art+%26quot%3bin%26quot%3b+education&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Art in Education</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=Botanical+Gardens&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Botanical Gardens</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=Broader+Impacts&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Broader Impacts</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=citizen+science&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Citizen Science</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=elearning+OR+cyberlearning+OR+e-learning&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Cyberlearning</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=Documentary+Films&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Documentary Films</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=cognitive+science&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Cognitive Science</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=computer+science+education&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Computer Science Education</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=education&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Education</a></li>	
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=early+childhood+education&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Early Childhood Education</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=engineering+education&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Engineering Education</a></li>
+				
+			</ul>		
+		</div>
+		<div style="float:left; margin-right:30px; width:283px;">
+			<ul>		
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=education+policy&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Education Policy</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=educational+games&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Educational Games</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=educational+technology&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Educational Technology</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=language+AND+linguistics&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Language & Linguistics</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=learning+disabilities&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Learning Disabilities</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=library+programs&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Library Programs</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=literacy+education&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Literacy Education</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=mathematics+education&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Mathematics Education</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=informal+learning+OR+non+formal+learning+OR+non-formal+learning&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Non formal Learning</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=organizational+networks&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost">Organizational Networks</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=Out+%26quot%3bof%26quot%3b+School+Time&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Out of School Time</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=outreach+programs&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Outreach Programs</a></li>
+				
+			</ul>		
+		</div>
+		<div style="float:left; width:275px;">
+			<ul>
+				
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=informal+science+education&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Informal Science Education</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=informal+STEM&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Informal STEM</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=professional+development&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Professional Development</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=public+engagement&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Public Engagement</a></li></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=school+libraries&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">School Libraries</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=science+education&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Science Education</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=scientific+practices&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Scientific Practices</a></li>					
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=science+centers+AND+museums&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Science Centers & Museums</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=science+in+mass+media&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Science in Mass Media</a></li>				
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=social sciences+AND+humanities&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Social Sciences & Humanities</a></li>
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=sustainability+education&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Sustainability Education</a></li>				
+				<li><a class="wlink" href="http://search.ebscohost.com/login.aspx?direct=true&db=ehh&bquery=technology+education&type=0&site=ehost-live&authtype=uid&user=ns238303main&password=main&profile=ehost" target="_blank">Technology Education</a></li>	
+			</ul>		
+		</div>
+	</div>
+<?php else: ?>
+		<div style="width:890px;"> {snip_not_logged_in} </div>
+	<? endif; ?> 
+<div class="clearBoth">&nbsp;</div>
+	<div class="epfooter"><a class="epfooter" href="mailto:tnesbit@astc.org?subject=Question regarding Education Research Complete" target="_blank">Questions or comments?  Click here to let us know</a></div>
+</div>
+
+  <div class="clearBoth">&nbsp;</div>
+
+       		</div> {!-- end .staticpage --}
+		</div>{!-- end .internalFullBlock --}        
+            </div>{!-- end .externalFullBlock --}        
+          </div>{!-- end .fullContentRow --}
+        {!-- {/if} --}
+      
+      </div><!-- end .content .singleColumn .floatLeft -->  
+    {/exp:channel:entries}
+     </div>  
+
+    <div class="clearBoth">&nbsp;</div>			
+
+
+<div id="externalSocialMediaSharingBlock">
+        {snip_scroll_to_top}
+        {snip_social_media_sharing}
+      </div>
+  
+  </div>{!-- end #mainContentArea --}
+
+   <div class="clearBoth">&nbsp;</div>
+  {snip_global_footer}{!-- include global_footer snippet --}
+  {snip_bring_js}
+  {snip_show_hide_script}
+
+</div>{!-- end #externalPageWrapper --}
+
+</body>
+</html>

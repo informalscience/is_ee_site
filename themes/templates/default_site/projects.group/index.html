@@ -1,0 +1,1056 @@
+<?php
+require_once('/var/www/ee/get_data.php');
+require_once('/var/www/ee/ncs_tools/parse_single_result.php');
+
+$this->EE =& get_instance();
+
+// has access to member functions relating to project
+$my_id = $this->EE->session->userdata('member_id');
+$has_access = true;
+if(!$my_id){
+	$has_access = false;
+}
+
+$what_resource = "";
+$what_resource = $this->EE->uri->segment(2);
+$record_found = true;
+
+// is correct URL segment set?
+if($what_resource == ""){
+	$record_found = false;
+}
+
+if($record_found){
+	// hit the NCS url -- see if we get valid results
+	$base_url = API_URL.'record/'.$what_resource;
+	$record_results = json_decode(get_data($base_url),true);
+	if($record_results == ""){
+		$record_found = false;
+	}
+}
+
+// these results are parsed later - (go to second half of this file)
+
+?>
+<?php if(!$record_found && $what_resource != ""): ?>{redirect="404"}<? endif; ?>
+<!DOCTYPE html><!-- projects/index -->
+{snip_browser_sniffer}
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>>
+
+<?php if($what_resource == ""): ?>
+<!-- **** START OF REGULAR RESOURCE INDEX PAGE **** -->
+
+<head>
+
+<title>Projects : {site_name}</title>
+
+{snip_global_default_meta_ogp_data}
+
+{snip_page_meta_ogp}
+
+<link rel="stylesheet" href="{stylesheet='global/validationEngine.jquery.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/template.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" /><!-- include the global_styles css template -->
+<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" /><!-- include the global_styles css template -->
+<link rel="stylesheet" href="{stylesheet='global/carousel_bootstrap.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/bootstrap.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='pi_guide/jquery.fancybox.css'}" type="text/css" />
+
+{snip_global_header_links}
+
+{snip_global_header_meta}
+
+</head>
+
+<body class="projectLanding">
+ 
+<div id="externalPageWrapper"><!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+	<div id="externalMastheadWrap"><!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->	
+		<div id="internalMastheadWrap"><!-- begin #internalMastheadWrap - fixed width, maybe fixed height too -->
+			{snip_global_tool_bar}<!-- include global_tool_bar snippet -->
+			{snip_global_logo_and_nav}<!-- include global_logo_and_nav snippet -->
+			{snip_global_sub_nav}<!-- include global_sub_nav snippet -->
+		</div><!-- end .internalMastheadWrap - fixed width, fixed height -->
+	</div><!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+	
+	<div id="mainContentArea"><!-- begin .mastheadMainContent - fixed width, fixed height, centered -->
+		<div style="width:980px; margin: 0 auto;">
+
+			<div class="sectionSlideshow">
+				<div id="myCarousel" class="carousel slide">
+					<ol class="carousel-indicators">
+	    			<li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+	    			<li data-target="#myCarousel" data-slide-to="1" class=""></li>
+	    			<li data-target="#myCarousel" data-slide-to="2" class=""></li>
+				  </ol>
+					<div class="carousel-inner">
+						{exp:channel:entries channel="ch_project_index_images" limit="3" disable="pagination|member_data|statuses" dynamic="no"}
+						<div id="{count}" class="item {if count==1}active{/if}">
+							<div class="sectionSlideshowDesc">
+								<h2><a href="{path='{featured_block_link}'}">{title}</a></h2>
+								<p>{featured_block_excerpt}</p>
+							</div>
+							<div class="sectionSlideshowReadMore browseButton">  
+								<a href="{path='{featured_block_link}'}">{featured_block_link_name}</a>
+							</div>
+							<img height="330" width="980" src="{featured_block_image}"/>
+						</div>
+						{/exp:channel:entries}
+					</div>
+<!-- 			<a class="carousel-control left" href="#myCarousel" data-slide="prev">&lsaquo;</a>
+    			<a class="carousel-control right" href="#myCarousel" data-slide="next">&rsaquo;</a> -->
+				</div>
+			</div>
+			<div class="clear"></div>
+			
+			{exp:channel:entries channel="ch_simple_page_content" limit="1"}
+      
+        {if add_a_page_content_header == "Yes"}{!-- Check to see if we have header title/content --}
+          <div class="content singleColumn">
+            <div class="fullContentRow top">
+              <div class="externalFullBlock">
+                <div class="internalFullBlock">
+                  <div class="blockHead">
+                    <h1 class="specialHeader">{if alt_title_for_header != ""}{alt_title_for_header}{if:else}{title}{/if}</h1>
+                  </div>{!-- end .blockHead --}
+                  <div class="staticPage">
+                  	{if content_for_page_header != ""}{content_for_page_header}{/if}
+                  </div>
+                </div>{!-- end .internalFullBlock --}
+              </div>{!-- end .externalFullBlock --}
+            </div>{!-- end .fullContentRow .top --}
+          </div>{!-- end .content .singleColumn --}
+        {/if}
+      <div class="staticPage">
+      	{simple_page_content}
+      </div>
+			{/exp:channel:entries}
+				
+			<div class="clearBoth">&nbsp;</div>
+				
+		</div>
+			 
+	<div class="recentlyAddedContainer left">
+		<div class="sectionHeading">
+			<h2>Recently Added</h2>
+		</div>
+		<div class="recentlyAddedTabs">
+			<div class="newProjects left recentTab">
+				<a id="new_projects_link" href="#" class="active">Projects</a>
+			</div>
+			<div class="evalReports recentTab">
+				<a id="new_evaluation_reports_link" href="#">Project Evaluation Reports</a>
+			</div>
+			<div class="recentSpotlights recentTab last">
+				<a id="new_spotlights_link" href="#">Project Spotlights</a>
+			</div>
+			<div class="clear"></div>
+			
+			<!-- START RECENT PROJECTS -->
+			<div id="new_projects">
+			<div class="recentContentArea left">
+				<?php
+
+				// grab 3 most recently added NCS projects
+				$recent_url = API_URL."search/json?resourceType=Project+Descriptions&sortDescendingBy=dateAdded&n=3";
+				$recent_results = json_decode(get_data($recent_url),true);
+				if($recent_results != "" && isset($recent_results['results'])){
+					$count = 0;
+					foreach($recent_results['results'] as $single_result){
+						$count++;
+						
+						$single_record = $single_result['record'];
+      			$parsed_record = parse_single_result($single_record);
+      			$single_id = $parsed_record['ncs_id'];
+
+						$image_url = "";
+						// does project image picture exist?
+						if($single_id != ""){
+							$does_image_exist_query = "SELECT * FROM ncs_project WHERE ncs_id = '{$single_id}' ";
+							$image_results = $this->EE->db->query($does_image_exist_query);
+							if($image_results->num_rows()){
+								foreach($image_results->result_array() as $row){
+									$image_url = $row['main_image'];
+								}
+							}
+						}
+
+						$single_resource_html = "";
+						$single_resource_html.= '<div class="recentSpotlightItem">';
+						if($image_url != ""){
+							$single_resource_html.= '<img height="102" width="102" src="{site_url}images/projects/logos/'.$image_url.'"/>';
+						} 
+						$single_resource_html.= '<div class="spotlightTitle left">';
+						$single_resource_html.= '<a href="'.$parsed_record['record_url'].'">'.$parsed_record['title'].'</a>';
+						$single_resource_html.= '</div>';
+						if($image_url != ""){
+							$single_resource_html.= '<div class="spotlightRecentDesc left">';
+						}
+						else{
+							$single_resource_html.= '<div class="spotlightRecentDescNoImage left">';
+						}
+						$single_resource_html.= $parsed_record['short_description'];
+						$single_resource_html.= '</div>';
+						$single_resource_html.= '</div>';
+						if($count != 3){
+							$single_resource_html.= '<div class="recentHR left"></div>';
+							$single_resource_html.= '<div class="clear"></div>';
+						}
+						print $single_resource_html;
+						
+					}
+				}
+
+				?>
+			</div>
+			</div>
+			<!-- END RECENT PROJECTS -->
+
+			<!-- START RECENT EVALUATION REPORTS -->
+			<div id="new_evaluation_reports">
+			<div class="recentContentArea left">
+				<?php
+				// grab 3 most recently added NCS evaluation reports
+				$recent_url = API_URL."search/json?resourceType=Evaluation+Reports&sortDescendingBy=dateAdded&n=3";
+				$recent_results = json_decode(get_data($recent_url),true);
+				if($recent_results != "" && isset($recent_results['results'])){
+					$count = 0;
+					foreach($recent_results['results'] as $single_result){
+						$count++;
+						
+						$single_record = $single_result['record'];
+      			$parsed_record = parse_single_result($single_record);
+      			$single_id = $parsed_record['ncs_id'];
+
+						$single_resource_html = "";
+						$single_resource_html.= '<div class="recentSpotlightItem">';
+						$single_resource_html.= '<div class="spotlightTitle left"><a href="'.$parsed_record['record_url'].'">'.$parsed_record['title'].'</a></div>';
+						$single_resource_html.= '<div class="spotlightRecentDescNoImage left">';
+						$single_resource_html.= $parsed_record['short_description'];
+						$single_resource_html.= '</div>';
+						$single_resource_html.= '</div>';
+						if($count != 3){
+							$single_resource_html.= '<div class="recentHR left"></div>';
+							$single_resource_html.= '<div class="clear"></div>';
+						}
+						print $single_resource_html;
+						
+					}
+				}
+
+				?>
+			</div>
+			</div>
+			<!-- END RECENT EVALUATION REPORTS -->
+
+			<!-- START RECENT PROJECT SPOTLIGHTS -->
+			<div id="new_spotlights">
+				<div class="recentContentArea left">
+					{exp:channel:entries channel="ch_blog" limit="3" category="17" disable="pagination|member_data|statuses" dynamic="no"}
+					<div class="recentSpotlightItem">
+						
+						{if post_thumb_small != ""}<img height="102" width="102" src="{post_thumb_small}" />{/if}
+						
+						<div class="spotlightTitle left">
+							<a href="{path='perspectives/blog/{url_title}'}">{title}</a>
+						</div>
+
+						<div class="spotlightRecentDesc{if post_thumb_small == ""}NoImage{/if} left">
+							{post_summary_excerpt}
+						</div>
+
+					</div>
+					
+					{if count != total_results}
+						<div class="recentHR left"></div>
+						<div class="clear"></div>
+					{/if}
+
+					{/exp:channel:entries}
+				</div>
+			</div>
+			<!-- END RECENT SPOTLIGHTS -->
+
+		</div>
+
+	</div>
+			 
+	</div><!-- end #mainContentArea -->
+  
+<div class="clearBoth">&nbsp;</div>
+<div id="externalSocialMediaSharingBlock">
+	{snip_scroll_to_top}
+	{snip_social_media_sharing}
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+</div><!-- end #mainContentArea - fixed width, fixed height, centered -->
+
+{snip_global_footer}<!-- include global_footer snippet -->
+
+</div><!-- end #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+{snip_bring_js}
+<script type="text/javascript">
+$(document).ready(function() {
+	$('.carousel').carousel({
+		interval: 11000
+});
+
+	// javascript for showing / hiding tabs for Recently Added
+	$('#new_projects').show();
+	$('#new_evaluation_reports').hide();
+	$('#new_spotlights').hide();
+
+	// show New Projects - hide all else
+	$('#new_projects_link').on('click',function(){
+		$('#new_projects').show();
+		$('#new_evaluation_reports').hide();
+		$('#new_spotlights').hide();
+		$('#new_projects_link').addClass('active');
+		$('#new_evaluation_reports_link').removeClass('active');
+		$('#new_spotlights_link').removeClass('active');
+		return false;
+	});
+
+	// show Evaluation Reports - hide all else
+	$('#new_evaluation_reports_link').on('click',function(){
+		$('#new_projects').hide();
+		$('#new_evaluation_reports').show();
+		$('#new_spotlights').hide();
+		$('#new_projects_link').removeClass('active');
+		$('#new_evaluation_reports_link').addClass('active');
+		$('#new_spotlights_link').removeClass('active');
+		return false;
+	});
+
+	// show Project Spotlights - hide all else
+	$('#new_spotlights_link').on('click',function(){
+		$('#new_projects').hide();
+		$('#new_evaluation_reports').hide();
+		$('#new_spotlights').show();
+		$('#new_projects_link').removeClass('active');
+		$('#new_evaluation_reports_link').removeClass('active');
+		$('#new_spotlights_link').addClass('active');
+		return false;
+	});
+});
+</script>
+
+</body>
+<!--  **** END OF REGULAR RESOURCE INDEX PAGE **** -->
+<?php else: ?>
+<?php
+
+// parse results
+if($record_found && isset($record_results['record'])){
+  $record = $record_results['record'];
+  $parsed_record = parse_single_result($record);
+
+  $record_ncs_id = $what_resource;
+
+	$record_people_string = "";
+  $record_add_yourself_string = "";
+	
+	// increment view count for the resource
+		$does_project_exist_results = $this->EE->db->query("SELECT * FROM ncs_project where ncs_id = '{$what_resource}' ");
+		if($does_project_exist_results->num_rows < 1){
+			$increment_query = "INSERT INTO ncs_project (view_count, ncs_id) VALUES (1,'{$what_resource}') ";
+		}
+		else{
+			$view_count = 0;
+			foreach($does_project_exist_results->result_array() as $row){
+				if($row['view_count'] != "") $view_count = $row['view_count'];
+			}
+			$view_count++;
+			$increment_query = "UPDATE ncs_project SET view_count='{$view_count}' WHERE ncs_id = '{$what_resource}' ";
+		}
+		$this->EE->db->query($increment_query);
+	// end increment view count
+
+	// update title - don't know why this is here : Asif 05/10/2014
+		$db_parsed_record['title'] = $this->EE->db->escape_str($parsed_record['title']);
+		$update_title_query = "UPDATE ncs_project SET title='{$db_parsed_record['title']}' WHERE ncs_id = '{$what_resource}' ";
+		$this->EE->db->query($update_title_query);
+	// end update title
+
+  // start contributors
+    if(count($parsed_record['contributors']) > 0){
+      foreach($parsed_record['contributors'] as $sv){
+        $tmp_people_string = '<div>';
+        if($sv['id'] != ""){
+          $tmp_id = $sv['id'];
+          // get picture for member if it exists
+          // 38 is the channel id for members, field 107 is the column for member profile pictures
+          $get_picture_query = 
+          "SELECT exp_members.member_id,exp_channel_data.field_id_107 FROM exp_members 
+          LEFT JOIN exp_channel_titles ON exp_members.member_id=exp_channel_titles.author_id 
+          LEFT JOIN exp_channel_data ON exp_channel_titles.entry_id=exp_channel_data.entry_id 
+          WHERE exp_members.member_id = '{$tmp_id}' AND exp_channel_titles.channel_id=38";
+          $picture_results = $this->EE->db->query($get_picture_query);
+          if($picture_results->num_rows() > 0){
+            foreach($picture_results->result_array() as $row){
+            	$tmp_people_string.= '<div class="teamPhoto">';
+            	$tmp_people_string.= '<img width="80" height="80" src="';
+              if($row['field_id_107'] != ""){
+                $tmp_people_string.= '{site_url}images/member_profile_pics/'.$row['field_id_107'];
+              }
+              else {
+              	$tmp_people_string.= '{site_url}images/member_profile_pics/small/mystery-person-small.jpg';
+              }
+              $tmp_people_string.= '" />';
+              $tmp_people_string.= '</div>';
+            }
+          }
+          $tmp_people_string.= '<div class="rightProfileSide"><div class="teamName">'.'<a href="{site_url}community/users/profile/'.$tmp_id.'">'.$sv['firstname'].'<br />'.$sv['lastname'].'</a>'.'</div>';
+        }
+        else{ // if they don't have a CMS id, allow a user to associate themselves with this person
+          $tmp_people_string.= '<div class="teamPhoto"><img width="80" height="80" src="{site_url}images/member_profile_pics/small/mystery-person-small.jpg" /></div>';
+          $tmp_people_string.= '<div class="rightProfileSide"><div class="teamName">'.$sv['firstname'].'<br />'.$sv['lastname'].'</div>';
+          $record_add_yourself_string.= '<div>';
+          $record_add_yourself_string.= '<input type="radio" title="'.$sv['role'].'" name="name" value="'.$sv['name'].'"/>';
+          $record_add_yourself_string.= '<span>'.$sv['name'].'</span>';
+          $record_add_yourself_string.= '<input type="hidden" class="person_organization" value="'.$sv['org'].'" />';
+          $record_add_yourself_string.= '</div>';
+        }
+        $tmp_people_string.= '<div class="teamRole">'.$sv['role'].'</div>';
+        $tmp_people_string.= '</div></div>';
+        $record_people_string_array[] = $tmp_people_string;
+      }
+    }
+    // convert people into one large string
+    $record_people_string = implode('<div class="sidebarHR"></div>',$record_people_string_array);
+    $record_people_string.= '<div class="lastProfileSectionDiv"></div>';
+  // end contributors
+
+  // set status depending on if begin / end dates are set
+    if($parsed_record['begin_date'] == "" && $parsed_record['end_date'] == "") $record_status = 'Unknown';
+    if($parsed_record['end_date'] != "") $record_status = "Ended";
+    if($parsed_record['begin_date'] != "" && $parsed_record['end_date'] == "") $record_status = "Current";
+  // end set status
+
+	// get picture data about the project
+		$main_picture_url = "";
+		$other_picture_urls = "";
+		$other_picture_array = array();
+		$project_picture_query = "SELECT * FROM ncs_project where ncs_id = '{$record_ncs_id}' ";
+		$project_picture_results = $this->EE->db->query($project_picture_query);
+		if($project_picture_results->num_rows() > 0){
+			foreach($project_picture_results->result_array() as $row){
+				$main_picture_url = $row['main_image'];
+				$other_picture_urls = $row['other_images'];
+			}
+			if($other_picture_urls != "") $other_picture_array = explode('***',$other_picture_urls);
+		}
+	// end get picture data
+
+
+  // case study
+		$casestudy_html_array = array();
+  	foreach($parsed_record['related_casestudy'] as $sv){
+			$casestudy_html_array[] = "<a href='".$sv['url']."'>".$sv['title']."</a>";
+  	}
+
+  	$casestudy_html = implode(", ", $casestudy_html_array);
+	// end case study
+
+
+
+
+}
+
+
+?>
+<!-- **** START OF RESOURCE DETAIL PAGE **** -->
+<head>
+
+<!-- begin title / meta / ogp -->
+
+<?php
+  $meta_title = ($parsed_record['title'] != "") ? $parsed_record['title'] : "Resource Title";
+  $meta_description = ($parsed_record['description'] != "") ? $parsed_record['description'] : "Resource Description";
+  $meta_description = str_replace('"', "'", $meta_description);
+	$meta_description = strip_tags($meta_description); // strip html tags from description
+	$meta_description = substr($meta_description,0,403).'...'; // truncate description if greater than 403 characters + add elipse if truncation required
+
+	$meta_picture = $main_picture_url;
+	if($meta_picture == "") $meta_picture = 'project_spotlights-meta.jpg'; // value was generic_pic.jpg - but no such file found in the directory indicated so I switched it out
+	$meta_picture_url = "http://www.informalscience.org/images/projects/logos/".$meta_picture;
+?>
+
+<title><?= $meta_title ?>: Projects: {site_name}</title>
+
+<meta name="keywords" content="{metaProjectDetailPage}" />
+<meta name="description" content="<?= $meta_description ?>" />
+
+<meta property="og:type" content="article" />
+<meta property="og:title" content="<?= $meta_title ?>" />
+<meta property="og:url" content="{site_url}{segment_1}/{segment_2}/{segment_3}" />
+<meta property="og:image" content="<?= $meta_picture_url ?>" />
+<meta property="og:site_name" content="InformalScience" />
+<meta property="og:description" content="<?= $meta_description ?>" />
+
+<!-- end title / meta / ogp -->
+
+<link rel="stylesheet" href="{stylesheet='global/validationEngine.jquery.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/template.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" /><!-- include the global_styles css template -->
+<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" /><!-- include the global_styles css template -->
+<link rel="stylesheet" href="{stylesheet='global/carousel_bootstrap.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/bootstrap.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='pi_guide/jquery.fancybox.css'}" type="text/css" />
+
+{snip_global_header_links}
+
+{snip_global_header_meta}
+
+</head>
+
+<body class="projectDetail">
+ 
+<div id="externalPageWrapper"><!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+<div id="externalMastheadWrap"><!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+
+<div id="internalMastheadWrap"><!-- begin #internalMastheadWrap - fixed width, maybe fixed height too -->
+
+{snip_global_tool_bar}<!-- include global_tool_bar snippet -->
+
+{snip_global_logo_and_nav}<!-- include global_logo_and_nav snippet -->
+
+{snip_global_sub_nav}<!-- include global_sub_nav snippet -->
+
+<script type="text/javascript">
+// provide faux active states for primary and secondary nav elements without having to add pages into structure  
+  var navelement1 = document.getElementById('nav-sub-projects');
+    if(navelement1) {
+      navelement1.className += navelement1.className ? ' parent-active' : '';
+    }
+</script>
+		
+</div><!-- end .internalMastheadWrap - fixed width, fixed height -->
+	
+</div><!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+	
+<div id="mainContentArea" style="margin-top: 20px;"><!-- begin .mastheadMainContent - fixed width, fixed height, centered -->
+<div style="width:980px; margin: 0 auto;">
+
+<?php if($record_found): ?>
+
+	<!-- RESOURCE OPTIONS -->
+	<?php if($has_access): ?>
+		<div class="projectOptionsPanel">
+	  	<div class="sectionHeading">
+		  	<h2>Project Options</h2>
+				<a href="/projects/edit/<?= $record_ncs_id ?>" class="editProjectButton right">Edit Project</a>
+				<a href="/projects/edit-pictures/<?= $record_ncs_id ?>" class="editProjectButton pictureEdit right">Edit Pictures</a>
+			</div>
+  		<div class="projectOptionsContainer">
+		  	<a id="add_yourself" href="#" class="toggleButton active">Add Yourself To Project Team</a>
+				<a id="add_evaluation" href="#" class="toggleButton">Add Evaluation Report</a>
+				<a id="add_research" href="#" class="toggleButton">Add Project Products</a>
+
+		    <div id="add_yourself_div" class="projectOptionsAddY">
+		    	<form id="form_add_yourself" method="post">
+		    		<input type="hidden" name="XID" value="{XID_HASH}" />
+		      	<div class="projectOptionsIntContainer" style="width: 840px;">
+		      		<p class="clearMarginTop">Is this your work? Follow these steps to connect your profile to this resource.</p>
+		      		<div class="addLeftCol">
+		      			<h5>1. Choose Your Role:</h5>
+		      			<ul class="addYourself">
+		      				<li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Principal Investigator" />Principal Investigator</label></li>
+		      				<li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Co-Principal Investigator" />Co-Principal Investigator</label></li>
+		      				<li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Contributor" />Contributor</label></li>
+		      				<li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Evaluator" />Evaluator</label></li>
+		      				<li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Former Principal Investigator" />Former Principal Investigator</label></li>
+		      				<li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Former Co-Principal Investigator" />Former Co-Principal Investigator</label></li>
+		      				<li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Author" />Author</label></li>
+		      				<li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Project Manager" />Project Manager</label></li>
+		      				<li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Contact" />Contact</label></li>
+		      				<li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Publisher" />Publisher</label></li>
+		      				<li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Editor" />Editor</label></li>
+		      			</ul>
+		      		</div>
+		      		<h5>2: List Your Organization:</h5><br/><input autocomplete="off" class="evalOrgField validate[required]" type="text" name="organization" />
+		      		<div class="associateYourself">
+		      			<div class="existing_names left">
+		      				<h5>3. Connect Your Profile:</h5>
+		      				<div class="projectConnectInfo">
+		      					<p>For NSF funded resources, some team member names have been automatically added from FASTLNE abstracts. Select your name and press "ADD" to connect your user profile.</p>
+		      					<p>If your name does not currently appear on this resource, when you press "ADD", your name will be connected as it appears on your profile. All changes are subject to approval before being displayed.</p>
+		      				</div>
+		      				<ul class="addYourself" style="width: 170px;"> 
+		      					<?= $record_add_yourself_string ?>
+		      				</ul>
+		      			</div>
+		      			<input type="hidden" readonly="readonly" name="current_ncs_id" value="<?= $record_ncs_id ?>'" />
+		      			<input type="hidden" readonly="readonly" name="current_user" value="{screen_name}" />
+		      			<input type="hidden" readonly="readonly" name="current_user_id" value="{member_id}" />
+		      			<!-- SUBMITTER FIELDS -->
+		      			{exp:zoo_visitor:details}
+			      			<input readonly="readonly" type="hidden" name="submitter_firstname" value="{visitor:member_firstname}"/>
+			      			<input readonly="readonly" type="hidden" name="submitter_lastname" value="{visitor:member_lastname}"/>
+			      			<input readonly="readonly" type="hidden" name="submitter_email" value="{email}"/>
+			      			<input readonly="readonly" type="hidden" name="submitter_id" value="{member_id}"/>
+		      			{/exp:zoo_visitor:details}
+		      			<!-- END SUBMITTER FIELDS -->
+		      			<div class="projectOptionsBut">
+		      				<input type="submit" name="submit_add_yourself" value="Add" class="blueButtonPlain marginTop" />
+		      				<a id="reset_me" class="blueButtonPlain marginTop" />Deselect</a>
+		      			</div>
+		      		</div>
+		      	</div>
+		    	</form>
+		    </div>
+
+		    <div id="add_research_div" class="projectOptionsAddY left">
+		  	  <a id="add_existing_research_report" href="#" class="blueButtonToggle activeLvl2">Find Existing Research/Reference</a>
+		      <a id="add_new_research_report" href="#" class="blueButtonToggle">Add New Research/Reference</a>
+		      
+		      <!-- Start Add New Research Form/Div -->
+		      <div id="add_new_research" class="projectOptionsLvIntContainer left">
+		        <a href="{path=research/submit-research}?project_id=<?= $what_resource ?>" class="blueButtonPlain marginRight">Submit New Research Reference</a>
+		      </div>
+		      <!-- End Add New Research Form/Div -->
+
+		      <!-- Start Add Existing Research Form/Div -->
+		      <div id="add_existing_research" class="projectOptionsLvIntContainer left">
+		        <form id="form_add_existing_research" method="post">
+		        <input type="hidden" name="XID" value="{XID_HASH}" />
+		        <div class="optionsChoice noMarginBottom left">
+		          <span>Start typing to find existing research reports or reference materials already in the database. Research records include peer reviewed journal articles, research case studies, research briefs, theses, and dissertations.  Reference Materials include books, mass media articles, educational standards, glossaries, marketing materials, policy/memoranda, reports, and presentation slides.</span>
+		          <input autocomplete="off" id="research_predictive_search" name="new_parsed_record['title']" type="text" placeholder="start typing title" class="validate[required] projectOptionsSearch" style="margin-top: 20px;"/>
+						  <input type="hidden" readonly="readonly" name="new_record_id" id="research_id">
+		          <div class="projectOptionsSearchBut"><input name="" style="display:none;" type="image" src="{site_url}images/uploads/eval-search.jpg"/></div>
+		          <div id="success_add_research" class="projectOptionsResult"></div>
+		        </div>
+		        <input type="radio" class="validate[required]" checked="checked" name="new_record_type" value="Research" />Research
+		        <input type="radio" class="validate[required]" name="new_record_type" value="Reference" />Reference Materials
+		        <input type="hidden" readonly="readonly" name="current_ncs_title" value="<?= $parsed_record['title'] ?>" />
+		        <input type="hidden" readonly="readonly" name="current_ncs_id" value="<?= $what_resource ?>" />
+		  			<!-- SUBMITTER FIELDS -->
+						{exp:zoo_visitor:details}
+						<input readonly="readonly" type="hidden" name="submitter_firstname" value="{visitor:member_firstname}"/>
+						<input readonly="readonly" type="hidden" name="submitter_lastname" value="{visitor:member_lastname}"/>
+						<input readonly="readonly" type="hidden" name="submitter_email" value="{email}"/>
+						<input readonly="readonly" type="hidden" name="submitter_id" value="{member_id}"/>
+						{/exp:zoo_visitor:details}
+						<!-- END SUBMITTER FIELDS -->
+		        <div class="clearBoth">&nbsp;</div>
+		        <input name="record_associate" type="hidden" value="Add" />
+		        <input type="submit" value="Add Report" class="blueButtonPlain marginRight marginTop"/>
+		        </form>
+		      </div>
+		      <!-- End Add Existing Research Form/Div -->
+		    </div>
+
+				<div id="add_evaluation_div" class="projectOptionsAddY left">
+				  <a id="add_existing" href="#" class="blueButtonToggle activeLvl2">Find Existing Evaluation Report</a>
+				  <a id="add_new" href="#" class="blueButtonToggle">Add New Evaluation Report</a>
+				  
+				  <!-- Start Add New Evaluation Form/Div -->
+				  <div id="add_new_div" class="projectOptionsLvIntContainer left">
+				    <a href="{path=evaluation/submit-evaluation}?project_id=<?= $what_resource ?>" class="blueButtonPlain marginRight">Submit a New Evaluation Report</a>
+				  </div>
+				  <!-- End Add New Evaluation Form/Div -->
+
+				  <!-- Start Add Existing Evaluation Form/Div -->
+				  <div id="add_existing_div" class="projectOptionsLvIntContainer left">
+				    <form id="form_add_existing_report" method="post">
+				    <input type="hidden" name="XID" value="{XID_HASH}" />
+				    <div class="optionsChoice noMarginBottom left">
+				      <span>Start typing to see if your evaluation report is already in the database.</span>
+				      <input autocomplete="off" id="eval_predictive_search" name="new_parsed_record['title']" type="text" placeholder="start typing title" class="validate[required] projectOptionsSearch" style="margin-top: 20px;"/>
+				      <input type="hidden" readonly="readonly" name="new_record_id" id="evaluation_id">
+				      <div class="projectOptionsSearchBut"><input style="display:none;" name="" type="image" src="{site_url}images/uploads/eval-search.jpg"/></div>
+				      <div id="success_add_existing" class="projectOptionsResult"></div>
+				    </div>
+				    <input type="hidden" readonly="readonly" name="new_record_type" value="Evaluation" />
+				    <input type="hidden" readonly="readonly" name="current_ncs_title" value="<?= $parsed_record['title'] ?>" />
+				    <input type="hidden" readonly="readonly" name="current_ncs_id" value="<?= $what_resource ?>" />
+						<!-- SUBMITTER FIELDS -->
+						{exp:zoo_visitor:details}
+						<input readonly="readonly" type="hidden" name="submitter_firstname" value="{visitor:member_firstname}"/>
+						<input readonly="readonly" type="hidden" name="submitter_lastname" value="{visitor:member_lastname}"/>
+						<input readonly="readonly" type="hidden" name="submitter_email" value="{email}"/>
+						<input readonly="readonly" type="hidden" name="submitter_id" value="{member_id}"/>
+						{/exp:zoo_visitor:details}
+						<!-- END SUBMITTER FIELDS -->
+				    <div class="clearBoth">&nbsp;</div>
+				    <input name="record_associate" type="hidden" value="Add" />
+				    <input type="submit" value="Add Report" class="blueButtonPlain marginRight"/>
+				    </form>
+				  </div>
+				  <!-- End Add Existing Evaluation Form/Div -->
+				</div>
+
+			</div>
+		</div>
+	<?php endif; ?>
+	<!-- END RESOURCE OPTIONS -->
+
+	<!-- SIDEBAR -->
+	<div class="sidebar right marginTop">
+
+		<?php if($has_access): ?><a href="#" class="projectOptionsTogButton">Show Project Options</a><?php endif; ?>
+
+    <div class="projectSidebar">
+      <div class="sectionHeading"><h2>Team Members</h2></div>
+      <div class="projectInfo withPadding">
+        <?= $record_people_string ?>
+      </div>
+    </div>
+
+		<?= $parsed_record['related_project_html'] ?>
+	</div>
+	<!-- END SIDEBAR -->
+
+	<!-- RESOURCE DETAILS -->
+	<div class="projectDetailContent">
+    <div class="sectionHeading"><h2>Project Details</h2></div>
+    
+    <?php if($main_picture_url): ?>
+    	<div class="projectImage">
+	    	<img height="102" width="102" src="{site_url}images/projects/logos/<?= $main_picture_url ?>" />
+    	</div>
+    <?php endif; ?>
+
+    <div class="projectTitleBg <?= (($main_picture_url == "") ? 'projectTitleNoImage' : '') ?>"><div class="projectTitle"><?= $parsed_record['title'] ?></div></div>
+
+    <?php if($parsed_record['organization_string']): ?>
+      <div class="projectFieldHeading">Lead Organization: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['organization_string'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['resource_type_string']): ?>
+      <div class="projectFieldHeading">Resource Type: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['resource_type_string'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['env_type_string']): ?>
+      <div class="projectFieldHeading">Environment Type: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['env_type_string'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['audience_string']): ?>
+      <div class="projectFieldHeading">Audience(s): </div>
+      <div class="projectDetailEntry"><?= $parsed_record['audience_string'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['content_string']): ?>
+      <div class="projectFieldHeading">Content: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['content_string'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['description']): ?>
+      <div class="projectFieldHeading">Description: </div>
+      <div class="projectDetailEntry"><p style="float: left; width: 440px; margin-top: 0px;"><?= $parsed_record['description']; ?></p></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if(count($parsed_record['related_websites']) > 0): ?>
+    	<div class="projectFieldHeading">Website: </div>
+    	<div class="left" style="width:440px;">
+    	<?php foreach($parsed_record['related_websites'] as $sv): ?>
+    		<div class="detailWebsite"><a href="<?= $sv ?>"><?= $sv ?></a></div>
+    	<?php endforeach; ?>
+    	</div>
+    	<div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($casestudy_html): ?>
+			<div class="projectFieldHeading">Case Studies: </div>
+			<div class="projectDetailEntry"><?= $casestudy_html ?></div>
+			<div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['funding_source_string']): ?>
+      <div class="projectFieldHeading">Funder(s): </div>
+      <div class="projectDetailEntry"><?= $parsed_record['funding_source_string'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['funding_amount_string']): ?>
+      <div class="projectFieldHeading">Award Amount: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['funding_amount_string'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['funding_amount_string']): ?>
+      <div class="projectFieldHeading">Award Number: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['funding_number_string'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+
+		<?php if($parsed_record['begin_date']): ?>
+      <div class="projectFieldHeading">Duration: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['begin_date'] ?> - <?= $parsed_record['end_date'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>  
+
+	</div> 
+
+	<?= $parsed_record['project_products_html'] ?> 
+	<?= $parsed_record['evaluation_reports_html'] ?>
+
+  <?php if(count($other_picture_array) > 0): ?>
+  	<div class="projectDetailContent" style="margin-top:0">
+  	<div class="sectionHeading"><h2>Project Gallery</h2></div>
+  	<div class="projectGalleryPhotos">
+  	<?php foreach($other_picture_array as $sv): ?>
+  		<a class="fancybox" rel="gallery1" href="{site_url}images/projects/gallery/<?= $sv ?>">
+    		<img src="{site_url}images/projects/gallery/thumbs/<?= $sv ?>">
+  		</a>
+  	<?php endforeach; ?>
+  	</div>
+  	</div>
+  <?php endif; ?>
+
+	<!-- END RESOURCE DETAILS -->
+
+<?php endif; ?>
+
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+<div id="externalSocialMediaSharingBlock">
+  {snip_scroll_to_top}
+  {snip_social_media_sharing}
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+</div><!-- end #mainContentArea - fixed width, fixed height, centered -->
+
+{snip_global_footer}<!-- include global_footer snippet -->
+
+</div><!-- end #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+<?php
+
+	// grab organization list and convert to JS array for bootstrap
+	$org_results = $this->EE->db->query("SELECT name FROM organizations");
+	$orgs = array();
+	foreach($org_results->result_array() as $row){
+		$orgs[] = $row['name'];
+	}
+	$js_orgs = json_encode($orgs);
+
+	// grab evaluation list and convert to JS array for bootstrap
+	$evaluation_results = $this->EE->db->query("SELECT title,ncs_id from ncs_evaluation WHERE title != '' AND ncs_id != '' ");
+	$evals = array();
+	foreach($evaluation_results->result_array() as $row){
+	  $evals[] = $row['title'].'---'.$row['ncs_id'];
+	}
+	$js_evals = json_encode($evals);
+
+	// grab research list and convert to JS array for bootstrap
+	$research_results = $this->EE->db->query("SELECT title,ncs_id from ncs_research WHERE title != '' AND ncs_id != '' ");
+	$research = array();
+	foreach($research_results->result_array() as $row){
+	  $research[] = $row['title'].'---'.$row['ncs_id'];
+	}
+	$js_research = json_encode($research);
+
+	// grab reference list and convert to JS array for bootstrap
+	$reference_results = $this->EE->db->query("SELECT title,ncs_id from ncs_reference WHERE title != '' AND ncs_id != '' ");
+	$reference = array();
+	foreach($reference_results->result_array() as $row){
+	  $reference[] = $row['title'].'---'.$row['ncs_id'];
+	}
+	$js_reference = json_encode($reference);
+
+?>
+
+{snip_bring_js}
+<script type="text/javascript">
+$(document).ready(function() {
+	// fancybox plugin for image gallery
+	$(".fancybox").fancybox();
+
+	// project options panel
+	$('.projectOptionsPanel').hide();
+	$('.projectOptionsTogButton').on('click',function(){
+		$('.projectOptionsPanel').toggle();
+		$(this).toggleClass('hideOptions');
+		if($(this).text() == 'Show Project Options'){
+			$(this).text('Hide Project Options');
+		}
+		else{
+			$(this).text('Show Project Options');	
+		}
+		return false;
+	});
+
+  // predictive search for organization fields
+  var organizations = <?php echo $js_orgs; ?>;
+  $('input[name=organization]').typeahead({source: organizations, items:6})
+
+  // claim your name in the project options window!
+  $('input[name=name]').on('change', function(){
+    var role = $(this).attr('title');
+    $('input[value="'+role+'"]').attr('checked','checked');
+    $('input[name=organization]').val('');
+    $('input[name=organization]').val($(this).siblings('.person_organization').val());
+  });
+
+  // reset add yourself form
+  $('#reset_me').on('click',function(){
+  	$('#form_add_yourself').trigger('reset');
+  });
+
+  // add yourself form validation and submit
+  $('#form_add_yourself').validationEngine();
+  $('#form_add_yourself').ajaxForm({
+  	target: '#add_yourself_div',
+    url: '{site_url}process_edits_from_detail.php'
+  });
+
+  // add existing evaluation report form validation and submit
+  $('#form_add_existing_report').validationEngine();
+  var form_add_existing_report_options = {
+    target: '#success_add_existing',
+    clearForm: true,
+    url: '{site_url}process_edits_from_detail.php'
+  }
+  $('#form_add_existing_report').ajaxForm(form_add_existing_report_options);
+
+  // add existing research form validation and submit
+  $('#form_add_existing_research').validationEngine();
+  var form_add_existing_research_options = {
+    target: '#success_add_research',
+    clearForm: true,
+    url: '{site_url}process_edits_from_detail.php'
+  }
+  $('#form_add_existing_research').ajaxForm(form_add_existing_research_options);
+
+  // predictive search for evaluation reports
+  var eval_reports = <?php echo $js_evals; ?>;
+  $('#eval_predictive_search').typeahead({
+  	source: eval_reports, items:6,
+  	matcher:function(item){
+  		if(item.toLowerCase().replace(/---.*/,'').indexOf(this.query.trim().toLowerCase()) != -1){
+  			return true;
+  		}
+  	},
+  	highlighter: function(item){
+  		var regex = new RegExp( '(' + this.query + ')', 'gi' );
+  		return item.replace(/---.*/,'').replace( regex, "<strong>$1</strong>" );
+  	},
+  	updater:function(item){
+  		var profile_id = item.replace(/.*---/,'');
+      $('#evaluation_id').attr('value', profile_id);
+			return item.replace(/---.*/,'');
+  	}
+  });
+
+  // predictive search for research reports
+  var research_reports = <?php echo $js_research; ?>;
+  var reference_reports = <?php echo $js_reference; ?>;
+  $('#research_predictive_search').typeahead({
+  	items:6,
+  	matcher:function(item){
+  		if(item.toLowerCase().replace(/---.*/,'').indexOf(this.query.trim().toLowerCase()) != -1){
+  			return true;
+  		}
+  	},
+  	highlighter: function(item){
+  		var regex = new RegExp( '(' + this.query + ')', 'gi' );
+  		return item.replace(/---.*/,'').replace( regex, "<strong>$1</strong>" );
+  	},
+  	updater:function(item){
+  		var profile_id = item.replace(/.*---/,'');
+      $('#research_id').attr('value', profile_id);
+			return item.replace(/---.*/,'');
+  	}
+  });
+  $("#research_predictive_search").data('typeahead').source = research_reports;
+  $('input[name=new_record_type]').on('change',function(){
+  	if($(this).val() == 'Research'){
+  		$("#research_predictive_search").data('typeahead').source = research_reports;
+  	}
+  	else{
+  		$("#research_predictive_search").data('typeahead').source = reference_reports;
+  	}
+  });
+
+  // javascript for showing / hiding tabs for Project Options
+  $('#add_yourself_div').show();
+  $('#add_evaluation_div').hide();
+  $('#add_research_div').hide();
+  $('#add_yourself').on('click',function(){
+    $('#add_yourself_div').show();
+    $('#add_yourself').addClass('active');
+    $('#add_evaluation_div').hide();
+    $('#add_evaluation').removeClass('active');
+    $('#add_research_div').hide();
+    $('#add_research').removeClass('active');
+    return false;
+  });
+  $('#add_evaluation').on('click',function(){
+    $('#add_yourself_div').hide();
+    $('#add_yourself').removeClass('active');
+    $('#add_evaluation_div').show();
+    $('#add_evaluation').addClass('active');
+    $('#add_research_div').hide();
+    $('#add_research').removeClass('active');
+    return false;
+  });
+  $('#add_research').on('click',function(){
+    $('#add_yourself_div').hide();
+    $('#add_yourself').removeClass('active');
+    $('#add_evaluation_div').hide();
+    $('#add_evaluation').removeClass('active');
+    $('#add_research_div').show();
+    $('#add_research').addClass('active');
+    return false;
+  });
+
+  $('#add_new_div').hide();
+  $('#add_existing_div').show();
+  $('#add_new').on('click',function(){
+    $('#add_new_div').show();
+    $('#add_new').addClass('activeLvl2');
+    $('#add_existing_div').hide();
+    $('#add_existing').removeClass('activeLvl2');
+    return false;
+  });
+  $('#add_existing').on('click',function(){
+    $('#add_new_div').hide();
+    $('#add_new').removeClass('activeLvl2');
+    $('#add_existing_div').show();
+    $('#add_existing').addClass('activeLvl2');
+    return false;
+  });
+
+	$('#add_new_research').hide();
+  $('#add_existing_research').show();
+  $('#add_new_research_report').on('click',function(){
+    $('#add_new_research').show();
+    $('#add_new_research_report').addClass('activeLvl2');
+    $('#add_existing_research').hide();
+    $('#add_existing_research_report').removeClass('activeLvl2');
+    return false;
+  });
+  $('#add_existing_research_report').on('click',function(){
+    $('#add_new_research').hide();
+    $('#add_new_research_report').removeClass('activeLvl2');
+    $('#add_existing_research').show();
+    $('#add_existing_research_report').addClass('activeLvl2');
+    return false;
+  });  
+
+});
+</script>
+
+</body>
+<!-- **** END OF RESOURCE DETAIL PAGE **** -->
+<?php endif; ?>
+
+</html>

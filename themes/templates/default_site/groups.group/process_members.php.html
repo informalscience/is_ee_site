@@ -1,0 +1,343 @@
+<?php
+
+require_once("/var/www/ee/site_tools/functions.php");
+
+$this->EE =& get_instance();
+$db = $this->EE->db;
+
+ee()->security->restore_xid();
+
+if($_GET){
+  if(isset($_GET['action'])){
+
+    // get here from edit members page - delete member
+    if($_GET['action'] == 'delete'){
+
+      $admin_id = $this->EE->db->escape_str($_GET['admin_id']);
+      $group_id = $this->EE->db->escape_str($_GET['group_id']);
+      $member_id = $this->EE->db->escape_str($_GET['member_id']);
+
+      ($admin_id == 1 || $admin_id == 8) ? $is_always_admin = true : $is_always_admin = false;
+
+      // does group exist?
+      $does_group_exist_query = "SELECT * FROM groups WHERE id = '{$group_id}' ";
+      if($this->EE->db->query($does_group_exist_query)->num_rows() < 1){
+        echo generate_error_message("Group does not exist");
+        exit();
+      }
+
+      // is the user an admin?
+      $is_admin_user_query = "SELECT * FROM groups_members WHERE group_id = '{$group_id}' AND member_id = '{$admin_id}' AND is_admin = 1";
+      if($this->EE->db->query($is_admin_user_query)->num_rows() < 1 && !$is_always_admin){
+        echo generate_error_message("Must be group admin to delete users");
+        exit();
+      }
+
+      // finally passed validation checks
+      $this->EE->db->query("DELETE FROM groups_members WHERE group_id = '{$group_id}' AND member_id = '{$member_id}' ");
+      $this->EE->db->query("DELETE FROM groups_forum_subscriptions_threads WHERE group_id='{$group_id}' AND member_id='{$member_id}'");
+      $this->EE->db->query("DELETE FROM groups_forum_subscriptions_replies WHERE group_id='{$group_id}' AND member_id='{$member_id}'");
+      echo generate_success_message("Removed member from group");
+      exit();
+    }
+
+    // request to join group
+    if($_GET['action'] == 'join'){
+
+      $group_id = $this->EE->db->escape_str($_GET['group_id']);
+      $member_id = $this->EE->db->escape_str($_GET['member_id']);
+
+      $form_error = "";
+      $form_validation = true;
+
+      // does group exist?
+      if($form_validation){
+        $does_group_exist_query = "SELECT * FROM groups WHERE id = '{$group_id}' ";
+        if($this->EE->db->query($does_group_exist_query)->num_rows() < 1){
+          $form_error = "Group does not exist";
+          $form_validation = false;
+        }  
+      }
+      // does member exist?
+      if($form_validation){
+        $does_member_exist_query = "SELECT * FROM exp_members WHERE member_id = '{$member_id}' ";
+        if($this->EE->db->query($does_member_exist_query)->num_rows() < 1){
+          $form_error = "Member does not exist";
+          $form_validation = false;
+        }
+      }
+      // is member already in group?
+      if($form_validation){
+        $is_member_already_in_group_query = "SELECT * FROM groups_members WHERE group_id = '{$group_id}' AND member_id = '{$member_id}' AND status=1";
+        if($this->EE->db->query($is_member_already_in_group_query)->num_rows() > 0){
+          $form_error = "Member is already in group!";
+          $form_validation = false;
+        }
+      }
+      // did member already request to join group?
+      if($form_validation){
+        $is_member_already_in_group_query = "SELECT * FROM groups_members WHERE group_id = '{$group_id}' AND member_id = '{$member_id}' AND status=0";
+        if($this->EE->db->query($is_member_already_in_group_query)->num_rows() > 0){
+          $form_error = "You have already requested to join this group";
+          $form_validation = false;
+        }
+      }
+
+      // finally passed validation checks
+      if($form_validation){
+        $insert_query = "INSERT INTO groups_members (group_id,member_id,status,is_admin) VALUES ({$group_id},{$member_id},0,0) ";
+        if(!$this->EE->db->query($insert_query)){
+          $form_error = "Error inserting member into database";
+          $form_validation = false;
+        }
+      }
+
+      // set success message
+      if($form_validation){
+        $form_success = "<span>Success!</span> You have requested to join this group";
+        echo '<div class="form_success">'.$form_success.'</div>';
+        group_email_notifier($db, $member_id, $group_id, true);
+        exit();
+      }
+
+    }
+
+    // request to leave group
+    if($_GET['action'] == 'leave'){
+
+      $group_id = $this->EE->db->escape_str($_GET['group_id']);
+      $member_id = $this->EE->db->escape_str($_GET['member_id']);
+
+      // does group exist?
+      $does_group_exist_query = "SELECT * FROM groups WHERE id = '{$group_id}' ";
+      if($this->EE->db->query($does_group_exist_query)->num_rows() < 1){
+        echo generate_error_message("Group does not exist");
+        exit();
+      }
+
+      // finally passed validation checks
+      $this->EE->db->query("DELETE FROM groups_members WHERE group_id = '{$group_id}' AND member_id = '{$member_id}' ");
+      $this->EE->db->query("DELETE FROM groups_forum_subscriptions_threads WHERE group_id='{$group_id}' AND member_id='{$member_id}'");
+      $this->EE->db->query("DELETE FROM groups_forum_subscriptions_replies WHERE group_id='{$group_id}' AND member_id='{$member_id}'");
+      echo generate_success_message("You have left this group");
+      exit();
+
+    }
+
+    // admin approves member
+    if($_GET['action'] == 'approve'){
+
+      $group_id = $this->EE->db->escape_str($_GET['group_id']);
+      $member_id = $this->EE->db->escape_str($_GET['member_id']);
+      $what_page = $_GET['what_page'];
+
+      // does group exist?
+      $does_group_exist_query = "SELECT * FROM groups WHERE id = '{$group_id}' ";
+      if($this->EE->db->query($does_group_exist_query)->num_rows() < 1){
+        echo generate_error_message("Group does not exist");
+        exit();
+      }  
+
+      // does member exist?
+      $does_member_exist_query = "SELECT * FROM exp_members WHERE member_id = '{$member_id}' ";
+      if($this->EE->db->query($does_member_exist_query)->num_rows() < 1){
+        echo generate_error_message("Member does not exist");
+        exit();
+      }
+
+      // is member already in group?
+      $is_member_already_in_group_query = "SELECT * FROM groups_members WHERE group_id = '{$group_id}' AND member_id = '{$member_id}' AND status=1";
+      if($this->EE->db->query($is_member_already_in_group_query)->num_rows() > 0){
+        echo generate_error_message("Member is already in group!");
+        exit();
+      }
+
+      // finally passed validation checks
+      $update_query = "UPDATE groups_members SET status = 1 WHERE group_id = '{$group_id}' AND member_id = '{$member_id}' ";
+      if(!$this->EE->db->query($update_query)){
+        echo generate_error_message("Error updating member status");
+        exit();
+      }
+
+      // set success message
+      group_email_notifier($db, $member_id, $group_id, false);
+
+      $this->EE->db->query("INSERT INTO groups_forum_subscriptions_threads (group_id, member_id) VALUES ('{$group_id}','{$member_id}') ");
+      $this->EE->db->query("INSERT INTO groups_forum_subscriptions_replies (group_id, member_id) VALUES ('{$group_id}','{$member_id}') ");
+      
+      $result_object = array();
+      $result_object["message"] = generate_success_message("Approved member");
+
+      $member_info = get_info_about_member($db, $member_id, $group_id);
+      $result_object["member"] = make_member_html_on_group_member_page($member_info, 1);
+      $result_object["member_on_detail_html"] = make_member_html_on_group_details_page($member_info);
+
+      echo json_encode($result_object);
+      exit();
+
+    }
+
+    // request to leave group
+    if($_GET['action'] == 'reject'){
+
+      $group_id = $this->EE->db->escape_str($_GET['group_id']);
+      $member_id = $this->EE->db->escape_str($_GET['member_id']);
+
+      // is member still pending?
+      $is_member_already_in_group_query = "SELECT * FROM groups_members WHERE group_id = '{$group_id}' AND member_id = '{$member_id}' AND status=1";
+      if($this->EE->db->query($is_member_already_in_group_query)->num_rows() > 0){
+        echo generate_error_message("You can't reject a member after approval!");
+        exit();
+      }
+
+      $this->EE->db->query("DELETE FROM groups_members WHERE group_id = '{$group_id}' AND member_id = '{$member_id}' ");
+      echo generate_success_message("Rejected member");
+      exit();
+
+    }
+
+
+
+  }
+}
+
+// add member to group
+if($_POST && isset($_POST['submit_member'])){
+
+  $admin_id = $this->EE->db->escape_str($_POST['admin_id']);
+  $group_id = $this->EE->db->escape_str($_POST['group_id']);
+  $member_id = $this->EE->db->escape_str($_POST['member_id']);
+
+  ($admin_id == 1 || $admin_id == 8) ? $is_admin = true : $is_admin = false;
+
+  // does group exist?
+  $does_group_exist_query = "SELECT * FROM groups WHERE id = '{$group_id}' ";
+  if($this->EE->db->query($does_group_exist_query)->num_rows() < 1){
+    echo generate_error_message("Group does not exist");
+    exit();
+  }
+
+  // is the user an admin?
+  $is_admin_user_query = "SELECT * FROM groups_members WHERE group_id = '{$group_id}' AND member_id = '{$admin_id}' AND is_admin = 1";
+  if($this->EE->db->query($is_admin_user_query)->num_rows() < 1 && !$is_admin){
+    echo generate_error_message("Must be group admin to add users");
+    exit();
+  }
+  else{
+    $is_admin = true;
+  }
+
+  // does member exist?
+  $does_member_exist_query = "SELECT * FROM exp_members WHERE member_id = '{$member_id}' ";
+  if($this->EE->db->query($does_member_exist_query)->num_rows() < 1){
+    echo generate_error_message("Member does not exist");
+    exit();
+  }
+
+  // is member already in group?
+  $is_member_already_in_group_query = "SELECT * FROM groups_members WHERE group_id = '{$group_id}' AND member_id = '{$member_id}'";
+  if($this->EE->db->query($is_member_already_in_group_query)->num_rows() > 0){
+    echo generate_error_message("Member is already in group!");
+    exit();
+  }
+
+  // finally passed validation checks
+  $this->EE->db->query("INSERT INTO groups_members (group_id,member_id,status,is_admin) VALUES ({$group_id},{$member_id},1,0) ");
+  $this->EE->db->query("INSERT INTO groups_forum_subscriptions_threads (group_id, member_id) VALUES ('{$group_id}','{$member_id}') ");
+  $this->EE->db->query("INSERT INTO groups_forum_subscriptions_replies (group_id, member_id) VALUES ('{$group_id}','{$member_id}') ");
+  
+  $result_object = array();
+  $result_object["message"] = generate_success_message("Added member to group");
+
+  $member_info = get_info_about_member($db, $member_id, $group_id);
+  $result_object["member"] = make_member_html_on_group_member_page($member_info, $is_admin);
+  echo json_encode($result_object);
+  exit();
+
+}
+
+
+function group_email_notifier($db, $member_id, $group_id, $notify_admin){
+  $submitter_email = "";
+  $submitter_name = "";
+  $admin_email = "";
+  $admin_name = "";
+
+  $get_submitter_query = 
+  "SELECT email, screen_name
+  FROM exp_members
+  WHERE member_id='{$member_id}' ";
+
+  $db_results = $db->query($get_submitter_query);
+  
+  if( $db_results->num_rows() ){
+    foreach ( $db_results->result_array() as $db_row ){
+      $submitter_email = $db_row['email'];
+      $submitter_name = $db_row['screen_name'];
+    }
+  }
+
+  $get_admin_query = 
+  "SELECT exp_members.screen_name, exp_members.email 
+  FROM groups_members 
+  LEFT JOIN exp_members 
+  ON groups_members.member_id=exp_members.member_id 
+  WHERE groups_members.is_admin=1 
+    AND groups_members.group_id='{$group_id}' ";
+
+  $db_results = $db->query($get_admin_query);
+  
+  if( $db_results->num_rows() ){
+    foreach ( $db_results->result_array() as $db_row ){
+      $admin_email = $db_row['email'];
+      $admin_name = $db_row['screen_name'];
+    }
+  }
+
+  $group_name = "";
+  $get_group_query =
+  "SELECT name from groups WHERE id='{$group_id}' ";
+  $db_results = $db->query($get_group_query);
+  if( $db_results->num_rows() ){
+    foreach ( $db_results->result_array() as $db_row ){
+      $group_name = $db_row['name'];
+    }
+  }  
+
+  $url = "informalscience.org";
+  $group_url = "http://$url/community/groups/details/?id=$group_id";
+
+  $to = ($notify_admin) ? $admin_email : $submitter_email;
+  $from = "admin@informalscience.org";
+  $subject = "InformalScience.org Group Membership Request";
+  if($notify_admin){
+    $message = 
+    "Hello,
+    <br><br>An InformalScience.org member, $submitter_name, has requested to join your group, $group_name. Please review this request at <a href='$group_url'>$group_url</a>.
+    <br><br>From,
+    <br>The InformalScience Bot";
+  }
+  else{
+    $message = 
+    "Hello,
+    <br><br>Your request to join the group, $group_name, on InformalScience.org has been approved. Visit the group page at <a href='$group_url'>$group_url</a>.
+    <br><br>From,
+    <br>The InformalScience Bot";
+  }
+  $headers = array();
+  $headers[] = "MIME-Version: 1.0";
+  $headers[] = "Content-type: text/html; charset=iso-8859-1";
+  $headers[] = "From: <".$from.">";
+  $headers[] = "Reply-To: <".$from.">";
+  $headers[] = "X-Mailer: PHP/".phpversion();
+
+  if(mail($to, $subject, $message, implode("\r\n", $headers))){
+    // echo "EMAIL SUCCESS";
+  }
+  // else{
+  //   // echo "EMAIL FAILURE";
+  // }
+
+}
+
+?>

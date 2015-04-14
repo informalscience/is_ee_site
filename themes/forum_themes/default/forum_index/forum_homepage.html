@@ -1,0 +1,20 @@
+{include:html_header}
+{include:top_bar}
+{include:page_header}
+<div id="content">
+
+{include:page_subheader}
+{include:main_forum_list}
+<!-- {include:visitor_stats} -->
+{include:forum_legend}
+</div>
+zzzzzz
+{exp:forum_subscribe:forums}
+<p><b>{forum_category}</b></p>
+{forums}
+<p>{forum_name}: {if subscribed}<b>SUBSCRIBED</b> - <a href="{forum_subscribe_url}">Click to Unsubscribe</a> 
+{if:else}<a href="{forum_subscribe_url}">Subscribe to forum</a></p>{/if}
+{/forums}
+{/exp:forum_subscribe:forums} 
+
+{include:html_footer}

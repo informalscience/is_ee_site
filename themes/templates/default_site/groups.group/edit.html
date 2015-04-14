@@ -1,0 +1,223 @@
+{snip_community_redirect}
+<!-- begin embed groups/edit -->
+{snip_group_found}
+<?php
+
+// do we have enough permission to view/edit group? comment/uncomment code depending on privilege level (super-admin, group-admin, group-member, logged-in, anyone)
+	$group_access = false;
+	$is_admin = false;
+	$is_member = false;
+	$is_pending_member = false;
+	$is_logged_in = false;
+
+	// are we a super admin?
+	if($this->EE->session->userdata['group_id'] == 1){
+		$group_access = true;
+		$is_admin = true;
+	}
+
+	// get all group member data - this will be used to see if user is a group admin, group member, or group pending member
+	$all_members = array();
+	$admin_members = array();
+	$current_members = array();
+	$pending_members = array();
+	$all_members_query = 
+	"SELECT groups_members.member_id, groups_members.status, groups_members.is_admin, exp_members.screen_name 
+	FROM groups_members
+	LEFT JOIN exp_members 
+	ON groups_members.member_id=exp_members.member_id 
+	WHERE groups_members.group_id = '{$group_id}'";
+
+	$members_results = $this->EE->db->query($all_members_query);
+	if($members_results->num_rows()){
+		foreach($members_results->result_array() as $row){
+			$all_members[] = $row;
+			
+			if($row['is_admin'] == 1){
+				$admin_members[] = $row;
+				$current_members[] = $row;
+
+				// are we the group admin?
+				if($row['member_id'] == $my_id){
+					$group_access = true;
+					$is_admin = true;
+				}
+
+			}
+			else if($row['status'] == 1){
+				$current_members[] = $row;
+
+				// are we a member?
+				if($row['member_id'] == $my_id){
+					$group_access = true;
+					$is_member = true;
+				}
+			}
+			else if($row['status'] == 0){
+				$pending_members[] = $row;
+
+				// are we a pending member?
+				if($row['member_id'] == $my_id){
+					// $group_access = true;
+					$is_pending_member = true;
+				}
+			}
+
+		}
+	}							
+
+	// are we logged in?
+	if($my_id != "" && $my_id != 0){
+		// $group_access = true;
+		$is_logged_in = true;
+	}
+	// do we just not care who views this page?
+	// $group_access = true;
+
+// if we don't have the proper permissions...redirect them to the no-access page
+if(!$group_access){
+  if(!$is_logged_in){
+    header('Location: '.$site_url.'community/groups/no-access/login');
+  }
+  else if(!$is_admin){
+    header('Location: '.$site_url.'community/groups/no-access/admin');
+  }
+  else{
+    header('Location: '.$site_url.'community/groups/no-access');  
+  }
+  exit();
+}
+
+?>
+{snip_group_heading}
+<?php
+
+// if we have post data
+$form_message = "";
+$form_error = array();
+
+if($_POST){
+	$form_validation = true;
+	$group_name = "";
+	$group_description = "";
+
+	if(isset($_POST['group_name'])){
+		$group_name = $this->EE->db->escape_str($_POST['group_name']);
+	}
+
+	if(isset($_POST['group_description'])){
+		$group_description = $this->EE->db->escape_str($_POST['group_description']);
+	}
+	else{
+		$form_validation = false;
+	}
+	
+	// if passed form validation, then update group
+	if($form_validation){
+		$update_query = "UPDATE groups SET name = '{$group_name}', description = '{$group_description}' WHERE id = '{$group_id}' ";
+
+		if(!$this->EE->db->query($update_query)){
+			$form_message = '<div class="form_error">Error updating group information</div>';
+		}
+		else {
+			$form_message = '<div class="form_success"><span>Success!</span> Updated group information!</div>';
+		}
+	}
+
+}
+else{
+	// get group data on initial page visit (no post data)
+	$group_results = $this->EE->db->query($does_group_exist_query);
+	foreach($group_results->result_array() as $row){
+		$group_name = $row['name'];
+		$group_description = $row['description'];
+	}	
+}
+
+?>
+<body>
+
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper --}
+
+<div id="externalMastheadWrap">{!-- begin #externalMastheadWrap --}
+<div id="internalMastheadWrap">{!-- begin #internalMastheadWrap --}
+			
+{snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+{snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+{snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+
+<script type="text/javascript">
+// provide faux active states for primary and secondary nav elements without having to add pages into structure  
+	var navelement1 = document.getElementById('nav-sub-community');
+		if(navelement1) {
+			navelement1.className += navelement1.className ? ' parent-active' : '';
+		}
+	var navelement2 = document.getElementById('nav-sub-groups');
+		if(navelement2) {
+			navelement2.className += navelement2.className ? ' parent-active' : '';
+		}
+</script>
+		
+</div>{!-- end .internalMastheadWrap --}
+</div>{!-- end .externalMastheadWrap --}
+	
+<div id="mainContentArea">{!-- begin .mastheadMainContent --}
+
+<?= $group_top_box ?>
+<?= $group_tools ?>
+
+<div class="fullContentRow top">
+	<div class="externalFullBlock">
+		<div class="internalFullBlock" style="position:relative;">
+			<div class="blockHead">
+				<h1 class="specialHeader">Edit Group</h1>
+			</div>
+		</div>
+	</div>
+</div>
+
+<?php	if(isset($form_message)) echo $form_message;	?>
+
+<form id="update_group" method="post">
+<input type="hidden" name="XID" value="{XID_HASH}" />
+	<div class="projectFormField noTopM">
+		<label class="label left selectTop" for="group_name">Group Name</label>
+		<input class="validate[required] projectFieldFull left" id="group_name" name="group_name" value="<?= stripslashes($group_name) ?>" />
+	</div>
+
+	<div class="projectFormField">
+		<label class="label left" for="group_description">Group Description</label>
+		<textarea class="validate[required] projectTextArea left" id="group_description" name="group_description"><?= stripslashes($group_description) ?></textarea>
+	</div>
+
+	<div>
+		<input type="hidden" readonly="readonly" value="<?= $group_id ?>" />
+		<input type="submit" class="blueButtonPlain marginTop " value="Submit Changes" />
+	</div>
+
+</form>
+
+<div class="clearBoth">&nbsp;</div>
+<div id="externalSocialMediaSharingBlock">
+	{snip_scroll_to_top}
+	{!--{snip_social_media_sharing}--}
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+</div>{!-- end #mainContentArea --}
+
+{snip_global_footer}{!-- include global_footer snippet --}
+
+</div>{!-- end #externalPageWrapper --}
+
+<!-- START JAVASCRIPT -->
+{snip_bring_js}
+<script type="text/javascript">
+$(document).ready(function() {
+	$('#update_group').validationEngine();
+});
+</script>
+<!-- END JAVASCRIPT -->
+
+</body>
+<!-- end embed groups/edit -->

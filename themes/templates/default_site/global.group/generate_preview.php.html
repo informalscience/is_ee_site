@@ -1,0 +1,56 @@
+<?php
+
+// the sole purpose of this file is to generate preview images when uploading an image file through ajax submission to allow cropping
+
+$message = "";
+
+ee()->security->restore_xid();
+
+if(!empty($_FILES['image']['name']) && $_FILES['image']['error'] == 0){
+  $preview_dir = 'images/tmp/';
+  $upload_dir = '/var/www/ee/'.$preview_dir;
+  $image_info = getimagesize($_FILES['image']['tmp_name']);
+  $extension = $image_info['mime'];
+
+  // if the image format is not a jpeg, gif, or png send back an error
+  if($extension != "image/jpeg" && $extension != "image/jpg" && $extension != "image/png"){
+    $message .= "Please upload an image of type jpg, jpeg, or png";
+  }
+  else{
+    $file_name = $_FILES['image']['name'];
+    $tmp_name = $_FILES['image']['tmp_name'];
+    $file_size = $_FILES['image']['size'];
+
+    if($file_size > 2*1024*1024){
+      $message .= "Please upload an image smaller than 2MB";
+    }
+    else{
+      // create jpeg
+      if($extension == "image/jpg" || $extension == "image/jpeg"){
+        $src_file = imagecreatefromjpeg($tmp_name);
+      }
+      else if($extension == "image/png"){
+        $src_file = imagecreatefrompng($tmp_name);
+      }
+
+      list($width,$height) = getimagesize($tmp_name);
+
+      // resize to the below specifications
+      $new_width = 250;
+      $new_height = $height/$width * $new_width;
+      $tmp = imagecreatetruecolor($new_width, $new_height);
+      imagecopyresampled($tmp, $src_file, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
+
+      // keep both the big and smaller image
+      $small_pic_file_path = $upload_dir.$file_name;
+      if(!file_exists($small_pic_file_path)){
+        imagejpeg($tmp,$small_pic_file_path,85);
+      }
+      imagedestroy($tmp);
+      $message .= "<div class='description1'>225 x 225 is the optimal image size.</div><div class='description2'>Crop the image by dragging the bounding box from the top left corner. <a href='http://informalscience.org/help/join'>Need help?</a></div><img id='target' src='{site_url}".$preview_dir."".$file_name."' class='preview'>";
+    }
+  }
+}
+echo $message;
+
+?>

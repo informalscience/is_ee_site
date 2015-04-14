@@ -1,0 +1,372 @@
+{snip_community_redirect}
+<?php
+
+$this->EE =& get_instance();
+
+$my_id = $this->EE->session->userdata('member_id');
+$site_url = $this->EE->config->config['site_url'];
+
+// we cannot use native EE functionality for this - need custom SQL calls
+
+$interest_fields = array();
+$interest_fields = array(
+	'field_104' => array('name'=>'Learning Institutions', 'values'=>array("Science-technology center/museum","Zoo or aquarium","Natural history museum","Library","Children's museum","Nature or interpretive center","Planetarium","Botanical garden and/or arboretum","History museum","Art museum","Network","College/university","K-12")),
+	'field_144' => array('name'=>'Community groups, associations, and public agencies', 'values'=>array("National or regional association or professional organization","Community or youth organization","Public agency","Educational outreach organization","Private foundation")),
+	'field_145' => array('name'=>'Materials and educational software development', 'values'=>array("Web/software design firm","Exhibit design/fabrication","Educational materials development organization")),
+	'field_146' => array('name'=>'Media', 'values'=>array("Independent film or media producer","Television station or organization","Radio station or organization","Online media producer")),
+	'field_147' => array('name'=>'Research and evaluation organizations', 'values'=>array("Independent evaluator","Research and evaluation organization","Evaluation group","In-house evaluator")),
+	'field_148' => array('name'=>'Content', 'values'=>array("Art, music, and theater","Chemistry","Computing and information science","Ecology, forestry, and agriculture","Education and learning science","Engineering","General science","Geoscience and geography","Health and medicine","History/policy/law","Life science","Mathematics","Nature of science","Physics","Social science and psychology","Space science","Technology")),
+	'field_149' => array('name'=>'Environment', 'values'=>array("Media and Technology","Broadcast Media","Websites, Mobile Apps, and Online Media","Games, Simulations, and Interactives","Films and IMAX","Planetarium and Science on a Sphere","Public Educational Programs","Afterschool Programs","Summer and Extended Camps","Citizen Science Programs","Community Outreach Programs","Making and Tinkering Programs","Museum and Science Center Programs","Public Events and Festivals","Theater Programs","Library Programs","Park, Outdoor, and Garden Programs","Professional Development, Conferences, and Networks","Professional Development and Workshops","Conferences","Resource Centers and Networks","Exhibitions","Exhibitions:Museum and Science Center Exhibits","Exhibitions:Aquarium and Zoo Exhibits","Exhibitions:Parks, Outdoor, and Garden Exhibits","K-12 and Higher Education Programs","K-12 Programs","Higher Education Programs")),
+	'field_150' => array('name'=>'Region', 'values'=>array("Midwest (IL, IN, IA, MI, MN, MO, OH, WI)","Mid-Atlantic (DC, DE, MD, NJ, NY, PA)","Mountain Plains (CO, KS, MT, NE, NM, ND, OK, SD, TX, WY)","New England (CT, NH, ME, RI, MA, VT)","Southeast (AL, AR, FL, GA, KY, LA, MS, NC, TN, VA, WV, SC)","Western (CA, OR, WA, AK, HI, NV, AZ, ID, UT)","Outside US")),
+	'field_151' => array('name'=>'Research and Evaluation Methods and Tools', 'values'=>array("Focus Groups","Interviews","Surveys / Questionnaires","Case Studies","Observation","Qualitative","Quasi-Experimental","Experimental","Statistical Analysis","Ethnographic","Other Methods and Tools"))
+	// 'field_152' => array('name'=>'Position', 'values'=>array()),
+	// 'field_153' => array('name'=>'Other', 'values'=>array())
+);
+
+$user_field = array(
+	'field_104' => array(),
+	'field_144' => array(),
+	'field_145' => array(),
+	'field_146' => array(),
+	'field_147' => array(),
+	'field_148' => array(),
+	'field_149' => array(),
+	'field_150' => array(),
+	'field_151' => array()
+);
+
+
+
+$form_message = "";
+if($_POST){
+	print '<pre>';print_r($_POST);print '</pre>';
+
+	if(!empty($_POST['field_104'])) $user_field['field_104'] = array_filter($_POST['field_104']);
+	$db_field_01 = $this->EE->db->escape_str(implode('||',$user_field['field_104']));
+	if(!empty($_POST['field_144'])) $user_field['field_144'] = array_filter($_POST['field_144']);
+	$db_field_02 = $this->EE->db->escape_str(implode('||',$user_field['field_144']));
+	if(!empty($_POST['field_145'])) $user_field['field_145'] = array_filter($_POST['field_145']);
+	$db_field_03 = $this->EE->db->escape_str(implode('||',$user_field['field_145']));
+	if(!empty($_POST['field_146'])) $user_field['field_146'] = array_filter($_POST['field_146']);
+	$db_field_04 = $this->EE->db->escape_str(implode('||',$user_field['field_146']));
+	if(!empty($_POST['field_147'])) $user_field['field_147'] = array_filter($_POST['field_147']);
+	$db_field_05 = $this->EE->db->escape_str(implode('||',$user_field['field_147']));
+	if(!empty($_POST['field_148'])) $user_field['field_148'] = array_filter($_POST['field_148']);
+	$db_field_06 = $this->EE->db->escape_str(implode('||',$user_field['field_148']));
+	if(!empty($_POST['field_149'])) $user_field['field_149'] = array_filter($_POST['field_149']);
+	$db_field_07 = $this->EE->db->escape_str(implode('||',$user_field['field_149']));
+	if(!empty($_POST['field_150'])) $user_field['field_150'] = array_filter($_POST['field_150']);
+	$db_field_08 = $this->EE->db->escape_str(implode('||',$user_field['field_150']));
+	if(!empty($_POST['field_151'])) $user_field['field_151'] = array_filter($_POST['field_151']);
+	$db_field_09 = $this->EE->db->escape_str(implode('||',$user_field['field_151']));
+	if(!empty($_POST['field_152'])) $user_field['field_152'] = array_filter($_POST['field_152']);
+	$db_field_10 = $this->EE->db->escape_str(str_replace('"','',implode('||',$user_field['field_152'])));
+	if(!empty($_POST['field_153'])) $user_field['field_153'] = array_filter($_POST['field_153']);
+	$db_field_11 = $this->EE->db->escape_str(str_replace('"','',implode('||',$user_field['field_153'])));
+
+	// what is my entry id
+	$what_entry_id = 
+	"SELECT exp_channel_data.entry_id
+	FROM exp_members 
+	LEFT JOIN exp_channel_titles ON exp_channel_titles.author_id=exp_members.member_id
+	LEFT JOIN exp_channel_data ON exp_channel_titles.entry_id=exp_channel_data.entry_id
+	WHERE exp_channel_titles.channel_id=38 AND exp_channel_data.channel_id=38 AND exp_members.member_id='{$my_id}' ";
+
+	$entry_id = "";
+	$entry_results = $this->EE->db->query($what_entry_id);
+	if($entry_results->num_rows()){
+		foreach($entry_results->result_array() as $row){
+			$entry_id = $row['entry_id'];
+		}
+	}
+
+	if($entry_id != ""){
+		$insert_fields_query = 
+		"UPDATE exp_channel_data SET 
+		field_id_104 = '{$db_field_01}',
+		field_id_144 = '{$db_field_02}',
+		field_id_145 = '{$db_field_03}',
+		field_id_146 = '{$db_field_04}',
+		field_id_147 = '{$db_field_05}',
+		field_id_148 = '{$db_field_06}',
+		field_id_149 = '{$db_field_07}',
+		field_id_150 = '{$db_field_08}',
+		field_id_151 = '{$db_field_09}',
+		field_id_152 = '{$db_field_10}',
+		field_id_153 = '{$db_field_11}'
+		WHERE entry_id = '{$entry_id}' ";
+		if($this->EE->db->query($insert_fields_query)){
+			header('Location: /community/users/select-expertise/success');
+			exit();
+		}
+		else{
+			$form_message = '<div class="form_error">Error updating profile interests.</div>';
+		}
+	}
+	else{
+		$form_message = '<div class="form_error">Error getting member id</div>';
+	}
+
+
+}
+else{
+	// my current fields
+	$my_fields_query = 
+	"SELECT exp_members.member_id, exp_members.screen_name, exp_channel_data.field_id_104, exp_channel_data.field_id_144, 
+	exp_channel_data.field_id_145, exp_channel_data.field_id_146, exp_channel_data.field_id_147, exp_channel_data.field_id_148, 
+	exp_channel_data.field_id_149, exp_channel_data.field_id_150, exp_channel_data.field_id_151, exp_channel_data.field_id_152, 
+	exp_channel_data.field_id_153, exp_channel_data.entry_id
+	FROM exp_members 
+	LEFT JOIN exp_channel_titles ON exp_channel_titles.author_id=exp_members.member_id
+	LEFT JOIN exp_channel_data ON exp_channel_titles.entry_id=exp_channel_data.entry_id
+	WHERE exp_channel_titles.channel_id=38 AND exp_channel_data.channel_id=38 AND exp_members.member_id='{$my_id}' ";
+
+	$my_fields_results = $this->EE->db->query($my_fields_query);
+	if($my_fields_results->num_rows()){
+		foreach($my_fields_results->result_array() as $row){
+			$user_field['field_104'] = explode('||',$row['field_id_104']);
+			$user_field['field_144'] = explode('||',$row['field_id_144']);
+			$user_field['field_145'] = explode('||',$row['field_id_145']);
+			$user_field['field_146'] = explode('||',$row['field_id_146']);
+			$user_field['field_147'] = explode('||',$row['field_id_147']);
+			$user_field['field_148'] = explode('||',$row['field_id_148']);
+			$user_field['field_149'] = explode('||',$row['field_id_149']);
+			$user_field['field_150'] = explode('||',$row['field_id_150']);
+			$user_field['field_151'] = explode('||',$row['field_id_151']);
+			$user_field['field_152'] = explode('||',$row['field_id_152']);
+			$user_field['field_153'] = explode('||',$row['field_id_153']);
+		}
+	}
+
+}
+
+?>
+
+<body id="{structure:top:slug}">
+<a name="top"></a>
+
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper --}
+
+<div id="externalMastheadWrap">{!-- begin #externalMastheadWrap --}
+<div id="internalMastheadWrap">{!-- begin #internalMastheadWrap --}
+      
+{snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+{snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+{snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+
+<script type="text/javascript">
+// provide faux active states for primary and secondary nav elements without having to add pages into structure  
+  var navelement1 = document.getElementById('nav-sub-community');
+    if(navelement1) {
+      navelement1.className += navelement1.className ? ' parent-active' : '';
+    }
+  var navelement2 = document.getElementById('nav-sub-sub-member-directory');
+    if(navelement2) {
+      navelement2.className += navelement2.className ? ' parent-active' : '';
+    }
+  var navelement3 = document.getElementById('tool-users');
+    if(navelement3) {
+      navelement3.className += navelement3.className ? ' active' : '';
+    }
+</script>
+    
+</div>{!-- end .internalMastheadWrap --}
+</div>{!-- end .externalMastheadWrap --}
+  
+<div id="mainContentArea">{!-- begin .mastheadMainContent --}
+
+<div class="content singleColumn">
+
+{exp:zoo_visitor:details}
+<div class="sectionHeading"><h2>{if member_firstname OR member_lastname}{visitor:member_firstname}'<?php $theName = "{visitor:member_firstname}"; $lastLetter = substr($theName, -1); if($lastLetter != 's') { echo "s"; } ?> Tools</h2></div>
+	<div class="accountTools accountToolsFix">{snip_member_navigation}</div>
+{/exp:zoo_visitor:details}
+
+  <div class="fullContentRow top variation">
+    <div class="externalFullBlock">
+      <div class="internalFullBlock">
+        <div class="blockHead">
+          <h1 class="specialHeader">Select Expertise</h1>
+        </div>{!-- end .blockHead --}
+      </div>{!-- end .internalFullBlock --}
+    </div>{!-- end .externalFullBlock --}
+  </div>{!-- end .fullContentRow .top --}
+</div>{!-- end .content .singleColumn --}
+  
+{if logged_in AND segment_4 == "success"}
+
+	{redirect='community/users/profile'}
+
+{if:elseif logged_in}
+
+	<?= $form_message ?>
+	
+	<form method="post">
+	<input type="hidden" name="XID" value="{XID_HASH}" />
+
+	<p>When you add expertise to your profile others may more easily seek you out as a potential collaborator and your profile will appear in relevant search results.  Choose one or more selections for each field.  If none of the controlled vocabulary options apply to you, fill in your expertise using the "other" field toward the bottom of this form.</p>
+	
+	<?php
+
+	foreach($interest_fields as $key=>$value){
+		echo '<div class="left">';
+		echo '<div class="projectFormField TopM">';
+		echo '<label class="label left selectTop">'.$value['name'].'<span class="chooseOne">(choose one or more)</span></label>';
+		echo '<div class="projectfieldfull multiselect">';
+		echo '<fieldset>';
+		foreach($value['values'] as $single_value){
+			echo '<label '.( (in_array($single_value,$user_field[$key])) ? 'class="multiselect-on"':'').' >';
+			echo '<input type="checkbox" name="'.$key.'[]" value="'.$single_value.'" '.( (in_array($single_value,$user_field[$key])) ? 'checked="checked"':'').' >';
+			echo $single_value;
+			echo '</label>';
+		}
+		echo '</fieldset>';
+		echo '</div>';
+		echo '</div>';
+		echo '</div>';
+	}
+
+	?>
+
+	<div class="position_interests">
+		<?php
+		foreach($user_field['field_152'] as $single_entry){
+			echo '<div class="projectFormField">';
+			echo '	<label class="label left selectTop">Position</label>';
+			echo '	<input class="submitAddFullField submitAddAnother" type="text" name="field_152[]" value="'.$single_entry.'" />';
+			echo '	<a href="#" class="removeAddLink">Remove</a>';
+			echo '</div>';
+		}
+		?>
+	</div>
+	<a href="#" class="addAnotherLink" id="addPosition">Add Another Position</a>
+	<div class="clear"></div>
+
+	<div class="other_interests">
+		<?php
+		foreach($user_field['field_153'] as $single_entry){
+			echo '<div class="projectFormField">';
+			echo '	<label class="label left selectTop">Other</label>';
+			echo '	<input class="submitAddFullField submitAddAnother" type="text" name="field_153[]" value="'.$single_entry.'" />';
+			echo '	<a href="#" class="removeAddLink">Remove</a>';
+			echo '</div>';
+		}
+		?>
+	</div>
+	<a href="#" class="addAnotherLink" id="addAnother">Add Another</a>
+	<div class="clear"></div>
+
+	<input type="hidden" name="title" value="{username}">
+	<input name="edit_user" type="submit" value="Submit Interests" class="blueButtonPlain marginTop">
+
+	<!-- START JAVASCRIPT -->
+	{snip_bring_js}
+	<script>
+	$(document).ready(function(){
+
+		// remove links
+		$(document).on('click','.removeAddLink',function(){
+			$(this).parent().remove();
+			return false;
+		});
+
+		// add initial position_interest input field
+		if($('.position_interests div').length == 0){
+			$('.position_interests').append('\
+			<div class="newOrgs">\
+			<div class="projectFormField">\
+				<label class="label left selectTop">Position</label>\
+				<input class="submitAddFullField submitAddAnother" type="text" name="field_152[]" />\
+				<a href="#" class="removeAddLink">Remove</a>\
+			</div>\
+			</div>');
+		}
+
+		// add initial other_interest input field
+		if($('.other_interests div').length == 0){
+			$('.other_interests').append('\
+			<div class="newOrgs">\
+			<div class="projectFormField">\
+				<label class="label left selectTop">Other</label>\
+				<input class="submitAddFullField submitAddAnother" type="text" name="field_153[]" />\
+				<a href="#" class="removeAddLink">Remove</a>\
+			</div>\
+			</div>');
+		}
+
+		// add additional fields
+		$('#addPosition').on('click',function(){
+			var toAdd = $(".position_interests");
+			var size =  $(".position_interests div.newOrgs").length;
+			toAdd.append('\
+			<div class="newOrgs">\
+				<div class="projectFormField">\
+					<label class="label left selectTop">Position</label>\
+					<input class="submitAddFullField submitAddAnother" type="text" name="field_152[]" />\
+					<a href="#" class="removeAddLink">Remove</a>\
+				</div>\
+			</div>');
+			return false;
+		});
+
+		// add additional fields
+		$('#addAnother').on('click',function(){
+			var toAdd = $(".other_interests");
+			var size =  $(".other_interests div.newOrgs").length;
+			toAdd.append('\
+			<div class="newOrgs">\
+				<div class="projectFormField">\
+					<label class="label left selectTop">Other</label>\
+					<input class="submitAddFullField submitAddAnother" type="text" name="field_153[]" />\
+					<a href="#" class="removeAddLink">Remove</a>\
+				</div>\
+			</div>');
+			return false;
+		});
+
+	// allow highlighting of selected multiselected fields (on failed form submission as well)
+	jQuery.fn.multiselect = function() {
+		$(this).each(function() {
+			var checkboxes = $(this).find("input:checkbox");
+			checkboxes.each(function() {
+				var checkbox = $(this);
+				// Highlight pre-selected checkboxes
+				if (checkbox.attr("checked"))
+					checkbox.parent().addClass("multiselect-on");
+
+				// Highlight checkboxes that the user selects
+				checkbox.click(function() {
+					if (checkbox.attr("checked"))
+						checkbox.parent().addClass("multiselect-on");
+					else
+						checkbox.parent().removeClass("multiselect-on");
+				});
+			});
+		});
+	};
+	$(".multiselect").multiselect();
+		
+	});
+	</script>
+	<!-- END JAVASCRIPT -->
+
+{if:else}
+	{snip_not_logged_in}
+{/if}
+
+<div class="clearBoth">&nbsp;</div>
+		
+  <div id="externalSocialMediaSharingBlock">
+    {snip_scroll_to_top}
+    {!-- snip_social_media_sharing --}
+  </div>
+
+<div class="clearBoth">&nbsp;</div>
+
+</div>{!-- end #mainContentArea --}
+
+{snip_global_footer}{!-- include global_footer snippet --}
+
+</div>{!-- end #externalPageWrapper --}
+
+</body>

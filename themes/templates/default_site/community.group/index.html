@@ -1,0 +1,336 @@
+{if segment_2}{redirect="404"}{/if}
+<!DOCTYPE html><!-- template community.group/index.html -->
+{snip_browser_sniffer}
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>>
+<head>
+
+<title>{site_name} {structure:page:title}</title><!-- native EE title would be {exp:channel:entries channel="ch_home"}{title}{/exp:channel:entries} -->
+
+{snip_global_default_meta_ogp_data}
+
+{snip_page_meta_ogp}
+
+<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" /><!-- include the global_styles css template -->
+<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" /><!-- include the global_styles css template -->
+
+{snip_global_header_links}
+
+{snip_global_header_meta}
+
+</head>
+
+<body>
+
+<div id="externalPageWrapper"><!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+	<div id="externalMastheadWrap"><!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->		
+		<div id="internalMastheadWrap"><!-- begin #internalMastheadWrap - fixed width, maybe fixed height too -->
+		
+			{snip_global_tool_bar}<!-- include global_tool_bar snippet -->
+			{snip_global_logo_and_nav}<!-- include global_logo_and_nav snippet -->
+			{snip_global_sub_nav}<!-- include global_sub_nav snippet -->
+						 
+		</div><!-- end .internalMastheadWrap - fixed width, fixed height -->
+	</div><!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+		
+	<div id="mainContentArea"><!-- begin .mastheadMainContent - fixed width, fixed height, centered -->
+		<div style="width:980px; margin: 0 auto;">
+			<div class="content">
+	
+        {exp:channel:entries channel="ch_simple_page_content" limit="1" disable="pagination|member_data" entry_id="20"}
+    
+          {if add_a_page_content_header == "Yes"}{!-- Check to see if we have header title/content --}
+            <div class="content singleColumn">
+              <div class="fullContentRow top">
+                <div class="externalFullBlock">
+                  <div class="internalFullBlock">
+                    <div class="blockHead">
+                      <h1 class="specialHeader">{if alt_title_for_header != ""}{alt_title_for_header}{if:else}{title}{/if}</h1>
+                    </div>{!-- end .blockHead --}
+                    {if content_for_page_header != ""}{content_for_page_header}{/if}
+                  </div>{!-- end .internalFullBlock --}
+                  <a href="/community/users/register" class="blueButton marginLeftS">Join Informal Science</a>
+                </div>{!-- end .externalFullBlock --}
+              </div>{!-- end .fullContentRow .top --}
+            </div>{!-- end .content .singleColumn --}
+          {/if}
+            
+          {if simple_page_content != ""}{!-- Check to see if we have page body content --}
+            <div class="fullContentRow top">{!-- begin .fullContentRow --}      
+              <div class="externalFullBlock staticPage">{!-- begin .externalFullBlock --}        
+                <div class="internalFullBlock">{!-- begin .internalFullBlock --}    
+                  {simple_page_content}        
+                </div>{!-- end .internalFullBlock --}        
+              </div>{!-- end .externalFullBlock --}        
+            </div>{!-- end .fullContentRow --}
+          {/if}
+          
+        {/exp:channel:entries}
+				
+				<div class="homeContentRow"><!-- begin .homeContentRow - fixed width, maybe fixed height, centered or lefted -->
+					<div class="externalFullBlock left bottomMargin"><!-- begin .externalFullBlock - fixed width, maybe fixed height -->
+						<div class="internalFullBlock"><!-- begin .internalHalfBlock - fixed width, maybe fixed height -->
+							<div class="blockHead bottomMargin"><h3>Calendar</h3></div>
+              
+              <span class="introH4">Learn about upcoming events:</span> <p class="clearMarginBottom">Professional development conferences, sessions, workshops, and meetings. Stay informed about upcoming funding opportunities and deadlines.</p>
+							
+							<div class="networkToggle">
+							
+								<div class="leftToggleCol">
+									<div class="resourceTypeBlock">
+										<a id="recent_events_link" class="active" href="#"><img src="/images/uploads/recent-groups-icon-76x92.png" alt="News" /><h4>Events</h4></a>
+									</div>
+									
+									<div class="resourceTypeBlock">
+										<a id="recent_funding_link" href="#"><img src="/images/uploads/funding-deadline-icon-76x92.png" alt="New Members" /><h4>Funding Deadlines</h4></a>
+									</div>
+								</div>
+
+								<div class="networkContent events bottomMargin">
+								
+									<div id="recent_events">
+									
+										{exp:channel:entries status="open" channel="ch_calendar" dynamic="no" limit="4" orderby="entry_date" sort="asc" show_future_entries="yes" search:event_category="=not Funding"}
+										<div class="entry{if count == total_results} last{/if}">
+
+											<div class="left">
+												<img class="event" {if image == ""}src="{site_url}/images/uploads/event-no-pic-default.png"{if:else}src="{image:small}"{/if} width="52" height="52"/>
+											</div><!-- end .left -->
+											<div class="ellipsisMaker"><a href="{site_url}community/calendar/details/{url_title}">{title}</a></div>
+											<p class="ellipsisMaker">{event_description}</p>
+											
+										</div><!-- end .entry -->
+										{/exp:channel:entries}
+
+										<div class="left actions">
+											<a href="{site_url}community/calendar" class="blueButton">View All</a>
+											{if logged_in}<a href="{site_url}community/calendar/add-event" class="blueButton marginLeftS">Create Event</a>{/if}
+										</div><!-- end .left .actions -->
+                    
+                    <div class="clearBoth">&nbsp;</div>
+											 
+									</div><!-- end #recent_events -->
+									
+									<div id="recent_funding" style="display:none">
+									
+										{exp:channel:entries status="open" channel="ch_calendar" dynamic="no" limit="4" orderby="entry_date" sort="asc" show_future_entries="yes" search:event_category="Funding"}
+										<div class="entry{if count == total_results} last{/if}">
+										
+											<div class="left">
+												<img class="event" {if image == ""}src="{site_url}/images/uploads/event-no-pic-default.png"{if:else}src="{image:small}"{/if} width="52" height="52"/>
+											</div><!-- end .left -->
+											<div class="ellipsisMaker"><a href="{site_url}community/calendar/details/{url_title}">{title}</a></div>
+											<p class="ellipsisMaker">{event_description}</p>
+											
+										</div><!-- end .entry -->
+										{/exp:channel:entries}	
+										
+										<div class="left actions">
+											<a href="{site_url}community/calendar/upcoming/funding/" class="blueButton">View All</a>
+											{if logged_in}<a href="{site_url}community/calendar/add-funding" class="blueButton marginLeftS">Create Funding</a>{/if}
+										</div><!-- end .left .actions -->
+										
+									</div><!-- end #recent_funding -->
+									
+								</div><!-- end .networkContent .events .bottomMargin -->
+							</div><!-- end .networkToggle -->
+						</div><!-- end .internalFullBlock -->
+					</div><!-- end .externalFullBlock .left .bottomMargin -->
+					
+					<div class="clearBoth">&nbsp;</div>
+					
+					<div class="homeContentRow"><!-- begin .homeContentRow - fixed width, maybe fixed height, centered or lefted -->
+						<div class="externalFullBlock left"><!-- begin .externalFullBlock - fixed width, maybe fixed height -->
+							<div class="internalFullBlock"><!-- begin .internalHalfBlock - fixed width, maybe fixed height -->
+								
+								<div class="blockHead"><h3>Participate</h3></div>
+                
+									<div class="participateGrid community">
+                  
+                  	<div class="participateRow">
+                    
+                    	<div class="left actionsp" style="position:absolute;bottom:0;z-index:100;">
+                        <a href="{site_url}community/groups" class="blueButton">View All Groups</a>&nbsp;
+                        {if logged_in}<a href="{site_url}community/groups/create" class="blueButton marginLeftS">Create Group</a>{/if}
+                      </div><!-- end .left .actionsp -->
+                      
+                      <div class="right actionsp">
+                        <a href="{site_url}community/member-directory" class="blueButton">View Member Directory</a>
+                        {if logged_out}<a href="{site_url}community/users/register" class="blueButton marginLeftS">Join</a>{/if}
+                      </div><!-- end .right .actionsp -->
+
+                      <div class="left">
+                        
+                        <div class="participateHeaderBlock">
+                         <a href="/community/groups"><img src="/images/uploads/recent-groups-icon-76x92.png" alt="Groups" /><h4>Recent Groups</h4></a>
+                        </div><!-- end participateHeaderBlock-->
+                        
+                        <div class="networkContent participateGridLeft">
+                          <div id="recent_group_discussions">
+														{exp:query sql="SELECT * FROM groups ORDER BY id DESC LIMIT 0,4"}
+							                <div class="entry{if count == total_results} last{/if}">
+							              
+							                  <div class="left">
+							                    <img class="event"{if image_url == ""} src="{site_url}/images/uploads/list-no-image-default.png"{if:else} src="{site_url}images/group_profile_pics/{image_url}"{/if} width="52" height="52"/>
+							                  </div><!-- end .left -->
+
+							                  <a href="{site_url}community/groups/details?id={id}">{name}</a>
+							                  <p class="ellipsisMaker">{description}</p>
+							                  <div class="clearBoth">&nbsp;</div>
+							                </div><!-- end .entry -->
+														{/exp:query}
+                          </div><!-- end #recent_group_discussions -->
+                        </div><!-- end .networkContent .participateGridLeft .bottomMargin -->
+                      
+                      </div><!-- end .left -->
+                                              
+                      <div class="left">
+                                          
+                        <div class="participateHeaderBlock">
+                         <a href="/community/member-directory"><img src="/images/uploads/new-members.png" alt="Groups" /><h4>New Members</h4></a>
+                        </div><!-- end participateHeaderBlock-->
+                        
+                        <div class="networkContent">
+                        
+                          <div id="new_members">
+                          
+                            {exp:zoo_visitor:members limit="4" member_group="1|5|6" dynamic="no"}
+                            
+                              <div class="entry{if count == total_results} last{/if}">{!-- glass added code to append super-added class 'last' if we have reached total count of entries returned from query --}
+                            
+                                <div class="left">
+                                  <img class="event"{if member_photo_url == ""} src="{site_url}/images/uploads/list-no-image-default.png"{if:else} 
+                                  src="{site_url}images/member_profile_pics/small/{visitor:member_photo_url}"{/if} width="52" height="52"/>
+                                </div><!-- end .left -->
+    
+                                <a href="{site_url}community/users/profile/{member_id}">{visitor:screen_name}</a>
+                                <p class="ellipsisMaker">{visitor:member_title}<br />{visitor:member_institution backspace="2"}{org_name}, {/visitor:member_institution}</p>
+                                
+                              </div><!-- end .entry -->
+                                
+                            {/exp:zoo_visitor:members}
+  
+                          </div><!-- end #new_members -->
+                        
+                        </div><!-- end .networkContent .bottomMargin -->
+  
+                      </div><!-- end .left -->
+                      
+                      <div class="clear"></div>
+                      
+                    </div><!-- .participateRow -->
+                    
+										<div class="clear"></div>
+                    
+                    <div class="participateRow">
+                    
+                    	<div class="left actionsp">
+                        <a href="{site_url}perspectives/blog" class="blueButton">View Blog</a>
+                      </div><!-- end .left .actionsp -->
+                      
+                      <div class="right actionsp">
+                        <a href="{site_url}perspectives/news" class="blueButton">View All News</a>
+                      </div><!-- end .right .actionsp -->
+										
+                      <div class="left">
+                        
+                        <div class="participateHeaderBlock">
+                         <a href="/perspectives/blog"><img src="/images/uploads/need-contributions.png" alt="Perspectives"/><h4>Perspectives</h4></a>
+                        </div><!-- end participateHeaderBlock-->
+                        
+                        <div class="networkContent participateGridLeft bottomMargin">
+                          <div id="new_contributions">
+							              {exp:channel:entries status="open" channel="ch_blog" dynamic="no" limit="3"}
+							                <div class="entry{if count == total_results} last{/if}">
+							                  <a href="{site_url}perspectives/blog/{url_title}">{title}</a>
+							                  <p>{post_summary_excerpt}</p>
+							                </div>
+							              {/exp:channel:entries}
+                          </div><!-- end contributions -->
+                        </div><!-- end .networkContent .participateGridLeft .bottomMargin -->
+  
+                      </div><!-- end .left -->
+  
+                      <div class="left">
+                                          
+                        <div class="participateHeaderBlock">
+                          <a href="/perspectives/news"><img src="/images/uploads/recent-news-participate.png" alt="Groups" /><h4>Recent News</h4>
+                        </div><!-- end participateHeaderBlock-->
+                        
+                        <div class="networkContent bottomMargin">
+                        
+                          <div id="new_members">
+  
+                            {exp:channel:entries status="open" channel="ch_news" dynamic="no" limit="3"}
+                              <div class="entry{if count == total_results} last{/if}">
+                                <a href="{site_url}perspectives/news/{url_title}">{title}</a>
+                                <p>{post_summary_excerpt}</p>
+                              </div>
+                            {/exp:channel:entries}
+  
+                          </div><!-- end #new_members -->	
+                                              
+                        </div><!-- end .networkContent .bottomMargin -->
+                                              
+                      </div><!-- end .left -->
+                      
+                      <div class="clear"></div>
+                      
+                    </div><!-- .participateRow -->
+                    
+									</div><!-- end .participateGrid -->
+								
+									<div class="clearBoth">&nbsp;</div>
+								
+									<div class="footerBlock" style="display:none;"><!-- begin .footerBlock -->
+									</div><!-- end .footerBlock -->
+									
+									<div class="clearBoth">&nbsp;</div>
+									
+								</div><!-- end .internalHalBlock - 50% width, maybe fixed height, lefted -->
+							</div><!-- end .externalFullBlock - 100% width, maybe fixed height, lefted -->
+						</div><!-- end #homeContentRow - fixed width, maybe fixed height, centered or lefted -->
+					</div><!-- end .homeContentRow -->
+					
+				</div>{!-- end .internalFullBlock --}
+				
+			</div><!-- end .content -->
+      
+			<div class="clearBoth">&nbsp;</div>
+		
+        <div id="externalSocialMediaSharingBlock">
+          {snip_scroll_to_top}
+          {snip_social_media_sharing}
+        </div>
+      
+      <div class="clearBoth">&nbsp;</div>
+      
+		</div><!-- end #mainContentArea - fixed width, fixed height, centered -->
+		 
+		{snip_global_footer}{!-- include global_footer snippet --}
+		
+	</div><!-- end #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+	
+{snip_bring_js}
+<script>
+$(document).ready(function(){
+	// show-hide calendar boxes
+	$('#recent_events_link').on('click',function(){
+		$(this).addClass('active');
+		$('#recent_funding_link').removeClass('active');
+		$('#recent_events').show();
+		$('#recent_funding').hide();
+		return false;
+	});
+	$('#recent_funding_link').on('click',function(){
+		$(this).addClass('active');
+		$('#recent_events_link').removeClass('active');
+		$('#recent_events').hide();
+		$('#recent_funding').show();
+		return false;
+	});
+});
+</script>
+
+</body>
+</html>

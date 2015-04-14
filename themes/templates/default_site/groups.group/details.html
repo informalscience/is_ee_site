@@ -1,0 +1,496 @@
+{snip_community_redirect}
+<!-- begin embed groups/details -->
+{snip_group_found}
+<?php
+
+// do we have enough permission to view/edit group? comment/uncomment code depending on privilege level (super-admin, group-admin, group-member, logged-in, anyone)
+  $group_access = false;
+  $is_admin = false;
+  $is_member = false;
+  $is_pending_member = false;
+  $is_logged_in = false;
+
+  // are we a super admin?
+  if($this->EE->session->userdata['group_id'] == 1){
+    $group_access = true;
+    $is_admin = true;
+  }
+
+  // get all group member data - this will be used to see if user is a group admin, group member, or group pending member
+  $current_members = array();
+  $pending_members = array();
+  $all_members_query = 
+  "SELECT groups_members.member_id, groups_members.status, groups_members.is_admin, exp_members.screen_name 
+  FROM groups_members
+  LEFT JOIN exp_members 
+  ON groups_members.member_id=exp_members.member_id 
+  WHERE groups_members.group_id = '{$group_id}' ";
+
+  $members_results = $this->EE->db->query($all_members_query);
+  if($members_results->num_rows()){
+    foreach($members_results->result_array() as $row){
+      
+      if($row['is_admin'] == 1){
+        $current_members[] = $row;
+
+        // are we the group admin?
+        if($row['member_id'] == $my_id){
+          $group_access = true;
+          $is_admin = true;
+        }
+      }
+      else if($row['status'] == 1){
+        $current_members[] = $row;
+
+        // are we a member?
+        if($row['member_id'] == $my_id){
+          $group_access = true;
+          $is_member = true;
+        }
+      }
+      else if($row['status'] == 0){
+        $pending_members[] = $row;
+
+        // are we a pending member?
+        if($row['member_id'] == $my_id){
+          $group_access = true;
+          $is_pending_member = true;
+        }
+      }
+
+    }
+  }             
+
+  // are we logged in?
+  if($my_id){
+    $group_access = true;
+    $is_logged_in = true;
+  }
+  // do we just not care who views this page?
+  $group_access = true;
+
+// is this a public group?
+$is_public = false;
+if($group_data['is_public'] == 1){
+	$is_public = true;
+}
+
+// if we don't have the proper permissions...redirect them to the no-access page
+if(!$group_access){
+  if(!$is_logged_in){
+    header('Location: '.$site_url.'community/groups/no-access/login');
+  }
+  else if(!$is_pending_member){
+    header('Location: '.$site_url.'community/groups/no-access/pending');
+  }
+  else if(!$is_member){
+    header('Location: '.$site_url.'community/groups/no-access/member');
+  }
+  else if(!$is_admin){
+    header('Location: '.$site_url.'community/groups/no-access/admin');
+  }
+  else{
+    header('Location: '.$site_url.'community/groups/no-access');  
+  }
+  exit();
+}
+?>
+{snip_group_heading}
+<?php
+
+// create html for group description
+	$group_description_html = "";
+	$group_description_html.= '<div class="profileContent">';
+	$group_description_html.= '<div class="profileSectionHeading">';
+	$group_description_html.= '<img class="profileSectionIcon" src="/images/uploads/group-section-icons-desc-25x25.png" alt="description logo">';
+	$group_description_html.= '<h2>Description</h2>';
+	$group_description_html.= '</div>';
+	$group_description_html.= '<div class="sectionContentBlock">';
+	$group_description_html.= '<p>'.$group_data['description'].'</p>';
+	$group_description_html.= '</div>';
+	$group_description_html.= '</div>';
+
+// get recent post information
+	$recent_post = array();
+	$recent_post_query = 
+	"SELECT groups_forums.forum_name, exp_forum_topics.title, exp_forum_topics.topic_id 
+	FROM groups_forums
+	LEFT JOIN exp_forum_boards ON exp_forum_boards.board_name=groups_forums.forum_name
+	LEFT JOIN exp_forum_topics ON exp_forum_topics.board_id=exp_forum_boards.board_id
+	WHERE groups_forums.group_id = '{$group_id}'
+	ORDER BY exp_forum_topics.last_post_date DESC LIMIT 0,3";
+	$recent_post_results = $this->EE->db->query($recent_post_query);
+	if($recent_post_results->num_rows()){
+		foreach($recent_post_results->result_array() as $row){
+			$recent_post[] = $row;
+		}
+	}
+
+// create recent group forum posts html
+	$group_recent_posts = "";
+	$group_recent_posts.= '<div class="profileContent">';
+	$group_recent_posts.= '<div class="profileSectionHeading">';
+	$group_recent_posts.= '<img class="profileSectionIcon" src="/images/uploads/recent-group-forum-posts.png" alt="posts logo">';
+	$group_recent_posts.= '<h2>Recent Group Forum Topics</h2>';
+	$group_recent_posts.= '</div>';
+	$group_recent_posts.= '<div class="sectionContentBlock action">';
+	foreach($recent_post as $single_post){
+		$group_recent_posts.= '<a href="{site_url}community/groups/forum/'.$single_post['forum_name'].'/viewthread/'.$single_post['topic_id'].'/" class="link bottomMargin">'.$single_post['title'].'</a>';
+	}
+	$group_recent_posts.= '<a href="{path=community/groups/forum}/'.$group_data['forum_name'].'/viewforum/'.$group_data['forum_id'].'/" class="blueButton">Visit Forum<span class="arrowCircle">&nbsp;</span></a>';
+	$group_recent_posts.= '</div>';
+	$group_recent_posts.= '</div>';
+
+
+// create html for join group / leave group / pending status in group
+$group_status_button = "";
+if($is_logged_in && !$is_admin){
+  $group_status_button = '<div><a href="#" class="status_button blueButton" id="join">Join Group</a></div>';
+}
+if($is_pending_member){
+  $group_status_button = '<div><a href="#" class="grayButton blueButton" id="pending">Pending...</a></div>';
+}
+if($is_member){
+  $group_status_button = '<div><a href="#" class="status_button blueButton" id="leave">Leave Group</a></div>';
+}
+$group_status_button.= '<div id="target"></div>';
+
+// create html for approval and denial of pending members if admin
+$group_approval_html = "";
+if($is_admin){
+	$group_approval_html.= '<div class="profileContent left noTopM" style="width: 100%;">';
+	$group_approval_html.= '<div class="profileSectionHeading">';
+	$group_approval_html.= '<img class="profileSectionIcon" src="{site_url}images/uploads/pending-members.png" alt="Pending Members">';
+	$group_approval_html.= '<h2>Pending Members</h2>';
+	$group_approval_html.= '</div>';
+	$group_approval_html.= '<div class="sectionContentBlock">';
+ 	if(count($pending_members) < 1){
+  	$group_approval_html.= '<p>No Pending Members</p>';
+  }
+  else{
+    foreach($pending_members as $single_member){
+    	$single_member_id = $single_member['member_id'];
+    	$get_member_query =
+    		"SELECT groups_members.member_id, exp_members.screen_name, exp_channel_data.field_id_94, 
+  			exp_channel_data.field_id_107, exp_matrix_data.col_id_5, exp_matrix_data.field_id, exp_matrix_data.row_order
+				FROM groups_members 
+				LEFT JOIN exp_members ON exp_members.member_id=groups_members.member_id 
+				LEFT JOIN exp_channel_titles ON exp_channel_titles.author_id=groups_members.member_id
+				LEFT JOIN exp_channel_data ON exp_channel_titles.entry_id=exp_channel_data.entry_id
+				LEFT JOIN exp_matrix_data ON exp_matrix_data.entry_id=exp_channel_data.entry_id 
+				WHERE groups_members.group_id = '{$group_id}' 
+				AND groups_members.member_id = '{$single_member_id}'
+				AND exp_channel_titles.channel_id=38";
+
+			$member = array('id'=>"",'name'=>"",'title'=>"",'img'=>"",'org'=>"");
+			$member_results = $this->EE->db->query($get_member_query);
+			if($member_results->num_rows()){
+				foreach($member_results->result_array() as $row){
+					$member['id'] = $row['member_id'];
+					$member['name'] = $row['screen_name'];
+					$member['title'] = $row['field_id_94'];
+					$member['img'] = $row['field_id_107'];
+					if($row['col_id_5'] && $row['row_order'] == 1 && $row['field_id'] == 95) $member['org'] = $row['col_id_5'];
+				}
+			}
+
+      $group_approval_html.= '<div class="single_member">';
+      if($member['img'] == ""){
+      	$group_approval_html.= '<img width="60" height="60" class="left" src="{site_url}images/uploads/list-no-image-default-lg.png" alt="'.$member['name'].'" />';
+      }
+      else{
+      	$group_approval_html.= '<img width="60" height="60" class="left" src="{site_url}images/member_profile_pics/small/'.$member['img'].'" alt="'.$member['name'].'" />';	
+      }      
+      $group_approval_html.= '<div class="left" style="width: 278px;">';
+      $group_approval_html.= '<p><a href="{path=community/users/profile}/'.$member['id'].'">'.$member['name'].'</a></p>';
+      $group_approval_html.= '<p class="ellipsisMaker">'.$member['title'].'</p>';
+      $group_approval_html.= '<p class="ellipsisMaker"><em>'.$member['org'].'</em></p>';
+      $group_approval_html.= '</div>';
+      $group_approval_html.= '<div class="approvals left">';
+      $group_approval_html.= '<a href="#" class="approveMember admin_approval_button" id="approve">Approve</a>'.'<a href="#" class="rejectMember admin_approval_button" id="reject">Reject</a>';
+      $group_approval_html.= '<input readonly="readonly" type="hidden" class="single_member_id" value="'.$member['id'].'" />';
+      $group_approval_html.= '<div class="target_approval_status"></div>';
+      $group_approval_html.= '</div>';
+      $group_approval_html.= '</div>';
+    }
+  }
+  $group_approval_html.= '</div>';
+	$group_approval_html.= '</div>';
+}
+
+// create html for current members
+$group_members_html = "";
+$group_members_html.= '<div class="profileContent left noTopM" style="width: 100%;">';
+$group_members_html.= '<div class="profileSectionHeading">';
+$group_members_html.= '<img class="profileSectionIcon" src="{site_url}images/uploads/current-members.png" alt="Current Members">';
+$group_members_html.= '<h2>Current Members</h2>';
+$group_members_html.= '</div>';
+$group_members_html.= '<div class="currentMembers sectionContentBlock currentSectionContentBlock">';
+if(count($current_members) < 1){
+  $current_members_html.= '<p class="noCurrentMembers">No Current Members</p>';
+}
+else{
+	$count = 0;
+  foreach($current_members as $single_member){
+  	if($count < 6){
+  	$single_member_id = $single_member['member_id'];
+  	$get_member_query =
+  		"SELECT groups_members.member_id, exp_members.screen_name, exp_channel_data.field_id_94, 
+  		exp_channel_data.field_id_107, exp_matrix_data.col_id_5, exp_matrix_data.field_id, exp_matrix_data.row_order
+			FROM groups_members 
+			LEFT JOIN exp_members ON exp_members.member_id=groups_members.member_id 
+			LEFT JOIN exp_channel_titles ON exp_channel_titles.author_id=groups_members.member_id
+			LEFT JOIN exp_channel_data ON exp_channel_titles.entry_id=exp_channel_data.entry_id
+			LEFT JOIN exp_matrix_data ON exp_matrix_data.entry_id=exp_channel_data.entry_id 
+			WHERE groups_members.group_id = '{$group_id}' 
+			AND groups_members.member_id = '{$single_member_id}'
+			AND exp_channel_titles.channel_id=38";
+
+		$member = array('id'=>"",'name'=>"",'title'=>"",'img'=>"",'org'=>"");
+		$member_results = $this->EE->db->query($get_member_query);
+		if($member_results->num_rows()){
+			foreach($member_results->result_array() as $row){
+				$member['id'] = $row['member_id'];
+				$member['name'] = $row['screen_name'];
+				$member['title'] = $row['field_id_94'];
+				$member['img'] = $row['field_id_107'];
+				if($row['col_id_5'] && $row['row_order'] == 1 && $row['field_id'] == 95) $member['org'] = $row['col_id_5'];
+			}
+		}
+    $group_members_html.= '<div class="single_member currentMEntry">';
+    $group_members_html.= '<div class="memberDetailInterior">';
+    if($member['img'] == ""){
+    	$group_members_html.= '<img width="60" height="60" class="left" src="{site_url}images/uploads/list-no-image-default-lg.png" alt="'.$group_data['name'].'" />';
+    }
+    else{
+    	$group_members_html.= '<img width="60" height="60" class="left" src="{site_url}images/member_profile_pics/small/'.$member['img'].'" alt="'.$group_data['name'].'" />';	
+    }
+    $group_members_html.= '<div class="currentMemberDetails left">';    
+    $group_members_html.= '<p><a href="{path=community/users/profile}/'.$single_member['member_id'].'">'.$single_member['screen_name'].'</a></p>';
+    $group_members_html.= '<p class=" ellipsisMaker">'.$member['title'].'</p>';
+    $group_members_html.= '<p class="institutionText ellipsisMaker"><em>'.$member['org'].'</em></p>';
+    $group_members_html.= '</div>';
+    $group_members_html.= '<div class="right">';
+    $group_members_html.= '<input readonly="readonly" type="hidden" class="single_member_id" value="'.$single_member['member_id'].'" />';
+    $group_members_html.= '</div><!-- 1 -->';
+    $group_members_html.= '</div><!-- 2 -->';
+    $group_members_html.= '</div><!-- 3 -->';
+  	}
+  	$count++;
+  }
+}
+$group_members_html.= '<div class="currentMembersClear left clear">';
+$group_members_html.= '<a class="blueButton viewAllButton" href="{site_url}community/groups/members/?id='.$group_id.'">View All Members</a>';
+$group_members_html.= '</div><!-- 4 -->';
+$group_members_html.= '</div><!-- 5 -->';
+$group_members_html.= '</div><!-- 6 -->';
+
+// what are the current group documents? 
+$document_array = array();
+$current_documents_query = "SELECT * FROM groups_documents WHERE group_id='{$group_id}' ";
+$document_results = $this->EE->db->query($current_documents_query);
+if($document_results->num_rows() > 0){
+  foreach($document_results->result_array() as $row){
+    $document_array[] = $row;
+  }
+}
+
+// create html for current documents
+$group_documents_html = "";
+$group_documents_html.= '<div class="profileContent left noTopM" style="width: 100%;">';
+$group_documents_html.= '<div class="profileSectionHeading">';
+$group_documents_html.= '<img class="profileSectionIcon" src="{site_url}images/uploads/my-documents-icon.png" alt="My Documents">';
+$group_documents_html.= '<h2>Group Documents</h2>';
+$group_documents_html.= '</div>';
+$group_documents_html.= '<div class="sectionContentBlock">';
+if(count($document_array) < 1){
+  $group_documents_html.= 'No Current Documents';
+}
+else{
+  foreach($document_array as $single_doc){
+    $group_documents_html.= '<div class="documentList groupDocuments ellipsisMaker">';
+    $group_documents_html.= '<a href="{site_url}documents/group_documents/'.rawurldecode($single_doc['document_url']).'">'.$single_doc['document_name'].'</a>';
+    $group_documents_html.= '</div>';
+    $group_documents_html.= '<div class="documentListActions">';
+    $group_documents_html.= '<a class="downloadDocument" target="_blank" href="{site_url}documents/group_documents/'.rawurldecode($single_doc['document_url']).'">Download</a>';
+    $group_documents_html.= '</div>';
+    $group_documents_html.= '<div class="clear"></div>';
+  }   
+}
+$group_documents_html.= '</div>';
+$group_documents_html.= '</div>';
+
+
+
+// create html for main div
+$group_html = "";
+$group_html.= $group_top_box;
+$group_html.= $group_tools;
+if(!$is_public) $group_html.= $group_status_button;
+$group_html.= $group_description_html;
+if($is_admin || $is_member || $is_public) $group_html.= $group_recent_posts;
+if($is_admin && !$is_public) $group_html.= $group_approval_html;
+if(!$is_public) $group_html.= $group_members_html;
+if($is_admin || $is_member || $is_public) $group_html.= $group_documents_html;
+$group_html.= '<input readonly="readonly" type="hidden" id="group_field" value="'.$group_id.'" />';
+$group_html.= '<input readonly="readonly" type="hidden" id="member_field" value="'.$my_id.'" />';
+
+?>
+<body class="groupDetails">
+
+<a name="top"></a>
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper --}
+
+<div id="externalMastheadWrap">{!-- begin #externalMastheadWrap --}
+<div id="internalMastheadWrap">{!-- begin #internalMastheadWrap --}
+      
+{snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+{snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+{snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+
+<script type="text/javascript">
+// provide faux active states for primary and secondary nav elements without having to add pages into structure  
+	var navelement1 = document.getElementById('nav-sub-community');
+		if(navelement1) {
+			navelement1.className += navelement1.className ? ' parent-active' : '';
+		}
+	var navelement2 = document.getElementById('nav-sub-sub-groups');
+		if(navelement2) {
+			navelement2.className += navelement2.className ? ' parent-active' : '';
+		}
+</script>
+    
+</div>{!-- end .internalMastheadWrap --}
+</div>{!-- end .externalMastheadWrap --}
+  
+<div id="mainContentArea">{!-- begin .mastheadMainContent --}
+
+<?= $group_html ?>
+
+<div id="target_approval_status" style="width:400px;height:125px;display:none;"></div>
+<a id="hidden_link" href="#target_approval_status" class="fancybox" style="display:none;">Click Me</a>
+
+<div id="externalSocialMediaSharingBlock">
+	{snip_scroll_to_top}
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+</div>{!-- end #mainContentArea --}
+
+{snip_global_footer}{!-- include global_footer snippet --}
+
+</div>{!-- end #externalPageWrapper --}
+
+<!-- START JAVASCRIPT -->
+{snip_bring_js}
+<script>
+$(document).ready(function() {
+  $('.grayButton').on('click', function(){
+    return false;
+  });
+
+  // admin approve / deny members
+  $(document).on('click','.admin_approval_button',function(){
+    var messageBox = $('#target_approval_status');
+    var memberID = $(this).siblings('.single_member_id').val();
+    var groupID = $('#group_field').val();
+    var actionType = $(this).attr('id');
+
+    var buttonClicked = $(this);
+
+    if(actionType == 'approve'){
+      var dataString = 'action='+actionType+'&member_id='+memberID+'&group_id='+groupID+'&what_page=members';
+      $.ajax({
+        url: "{path=groups/process_members.php}",
+        type: "GET",
+        data: dataString,
+        success: function(response){
+          try {
+            json = $.parseJSON(response);
+            (messageBox).html(json.message);
+            $(".noCurrentMembers").remove();
+            if($(".currentMEntry").length < 6) $(".currentMembersClear").before(json.member_on_detail_html);
+          } catch (e) {
+            (messageBox).html(response);
+          }
+          buttonClicked.parent().parent().remove();  
+        },
+        error: function(response){
+          (messageBox).html(response);
+        }
+      });
+    }
+    else if(actionType == 'reject'){
+      if(confirm("Are you sure you want to reject this member from joining your group?"))
+      var dataString = 'action='+actionType+'&member_id='+memberID+'&group_id='+groupID;
+      $.ajax({
+        url: "{path=groups/process_members.php}",
+        type: "GET",
+        data: dataString,
+        success: function(response){
+          (messageBox).html(response);
+          buttonClicked.parent().parent().remove();
+        },
+        error: function(response){
+          (messageBox).html(response);
+        }
+      });
+    }
+    $('#hidden_link').fancybox().trigger('click');
+    return false;
+  });
+
+  // join or leave group
+  $(document).on('click','.status_button',function(){
+    var myButton = $(this);
+    var messageBox = $('#target_approval_status');
+    var memberID = $('#member_field').val();
+    var groupID = $('#group_field').val();
+    var actionType = $(this).attr('id');
+
+    if(actionType == 'join'){
+      var dataString = 'action='+actionType+'&member_id='+memberID+'&group_id='+groupID;
+      $.ajax({
+        url: "{path=groups/process_members.php}",
+        type: "GET",
+        data: dataString,
+        success: function(response){
+          (messageBox).html(response); 
+          myButton.addClass("grayButton");
+          myButton.removeClass("statusButton");
+          myButton.text("Pending..."); 
+        },
+        error: function(response){
+          (messageBox).html(response);
+        }
+      });
+    }
+    else if(actionType == 'leave'){
+      if(confirm("Are you sure you want to leave this group?")){
+        var dataString = 'action='+actionType+'&member_id='+memberID+'&group_id='+groupID;
+        $.ajax({
+          url: "{path=groups/process_members.php}",
+          type: "GET",
+          data: dataString,
+          success: function(response){
+            (messageBox).html(response);  
+          },
+          error: function(response){
+            (messageBox).html(response);
+          }
+        });
+      }
+    }
+    else if(actionType == 'pending'){
+    	(messageBox).html('You have already requested to join this group. An admin must approve your request');
+    }
+    $('#hidden_link').fancybox().trigger('click');
+    return false;
+  });
+
+});
+</script>
+<!-- END JAVASCRIPT -->
+
+</body>
+<!-- end embed groups/details -->

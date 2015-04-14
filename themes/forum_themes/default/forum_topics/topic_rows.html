@@ -1,0 +1,43 @@
+{if is_ignored}
+<tr>
+ <td class="tableCellOne" colspan="5" style="border-right: none !important;">
+ {lang:topic_hidden} <strong>{author}</strong> {lang:is_ignored}.
+ <span style="float:right"><a href="#" onclick="showHideRow('{id1}');return false;">{lang:view_hide}</a> &bull;
+ <a href="{path:ignore}">{lang:stop_ignoring} {author}</a></span>
+ </td>
+</tr>
+{/if}
+
+<tr id="{id1}" {if is_ignored}style="display: none;"{/if}>
+<td class="tableCellTwo" style="width:4%; border-right: none !important;" align="center"><a href="{path:view_thread}"><img src="{topic_marker}" width="24" height="18" border="0" alt="" title="" /></a></td>
+<td class="tableCellOne" style="width:50%; border-left: none !important;">
+<div class="topicTitle">
+{topic_type}<a href="{path:view_thread}" title="{topic_title}" >{if is_new}<b>{/if}{topic_title}{if is_new}</b>{/if}</a>
+{if pagelinks}&nbsp;&nbsp;<span class="smallLinks">(<img src="{path:image_url}marker_file.gif" width="9" height="9" border="0" alt="" title="" /> {pagelinks})</span>{/if}
+</div>
+<div class="forumLightLinks">{lang:posted_by} 			<?php
+				$profile_id = "";
+				$profile_string = '{path:member_profile}';
+				$profile_array = explode('/',$profile_string);
+				end($profile_array);
+				$profile_id = prev($profile_array);
+			?>
+			<a href="{path=community/users/profile}/<?= $profile_id ?>">{author}</a></div>
+</td>
+<td class="tableCellTwo" style="width:6%;" align="center">{total_replies}</td>
+<td class="tableCellTwo" style="width:6%; border-right: none !important;" align="center">{total_views}</td>
+<td class="tableCellOne" style="width:38%; border-right: none !important;">
+<div class="tablePostInfo">
+	{if is_topic}{lang:posted_on} {last_reply format="%m-%d-%Y %h:%i %A"}<br />{/if}
+	{if is_post}<a href="{path:post_link}">{lang:posted_on} {last_reply format="%m-%d-%Y %h:%i %A"}</a><br />{/if}
+	{lang:posted_by} 			<?php
+				$profile_id = "";
+				$profile_string = '{path:reply_member_profile}';
+				$profile_array = explode('/',$profile_string);
+				end($profile_array);
+				$profile_id = prev($profile_array);
+			?>
+			<a href="{path=community/users/profile}/<?= $profile_id ?>">{reply_author}</a>
+</div>
+</td>
+</tr>

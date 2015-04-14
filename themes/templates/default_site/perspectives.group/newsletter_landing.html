@@ -1,0 +1,63 @@
+<!-- ### BEGIN NEWSLETTER LISTING (LANDING) TEMPLATE EMBED ### -->
+
+<div class="content singleColumn">
+
+	<div class="fullContentRow">
+  
+  	{exp:channel:entries channel="ch_simple_page_content" limit="1" disable="pagination|member_data|categories" dynamic="yes"}
+  
+  	{if add_a_page_content_header == "Yes"}{!-- Check to see if we have header title/content --}
+        <div class="content singleColumn">
+          <div class="fullContentRow top">
+            <div class="externalFullBlock">
+              <div class="internalFullBlock">
+                <div class="blockHead">
+                  <h1 class="specialHeader">{if alt_title_for_header != ""}{alt_title_for_header}{if:else}{title}{/if}</h1>
+                </div>{!-- end .blockHead --}
+                <div class="staticPage">
+                  {if content_for_page_header != ""}{content_for_page_header}{/if}
+                </div>{!-- end .staticPage --}
+              </div>{!-- end .internalFullBlock --}
+            </div>{!-- end .externalFullBlock --}
+          </div>{!-- end .fullContentRow .top --}
+        </div>{!-- end .content .singleColumn --}
+      {/if}
+  
+      {if simple_page_content != ""}
+        <div class="fullContentRow top">{!-- begin .fullContentRow --}      
+          <div class="externalFullBlock">{!-- begin .externalFullBlock --}        
+          <div class="internalFullBlock">{!-- begin .internalFullBlock --}    
+              {simple_page_content}        
+            </div>{!-- end .internalFullBlock --}        
+          </div>{!-- end .externalFullBlock --}        
+        </div>{!-- end .fullContentRow --}
+      {/if}
+      
+    {/exp:channel:entries}
+    
+    {exp:channel:entries channel="ch_newsletter" limit="1" disable="pagination|member_data|categories" dynamic="no"}
+    
+    	<div style="margin-bottom:20px;">
+        <a class="blueButtonCurrentNewsletter{if segment_3 == "archive"} inactive{if:else} active{/if}" href="{page_url}"><div class="icon">&nbsp;</div><span>Current Newsletter</span></a>
+        <a class="blueButtonPastNewsletters{if segment_3 == "archive"} active{if:else} inactive{/if}" href="/{segment_1}/{segment_2}/archive/"><div class="icon">&nbsp;</div><span>Past Newsletters</span></a>
+    	</div>
+      
+      <div class="newsletterDisplayWrap">
+        <!-- begin displaying content from the wysiwyg editor -->
+        {newsletter_content}
+        <!-- end displaying content from the wysiwyg editor -->
+      </div>
+      
+    {/exp:channel:entries}
+  
+  </div><!-- end .fullContentRow -->
+  
+</div><!-- end .content .singleColumn -->
+
+<div class="clearBoth">&nbsp;</div>
+<div id="externalSocialMediaSharingBlock">
+  {snip_scroll_to_top}
+  {!--{snip_social_media_sharing}--}
+</div>
+
+<!-- ### END NEWSLETTER LISTING TEMPLATE EMBED ### -->

@@ -1,0 +1,84 @@
+<?php
+$page_message = "";
+$base_ncs_url = 'http://api.informalscience.org/search/json?';
+
+if($_POST){
+	switch($_POST['section']){
+		case 'Projects':
+			header('Location: /search/projects?search='.$_POST['keywords'].'&search_url='.rawurlencode($base_ncs_url.'qq='.urlencode(str_replace(":", "\\:", $_POST['keywords']))));
+			exit();
+		case 'Research':
+			header('Location: /search/research?type=research&search='.$_POST['keywords'].'&search_url='.rawurlencode($base_ncs_url.'qq='.urlencode(str_replace(":", "\\:", $_POST['keywords']))));
+			exit();
+		case 'Evaluation':
+			header('Location: /search/evaluation?type=evaluations&search='.$_POST['keywords'].'&search_url='.rawurlencode($base_ncs_url.'qq='.urlencode(str_replace(":", "\\:", $_POST['keywords']))));
+			exit();
+		case 'Perspectives':
+			header('Location: /search/perspectives?search='.$_POST['keywords']);
+			exit();
+		case 'Groups':
+			header('Location: /search/groups?search='.$_POST['keywords']);
+			exit();
+		case 'Member Directory':
+			header('Location: /search/member-directory?s=on&search='.$_POST['keywords']);
+			exit();
+		case 'Informal Commons':
+			header('Location: /search/informal-commons?search='.$_POST['keywords'].'&search_url='.rawurlencode($base_ncs_url.'qq='.urlencode(str_replace(":", "\\:", $_POST['keywords']))));
+			exit();
+		default:
+			header('Location: /search/informal-commons?search='.$_POST['keywords'].'&search_url='.rawurlencode($base_ncs_url.'qq='.urlencode(str_replace(":", "\\:", $_POST['keywords']))));
+			exit();
+	}
+}
+
+if(isset($_GET['s'])){
+	$base_search_url = '/search/informal-commons?search_url=';
+	switch($_GET['s']){
+		case '1':
+			$base_ncs_url.= 'resourceType[]='.'Project+Descriptions';
+			$encoded_url = rawurlencode($base_ncs_url);
+			header('Location: '.$base_search_url.$encoded_url);
+			exit();
+		case '2':
+			$base_ncs_url.= 'resourceType[]='.'Evaluation+Reports';
+			$encoded_url = rawurlencode($base_ncs_url);
+			header('Location: '.$base_search_url.$encoded_url);
+			exit();
+		case '3':
+			$base_ncs_url.= 'resourceType[]='.'Research+and+Evaluation+Instruments';
+			$encoded_url = rawurlencode($base_ncs_url);
+			header('Location: '.$base_search_url.$encoded_url);
+			exit();
+		case '4':
+			$base_ncs_url.= 'resourceType[]='.'Research+Products';
+			$encoded_url = rawurlencode($base_ncs_url);
+			header('Location: '.$base_search_url.$encoded_url);
+			exit();
+		case '5':
+			$base_ncs_url.= 'resourceType[]='.'Reference+Materials';
+			$encoded_url = rawurlencode($base_ncs_url);
+			header('Location: '.$base_search_url.$encoded_url);
+			exit();
+		case '6':
+			$base_ncs_url.= 'resourceType[]='.'Case+Studies+and+Reviews';
+			$encoded_url = rawurlencode($base_ncs_url);
+			header('Location: '.$base_search_url.$encoded_url);
+			exit();
+		case '7':
+			$base_ncs_url.= 'resourceType[]='.'Instructional+Materials';
+			$encoded_url = rawurlencode($base_ncs_url);
+			header('Location: '.$base_search_url.$encoded_url);
+			exit();
+		case '8':
+			$base_ncs_url.= 'resourceType[]='.'Social+Media+and+Online+Communities';
+			$encoded_url = rawurlencode($base_ncs_url);
+			header('Location: '.$base_search_url.$encoded_url);
+			exit();
+	}
+
+}
+
+header('Location: /search/informal-commons');
+exit();
+
+?>

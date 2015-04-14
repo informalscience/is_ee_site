@@ -1,0 +1,180 @@
+{snip_browser_sniffer}<!DOCTYPE html><!-- ### template - help.group/search.html ### -->
+
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>
+<head>
+
+<title>Help Search : {site_name}</title>{!-- native EE title would be {exp:channel:entries channel="ch_home"}{title}{/exp:channel:entries} --}
+
+<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" /><!-- include the global_styles css template -->
+<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" />{!-- include the global_styles css template --}
+
+{snip_global_header_links}
+
+{snip_global_header_meta}
+
+</head>
+
+<body id="{structure:top:slug}" class="{structure:parent:slug} {structure:page:slug}  static">{!-- We grab the page top-level slug as id and parent aand page slugs as super-added classes --}
+
+<a name="top"></a>
+
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding --}
+
+  <div id="externalMastheadWrap">{!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding --}
+    
+    <div id="internalMastheadWrap">{!-- begin #internalMastheadWrap - fixed width, maybe fixed height too --}
+          
+      {snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+      
+      {snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+      
+      {snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+        
+    </div>{!-- end .internalMastheadWrap - fixed width, fixed height --}
+    
+  </div>{!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding --}
+    
+  <div id="mainContentArea">{!-- begin .mastheadMainContent - fixed width, fixed height, centered --}
+
+    <div class="content singleColumn">
+    
+    	<div class="fullContentRow top">
+      	<div class="externalFullBlock">
+        	<div class="internalFullBlock">
+          	<div class="blockHead">
+      				<h1 class="specialHeader">Search Results ({exp:search:total_results}{total_results}{/exp:search:total_results})</h1>
+            </div><!-- end .blockHead -->
+            <p>Keywords: "{exp:search:keywords}"</p>
+          </div><!-- end .internalFullBlock -->
+        </div><!-- end .externalFullBlock -->
+      </div><!-- end .fullContentRow .top -->
+      
+    </div><!-- end .content .singleColumn -->
+    
+    <div class="searchPanel">
+        
+      <div class="sectionHeading">
+      
+        <h2>Search Help</h2>
+        
+      </div><!-- end .sectionHeading -->
+      
+      <div class="searchPanelOptionsContainer">
+      
+        <div class="searchPanelContainer" style="margin-right: 20px;">
+        
+          <div class="marginpad">
+          
+            {exp:search:advanced_form channel="ch_help" results="10" search_in="everywhere" result_page="help/search" status="not closed" where="all"}{!-- show_expired="yes" --}
+            {!-- if you change 'results' value here, you must also change it for search results below, and the one in tool_pages/help too - it controls pagination and a discrepancy will cause problems --}
+            
+              <input type="text" class="searchPanelInput" name="keywords" id="keywords" value="" size="20" maxlength="80" />
+              
+              <div class="searchPanelButton">
+                <input name="submit" id="submit" type="image" src="/themes/wiki_themes/default/images/wiki-main-search.jpg" />
+              </div>
+            
+            {/exp:search:advanced_form}
+          
+          </div><!-- end .marginpad -->
+          
+        </div><!-- end .searchPanelContainer -->
+        
+      </div><!-- end .searchPanelOptionsContainer -->
+      
+    </div><!-- end .searchPanel -->
+      
+    <div id="twoThirdsContentColumn" class="content twoThirdsContentColumn floatLeft">
+    
+      {exp:search:search_results channel="ch_help" results="01" switch="resultRowOne|resultRowTwo" search_in="everywhere" no_result_page="help/search" cat_style="nested" status="published" paginate="bottom"}
+  		{!-- if you change 'results' value here, you must also change it for the search form above, and the one in tool_pages/help too - it controls pagination and a discrepancy will cause problems --}
+        
+        {if no_results}{!-- need some styling in this block --}
+      		
+          <div class="noResultsBlock">
+          
+            <p>There are no results for your search query.</p>
+            <p>Check your query and try again or try the categories listed in the sidebar.</p>
+            <p>Keywords you used were: {exp:search:keywords}</p>
+            
+          </p>
+        {/if}
+      
+        <div class="fullContentRow">{!-- begin .fullContentRow --}
+          <div class="externalFullBlock postList">{!-- begin .externalFullBlock --}
+            <div class="itemBlock{if post_listing_image == ""} noImage{/if}">
+              <!-- <div class="itemImageBlock">
+                <a href="{url_title_path='help'}"><img class="postListingImage" src="{post_listing_image}" alt="{title}" class="clearfix" /></a>
+              </div> -->
+              <h3><a href="{auto_path}">{title}</a></h3>
+              <!-- <p>Posted on {entry_date format='%F %d, %Y'} by {author} in {categories backspace="3"} <a 
+              href="/help/categories/?catName=$catName&amp;catId={category_id}">{category_name}</a> / {/categories}</p> -->
+              {if post_summary_excerpt}{post_summary_excerpt}{if:else}{post_summary_excerpt_long}{/if}{!-- use short excerpt, if available; if not use long excerpt --}
+          		{!-- Trevor, if you want to make the 'long' excerpt longer, go here: http://75.101.149.150/admin.php?D=cp&C=admin_content&M=field_edit&field_id=155&group_id=9 --}
+              {!-- Similarly, if you want to make the 'short' excerpt shorter, go here: http://75.101.149.150/admin.php?D=cp&C=admin_content&M=field_edit&field_id=17&group_id=9 --}
+            </div>{!-- end .itemBlock --}
+          </div>{!-- end .externalFullBlock --}
+        </div>{!-- end .fullContentRow --}
+        
+        {paginate}
+          {pagination_links}
+            <div class="pagination">
+      
+              {first_page}
+                <a href="{pagination_url}" class="page-first page">1</a>
+              {/first_page}
+        
+              {page}
+                {if current_page}<span class="page-{pagination_page_number} page active">{pagination_page_number}</span>
+                {if:else}<a href="{pagination_url}" class="page-{pagination_page_number} page">{pagination_page_number}</a>
+                {/if}
+              {/page}
+        
+              {last_page}
+                <a href="{pagination_url}" class="page-last page">{total_pages}</a>
+              {/last_page}
+      
+              <div class="paginationToggle">
+                {previous_page}
+                    <a href="{pagination_url}" class="previousPage"><img src="{site_url}/images/uploads/left.jpg" /></a>
+                {/previous_page}
+          
+                {next_page}
+                    <a href="{pagination_url}" class="page-next"><img src="{site_url}/images/uploads/right.jpg" /></a>
+                {/next_page}
+           		</div>
+          
+          	</div>
+        	{/pagination_links}
+          
+      	{/paginate}
+        
+      {/exp:search:search_results}
+  
+      <div class="clearBoth">&nbsp;</div>
+    
+    </div><!-- end #twoThirdsContentColumn .content .twoThirdsContentColumn .floatLeft -->
+    
+    <div id="oneThirdContentColumn" class="floatRight">
+    
+      {snip_help_categories_sidebar}
+      
+    </div><!-- end #oneThirdContentColumn .floatRIght -->
+    
+    <div class="clearBoth">&nbsp;</div>
+		
+      <div id="externalSocialMediaSharingBlock">
+        {snip_scroll_to_top}
+        {!-- snip_social_media_sharing --}
+      </div>
+    
+    <div class="clearBoth">&nbsp;</div>
+    
+    </div>{!-- end #mainContentArea --}
+  
+  {snip_global_footer}{!-- include global_footer snippet --}
+
+</div>{!-- end #externalPageWrapper --}
+
+</body>
+</html>

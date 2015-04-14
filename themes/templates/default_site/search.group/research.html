@@ -1,0 +1,346 @@
+<?php
+
+require_once('/var/www/ee/get_data.php');
+
+$this->EE =& get_instance();
+$my_id = $this->EE->session->userdata('member_id');
+
+$search_param = "";
+if(isset($_GET['search'])){
+  $search_param = $_GET['search'];
+}
+
+// url on initial page visit
+$base_url = 'http://api.informalscience.org/search/json?';
+
+$the_search_url = '{site_url}search/research?';
+$the_search_url.= 'type='.$_GET['type'].'&';
+$no_search_url = $the_search_url;
+$the_search_url.= 'search='.$search_param.'&';
+$the_search_url = htmlspecialchars($the_search_url);
+
+// get search parameter from url
+if(isset($_GET['search_url'])){
+  $base_url = $_GET['search_url'];
+  if(!strpos($base_url,'?')){
+    $base_url.= '?';
+  }
+}
+
+if($_GET['type'] == 'research'){
+  // we always want to be search research products (while research products)
+  if(!strpos($base_url,'resourceType=Research+Products') && !strpos($base_url,'resourceType[]=Research+Products') && !strpos($base_url,'resourceType%5B%5D=Research+Products')){
+    $base_url.= '&resourceType[]=Research+Products'; 
+  }
+}
+else if($_GET['type'] == 'reference'){
+// we always want to be search reference (while searching reference)
+  if(!strpos($base_url,'resourceType=Reference+Materials') && !strpos($base_url,'resourceType[]=Reference+Materials') && !strpos($base_url,'resourceType%5B%5D=Reference+Materials')){
+    $base_url.= '&resourceType[]=Reference+Materials'; 
+  }
+}
+else if($_GET['type'] == 'instruments'){
+  // we always want to be search instruments (while searching instruments)
+  if(!strpos($base_url,'resourceType=Research+and+Evaluation+Instruments') && !strpos($base_url,'resourceType[]=Research+and+Evaluation+Instruments') && !strpos($base_url,'resourceType%5B%5D=Research+and+Evaluation+Instruments')){
+    $base_url.= '&resourceType[]=Research+and+Evaluation+Instruments'; 
+  }
+}
+
+$search_results = json_decode(get_data($base_url),true);
+$search_results = json_decode(get_data($base_url),true);
+
+require_once('/var/www/ee/ncs_tools/pagination.php');
+
+require_once('/var/www/ee/ncs_tools/parse_search_initial.php');
+
+require_once('/var/www/ee/ncs_tools/generate_facets.php');
+
+require_once('/var/www/ee/ncs_tools/parse_single_result.php');
+
+require_once('/var/www/ee/ncs_tools/add_yourself.php');
+
+
+// create sorting html
+  $sorted_label = "";
+  $sorted_order = "";
+  if(isset($current_sorting['displayLabel'])){
+   $sorted_label = $current_sorting['displayLabel'];
+  }
+  if(isset($current_sorting['order'])){
+   $sorted_order = $current_sorting['order'];
+  }
+  $sorting_html = "";
+  $sorting_html.= '<div id="topSearch" class="projectListingToggle" style="position:relative;">';
+
+  $sorting_html.= '<form id="search_box" style="position:relative;">';
+  $sorting_html.= '<span class="toggleTitle">Select Resource Type:</span>';
+  $sorting_html.= '<ul class="toggleSort" style="margin-bottom: 15px; margin-top: 10px !important;">';
+  if($_GET['type'] == 'research'){
+    $sorting_html.= '<li class="active">Research Products</li>';
+    $sorting_html.= '<a class="jump_sections" href="#" title="reference"><li>Reference&nbsp;Materials</li></a>';
+    $sorting_html.= '<a class="jump_sections" href="#" title="instruments"><li>Research&nbsp;&amp;&nbsp;Evaluation&nbsp;Instruments</li></a>';
+  }
+  else if($_GET['type'] == 'reference'){
+    $sorting_html.= '<a class="jump_sections" href="#" title="research"><li>Research&nbsp;Products</li></a>';
+    $sorting_html.= '<li class="active">Reference Materials</li>';
+    $sorting_html.= '<a class="jump_sections" href="#" title="instruments"><li>Research&nbsp;&&nbsp;Evaluation&nbsp;Instruments</li></a>';
+  }
+  else if($_GET['type'] == 'instruments'){
+    $sorting_html.= '<a class="jump_sections" href="#" title="research"><li>Research Products</li></a>';
+    $sorting_html.= '<a class="jump_sections" href="#" title="reference"><li>Reference Materials</li></a>';
+    $sorting_html.= '<li class="active">Research & Evaluation Instruments</li>';
+  }
+  $sorting_html.= '</ul>';
+  $sorting_html.= '<input style="display:none;" name="search" class="SearchContainerField" id="text_parameter" placeholder="enter keywords" value="'.$search_param.'"/>';
+  $sorting_html.= '<div style="display:none;" class="SearchContainerSubmit2 evalSearchButton2">';
+  $sorting_html.= '<input style="display:none;" name="" type="image" src="/themes/wiki_themes/default/images/wiki-main-search.jpg">';
+  $sorting_html.= '</div>';
+  $sorting_html.= '</form>';
+  
+  $sorting_html.= '<span class="toggleTitle" style="padding-top: 24px;">Sort By:</span>';
+  $sorting_html.= '<ul class="toggleSort">';
+  // if we click on a sort then we want that sort item to be active and if we click on it again it should go to unsorted results
+  if($sorted_label == "Title" && $sorted_order == "Ascending"){
+    $sorting_html.= '<a href="'.$the_search_url.'search_url='.rawurlencode($sorting['Relevance']['HREFsortDescendingBy']).'#topSearch"><li class="active">'.'Title A-Z'.'</li></a>';
+  }
+  else {
+    $sorting_html.= '<a href="'.$the_search_url.'search_url='.rawurlencode($sorting['Title']['HREFsortAscendingBy']).'#topSearch"><li>'.'Title A-Z'.'</li></a>';  
+  }
+  if($sorted_label == "Begin Date" && $sorted_order == "Ascending"){
+    $sorting_html.= '<a href="'.$the_search_url.'search_url='.rawurlencode($sorting['Relevance']['HREFsortDescendingBy']).'#topSearch"><li class="active">'.'Date Created'.'</li></a>';
+  }
+  else {
+    $sorting_html.= '<a href="'.$the_search_url.'search_url='.rawurlencode($sorting['Begin Date']['HREFsortAscendingBy']).'#topSearch"><li>'.'Date Created'.'</li></a>';  
+  }
+  // if($sorted_label == "End Date" && $sorted_order == "Ascending"){
+  //   $sorting_html.= '<a href="'.$the_search_url.'search_url='.rawurlencode($sorting['Relevance']['HREFsortDescendingBy']).'#topSearch"><li class="active">'.'End Date'.'</li></a>';
+  // }
+  // else {
+  //   $sorting_html.= '<a href="'.$the_search_url.'search_url='.rawurlencode($sorting['End Date']['HREFsortAscendingBy']).'#topSearch"><li>'.'End Date'.'</li></a>';  
+  // }
+  if($sorted_label == "Contributor Organization Name" && $sorted_order == "Ascending"){
+    $sorting_html.= '<a href="'.$the_search_url.'search_url='.rawurlencode($sorting['Relevance']['HREFsortDescendingBy']).'#topSearch"><li class="active">'.'Organization Name A-Z'.'</li></a>';
+  }
+  else {
+    $sorting_html.= '<a href="'.$the_search_url.'search_url='.rawurlencode($sorting['Contributor Organization Name']['HREFsortAscendingBy']).'#topSearch"><li>'.'Organization Name A-Z'.'</li></a>';  
+  }
+  if($sorted_label == "Contributor Last Name" && $sorted_order == "Ascending"){
+    $sorting_html.= '<a href="'.$the_search_url.'search_url='.rawurlencode($sorting['Relevance']['HREFsortDescendingBy']).'#topSearch"><li class="active">'.'Contributor Last Name A-Z'.'</li></a>';
+  }
+  else {
+    $sorting_html.= '<a href="'.$the_search_url.'search_url='.rawurlencode($sorting['Contributor Last Name']['HREFsortAscendingBy']).'#topSearch"><li>'.'Contributor Last Name A-Z'.'</li></a>';  
+  }
+  $sorting_html.= '</ul>';
+  $sorting_html.= '</div>';
+
+// create facet html
+  $facet_html = "";
+  $facet_html.= '<div class="sidebar left">';
+  $facet_html.= $current_facets_html;
+  $facet_html.= $env_type_html;
+  $facet_html.= $resource_type_html;
+  $facet_html.= $audience_html;
+  $facet_html.= $content_html;
+  $facet_html.= $content_source_html;
+  $facet_html.= $funding_source_html;
+  $facet_html.= '</div>';
+
+// create pagination html
+  $pagination_html = "";
+  $pagination_html.= '<div class="pagination">';
+  if($total_results > 0){
+    foreach($all_pages as $single_page){
+      if($current_page == $single_page || $single_page == '...'){
+        if($single_page == '...'){
+          $pagination_html.= '<span class="page">';
+        }
+        else{
+          $pagination_html.= '<span class="page active">'; 
+        }
+        $pagination_html.= $single_page;
+        $pagination_html.= '</span>';
+      }
+      else {
+        $pagination_html.= '<a class="page first" href="'.$the_search_url.'search_url='.rawurlencode($page_url.'&page='.$single_page).'#topSearch">';
+        $pagination_html.= $single_page;
+        $pagination_html.= '</a>';
+      }
+    }
+    // previous and next page buttons
+    $pagination_html.= '<div class="paginationToggle">';
+    if($current_page > 1){
+      $pagination_html.= '<a class="previousPage" href="'.$the_search_url.'search_url='.rawurlencode($page_url.'&page='.($current_page-1)).'#topSearch">';
+      $pagination_html.= '<img src="/images/uploads/left.jpg" />';
+      $pagination_html.= '</a>';
+    }
+    if($current_page < $last_page){
+      $pagination_html.= '<a class="nextPage" href="'.$the_search_url.'search_url='.rawurlencode($page_url.'&page='.($current_page+1)).'#topSearch">';
+      $pagination_html.= '<img src="/images/uploads/right.jpg" />';
+      $pagination_html.= '</a>';
+    }
+    $pagination_html.= '</div>';
+  }
+  $pagination_html.= '</div>';
+
+// create results html
+  $results_html = "";
+  $results_html.= '<div id="twoThirdsContentColumn" class="content twoThirdsContentColumn projects floatRight">';
+
+  if($total_results > 0){
+    foreach($results as $single_result){
+      $single_record = $single_result['record'];
+      
+      $parsed_record = parse_single_result($single_record);
+
+      $add_yourself_html = "";
+      $add_yourself_html = generate_add_yourself_string($parsed_record);
+      
+
+    // start creating single result html
+      $single_result_html = "";
+      $single_result_html.= '<div class="projectListingBrowse">';
+      $single_result_html.= '<div class="projectListingTitle">'.'<a href="'.$parsed_record['record_url'].'">'.$parsed_record['title'].'</a>'.'</div>';
+      $single_result_html.= '<div class="projectListingTitle parseNCSDataHeader">'.'<a href="{site_url}research/'.$parsed_record['ncs_id'].'">Parse NCS Data</a>'.'</div>';
+      $single_result_html.= '<div class="projectListingDesc">';
+      $single_result_html.= '<p class="pDescription">'.$parsed_record['short_description'].'</p>';
+      // if($my_id) $single_result_html.= '<a class="fancybox associateMyself topAssociate" href="#add_'.$single_ncs_id.'">Associate Myself</a>';
+      $single_result_html.= '<a href="#" class="showDetails right">view details</a>';
+
+      $single_result_html.= '<div class="toshow">';
+      $single_result_html.= '<div class="left" style="min-height: 80px;"><span class="expandedTitle">Organization(s)</span><span class="expandedEntry LeadOrg">'.$parsed_record['organization_string'].'</span></div>';
+      $single_result_html.= '<div class="left" style="min-height: 80px;"><span class="expandedTitle">Evaluator(s)/Author(s)</span><span class="expandedEntry LeadOrg">'.$parsed_record['eval_author_string'].'</span></div>'; 
+      $single_result_html.= '<div class="clear"></div>';
+      $single_result_html.= '<div class="left"><span class="expandedTitle">Funding Source</span><span class="expandedEntry Funders">'.$parsed_record['funding_source_string'].'</span></div>';
+      $single_result_html.= '<div class="left"><span class="expandedTitle">Date Created</span><span class="expandedEntry awardDate">'.$parsed_record['begin_date'].'</span></div>';
+      $single_result_html.= '<div class="clear"></div>';
+      $single_result_html.= '<div class="left"><span class="expandedTitle">Citation Identifier</span><span class="expandedEntry">'.$parsed_record['id_type'].' '.$parsed_record['id'].'</span></div>';
+      $single_result_html.= '<div class="left"><span class="expandedTitle">Citation Publication Name</span><span class="expandedEntry">'.$parsed_record['publication'].'</span></div>';
+      $single_result_html.= '<div class="left"><span class="expandedTitle">Citation Volume</span><span class="expandedEntry">'.$parsed_record['volume'].'</span></div>';
+      $single_result_html.= '<div class="left"><span class="expandedTitle">Citation Number</span><span class="expandedEntry">'.$parsed_record['number'].'</span></div>';
+      $single_result_html.= '<div class="left"><span class="expandedTitle">Citation Starting Page</span><span class="expandedEntry">'.$parsed_record['page'].'</span></div>';
+      $single_result_html.= '<div class="clear"></div>';
+      $single_result_html.= '<div class="left"><span class="expandedTitle ContentSource">Content Source</span><span class="expandedEntry">'.$parsed_record['content_source'].'</span></div>';
+      $single_result_html.= '<div class="left"><span class="expandedTitle">Audience</span><span class="expandedEntry">'.$parsed_record['audience_string'].'</span></div> ';
+      $single_result_html.= '<div class="left"><span class="expandedTitle">Resource Type</span><span class="expandedEntry">'.$parsed_record['resource_type_string'].'</span></div>';
+      $single_result_html.= '<div class="left"><span class="expandedTitle">Environment Type</span><span class="expandedEntry">'.$parsed_record['env_type_string'].'</span></div>';
+      $single_result_html.= '<div class="left"><span class="expandedTitle">Content</span> <span class="expandedEntry">'.$parsed_record['content_string'].'</span></div>';
+      $single_result_html.= '<div class="clear"></div>';
+      if($my_id) $single_result_html.= '<a class="fancybox associateMyself bottomAssociate" href="#add_'.$parsed_record['ncs_id'].'">Associate Myself</a>';
+      $single_result_html.= '<a href="#" class="closeDetails right">close details</a></span>';
+      $single_result_html.= '</div>';
+
+      $single_result_html.= '</div>';
+      $single_result_html.= '</div>';
+
+      $results_html.= $single_result_html;
+      if($my_id) $results_html.= $add_yourself_html;
+ 
+    }
+  }
+  $results_html.= '</div>';
+
+
+// create body html  
+  $search_html = "";
+  $search_html = '<div class="sectionHeading"><h2>Sort Research</h2></div>';
+   $search_html.= $sorting_html;
+  $search_html.= '<div class="resultsBar left">';
+  $search_html.= '<h3 class="columnTitle left">Refine Your Search</h3>';
+  if($_GET['type'] == 'research'){
+    $search_html.= '<div class="browseHeadline"><span>:</span> Research Products</div>';
+  }
+  if($_GET['type'] == 'reference'){
+    $search_html.= '<div class="browseHeadline"><span>:</span> Reference Materials</div>';
+  }
+  else if($_GET['type'] == 'instruments'){
+    $search_html.= '<div class="browseHeadline"><span>:</span> Research & Evaluation Instruments</div>';
+  }
+  // display how many records there are
+  if($total_results > 0){ 
+    $search_html.= '<div class="displayResults">'.'Displaying results '.$record_start.' - '.$record_end.' of '.$total_results.'</div>';  
+  }
+  else{
+    $search_html.= '<div class="displayResults">No Results Found</div>';
+  }
+  $search_html.= '</div>';
+  $search_html.= $facet_html;
+  $search_html.= $results_html;
+  $search_html.= $pagination_html;
+
+?>
+<!DOCTYPE html><!-- ### TEMPLATE search/research ### -->
+{snip_browser_sniffer}
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>>
+
+<head>
+
+  {snip_global_default_meta_ogp_data}
+
+  {snip_page_meta_ogp}
+
+  <title>Search Research : {site_name}</title>
+  <link rel="stylesheet" href="{stylesheet='global/validationEngine.jquery.css'}" type="text/css" />
+  <link rel="stylesheet" href="{stylesheet='global/template.css'}" type="text/css" />
+  <link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" />
+  <link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" />
+  <link rel="stylesheet" href="{stylesheet='global/bootstrap.css'}" type="text/css" />
+  <link rel="stylesheet" href="{stylesheet='global/fancybox.css'}" type="text/css" />
+  
+  {snip_global_header_meta}
+  {snip_global_header_links}
+
+</head>
+
+<body style="background: white" class="searchResultsPage">
+ 
+<div id="externalPageWrapper"><!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+<div id="externalMastheadWrap"><!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+<div id="internalMastheadWrap"><!-- begin #internalMastheadWrap - fixed width, maybe fixed height too -->
+
+{snip_global_tool_bar}<!-- include global_tool_bar snippet -->
+{snip_global_logo_and_nav}<!-- include global_logo_and_nav snippet -->
+{!--{snip_global_sub_nav}--}<!-- include global_sub_nav snippet -->
+    
+</div><!-- end .internalMastheadWrap - fixed width, fixed height --> 
+</div><!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+  
+<div id="mainContentArea" style="margin-top: 20px;"><!-- begin .mastheadMainContent - fixed width, fixed height, centered -->
+
+{snip_home_search}
+<?= $search_html ?>
+
+<div class="clearBoth">&nbsp;</div>   
+<div id="externalSocialMediaSharingBlock">
+  {snip_scroll_to_top}
+  {!--{snip_social_media_sharing}--}
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+</div><!-- end #mainContentArea - fixed width, fixed height, centered -->
+
+{snip_global_footer}<!-- include global_footer snippet -->
+
+</div><!-- end #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+{snip_bring_js}
+<script type="text/javascript">
+$(document).ready(function() {
+
+  $('.jump_sections').on('click',function(){
+    var section = $(this).attr('title');
+    var term = $('#keywords').val();
+    var good_term = term.replace(/ /g,"+");
+    term = 'qq='+good_term;
+    search_url = "http://api.informalscience.org/search/json?"+term;
+    window.location = '{site_url}search/research?type='+section+'&search='+good_term+'&search_url='+encodeURIComponent(search_url)+'#topSearch';
+    return false;
+  });
+
+});
+</script>
+<?php require_once('/var/www/ee/ncs_tools/ncs_browse_js.php'); ?>
+
+</body>
+</html>
+</html>

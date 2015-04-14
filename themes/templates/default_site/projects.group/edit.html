@@ -1,0 +1,819 @@
+<?php
+require_once('/var/www/ee/get_data.php');
+
+$this->EE =& get_instance();
+
+// has access to member functions relating to project
+$my_id = $this->EE->session->userdata('member_id');
+$has_access = true;
+if(!$my_id){
+	$has_access = false;
+}
+
+$what_project = "";
+$what_project = $this->EE->uri->segment(3);
+$record_found = true;
+
+// is correct URL segment set?
+if($what_project == ""){
+	$record_found = false;
+}
+
+if($record_found){
+	// hit the NCS url -- see if we get valid results
+	$base_url = 'http://api.informalscience.org/record/'.$what_project;
+	$record_results = json_decode(get_data($base_url),true);
+	if($record_results == ""){
+		$record_found = false;
+		$resource['title'] = "";
+	}
+	else{
+		$record = $record_results['record'];
+	}	
+}
+
+if($record_found){
+
+// set variables to echo out on failed form submission
+	$resource = array(
+		'title' => "",
+		'description' => "",
+		'funding_source' => array(""),
+		'nsf_funding_program' => array(""),
+		'award_number' => array(""),
+		'award_amount' => array(""),
+		'lead_organization' => "",
+		'zip_code' => "",
+		'begin_date' => "",
+		'end_date' => "",
+		'env_type' => array(),
+		'resource_type' => array(),
+		'instrument_type' => array(),
+		'audience' => array(),
+		'content' => array(),
+		'contributor' => array(""),
+		'contributor_id' => array(""),
+		'contributor_org' => array(""),
+		'contributor_type' => array(""),
+		'website_url' => array(""),
+		'citation_id' => "",
+		'citation_id_type' => "",
+		'citation_pub' => "",
+		'citation_volume' => "",
+		'citation_number' => "",
+		'citation_page' => "",
+		'submitter_firstname' => "",
+		'submitter_lastname' => "",
+		'submitter_email' => "",
+		'submitter_id' => "",
+		'mime_type' => "",
+		'resource_format' => "",
+		'access_rights' => "",
+		'url' => ""
+		);
+
+	$new_resource = $resource;
+
+	$form_error = array();
+
+//--------------------//
+		
+	// get title
+	if(isset($record['resource']['title'])){
+		$resource['title'] = $record['resource']['title']['values'][0]['value'];
+	}
+	// get description
+	if(isset($record['resource']['description'])){
+		$resource['description'] = $record['resource']['description']['values'][0]['value'];
+	}
+	// get and format begin date
+	if(isset($record['resource']['beginDate'])){
+		$tmp_begin = $record['resource']['beginDate']['values'][0]['value'];
+		if($tmp_begin != "") $resource['begin_date'] = date('m/d/Y',strtotime($tmp_begin));
+	}
+	// get and format end date
+	if(isset($record['resource']['endDate'])){
+		$tmp_end = $record['resource']['endDate']['values'][0]['value'];
+		if($tmp_end != "") $resource['end_date'] = date('m/d/Y',strtotime($tmp_end));
+	}
+
+	// set resourceType, projectResearchReferenceScope, audience, content
+	if(isset($record['resource']['resourceType'])){
+		foreach($record['resource']['resourceType']['values'] as $single_value){
+			$resource['resource_type'][] = $single_value['value'];
+		}
+	}
+	if(isset($record['resource']['projectResearchReferenceScope'])){
+		foreach($record['resource']['projectResearchReferenceScope']['values'] as $single_value){
+			$resource['env_type'][] = $single_value['value'];
+		}
+	}
+	if(isset($record['resource']['content'])){
+		$project_content = array();
+		foreach($record['resource']['content']['values'] as $single_value){
+			$resource['content'][] = $single_value['value'];
+		}
+	}
+	if(isset($record['resource']['audience'])){
+		$project_content = array();
+		foreach($record['resource']['audience']['values'] as $single_value){
+			$resource['audience'][] = $single_value['value'];
+		}
+	}
+	// end resourceType, projectResearchReferenceScope, audience, content
+
+	// start funding
+	if(isset($record['resource']['funding'])){
+		$record_funding = $record['resource']['funding']['values'];
+	}
+	if(count($record_funding) > 0){
+		$resource['funding_source'] = array();
+		$resource['nsf_funding_program'] = array();
+		$resource['award_number'] = array();
+		$resource['award_amount'] = array();
+		foreach($record_funding as $single_value){
+			$tmp_source = "";
+			$tmp_program = "";
+			$tmp_number = "";
+			$tmp_amount = "";
+			if(isset($single_value['fundingSource'])){
+				$tmp_source = $single_value['fundingSource']['values'][0]['value'];
+			}
+			if(isset($single_value['fundingNSFProgram'])){
+				$tmp_program = $single_value['fundingNSFProgram']['values'][0]['value'];
+			}
+			if(isset($single_value['fundingAwardNumber'])){
+				$tmp_number = $single_value['fundingAwardNumber']['values'][0]['value'];
+			}
+			if(isset($single_value['fundingAwardAmount'])){
+				$tmp_amount = $single_value['fundingAwardAmount']['values'][0]['value'];
+			}
+			$resource['funding_source'][] = $tmp_source;
+			$resource['nsf_funding_program'][] = $tmp_program;
+			$resource['award_number'][] = $tmp_number;
+			$resource['award_amount'][] = $tmp_amount;
+		}
+	}
+	// end funding
+
+	// start contributors
+		if(isset($record['resource']['contributor'])){
+			$record_contributors = $record['resource']['contributor']['values'];
+		}
+		if(count($record_contributors) > 0){
+			$resource['contributor'] = array();
+			$resource['contributor_type'] = array();
+			$resource['contributor_org'] = array();
+			$resource['contributor_id'] = array();
+			$is_organization_set = false;
+			foreach($record_contributors as $single_value){
+				if(isset($single_value['role']['values'][0]['value'])){
+					if(isset($single_value['organizationName']) & !$is_organization_set){  // we grab the organization of the first contributor
+            $resource['lead_organization'] = $single_value['organizationName']['values'][0]['value'];
+            $is_organization_set = true;  
+          }
+          if(isset($single_value['personFirstName']) && isset($single_value['personFirstName'])){
+						$tmp_name = "";
+						$tmp_role = "";
+						$tmp_org = "";
+						$tmp_id = "";
+
+						$tmp_name = $single_value['personFirstName']['values'][0]['value']." ".$single_value['personLastName']['values'][0]['value'];
+						$tmp_role = $single_value['role']['values'][0]['value'];
+						if(isset($single_value['organizationName']['values'][0]['value'])) $tmp_org = $single_value['organizationName']['values'][0]['value'];
+						if(isset($single_value['contributorId']['values'][0]['value']))	$tmp_id = $single_value['contributorId']['values'][0]['value'];
+
+						$resource['contributor'][] = $tmp_name;
+						$resource['contributor_type'][] = $tmp_role;
+						$resource['contributor_org'][] = $tmp_org;
+						$resource['contributor_id'][] = $tmp_id;
+					}
+				}
+			}
+		}
+	// end contributors
+
+	// get relatedUrls
+	$record_related_urls = array();
+	if(isset($record['resource']['relatedUrl']['values'])){
+		$record_related_urls = $record['resource']['relatedUrl']['values'];
+	}
+	$website_count = 0;
+	foreach($record_related_urls as $single_url){
+		// this is a website
+		if(isset($single_url['attributes']['type']) && $single_url['attributes']['type']['value'] == 'Project Website'){
+			$resource['website_url'][$website_count] = $single_url['value'];
+			$website_count++;
+		}
+	}
+
+	// get optional parameters
+	if(isset($record['optional'])){
+		$optional_parameters = $record['optional'];
+		if(isset($optional_parameters['location']['values'][0]['zipCode'])){
+			$resource['zip_code'] = $optional_parameters['location']['values'][0]['zipCode']['values'][0]['value'];
+		}
+	}
+
+}
+
+
+// if we have POST data we will want to validate and process it
+if($_POST){
+	// backend form validation
+	$passed_form_validation = true;
+
+	// we want to save the values from the NCS record - we will compare these to the new post values. we want to only generate XML for changed values
+	$old_resource = $resource;
+
+	// set variables from post values
+	foreach($_POST as $key=>$value){
+		if(isset($resource[$key])){
+			$resource[$key] = $value;
+		}
+	}
+
+	// connect to NCS
+	if($passed_form_validation){
+		$ncs_validation = true;
+		$base_ncs_url = 'http://54.225.171.85:8080/ncs/services/dcsws1-0?';
+
+		// issue GetID request from the NCS
+		$collection_name = '1363799840933';
+		$get_id_url = $base_ncs_url.'verb=GetId';
+		$get_id_url.= '&collection='.$collection_name;
+		$get_id_results = simplexml_load_string(file_get_contents($get_id_url));
+
+		// parse GetID request from the NCS
+		$get_id = "";
+		$get_id = $get_id_results->GetId->id;
+		if($get_id == "") $ncs_validation = false;
+
+		// generate XML string and send to NCS
+		if($ncs_validation){
+			foreach($resource as $key=>$value){
+				if($value != $old_resource[$key]){
+					$new_resource[$key] = $value;
+				}
+			}
+
+			require_once('/var/www/ee/process_submits.php');
+			$record_xml_string = "";
+			$record_xml_string = process_submit($new_resource,$get_id);
+
+			// send to the NCS holding pen
+			$xml_format = 'informalCommons';
+			$put_record_url = $base_ncs_url.'verb=PutRecord';
+			$put_record_url.= '&xmlFormat='.$xml_format;
+			$put_record_url.= '&collection='.$collection_name;
+			$put_record_url.= '&id='.$get_id;
+			$put_record_url.= '&dcsStatusNote='.'record+edit+for-'.$what_project;
+			$put_record_url.= '&recordXml='.$record_xml_string;
+			$put_record_results = simplexml_load_string(file_get_contents($put_record_url));
+
+			if(!isset($put_record_results->PutRecord->result) || $put_record_results->PutRecord->result != "Success"){
+				$form_error[] = process_error($get_id,$put_record_url);
+				$ncs_validation = false;
+			}
+
+			// redirect on success
+			if($ncs_validation){
+				header('Location: /projects/edit-success');
+				exit();
+			}
+
+		}
+
+	} // end connect to NCS
+
+} // end if(_POST)
+
+?>
+<!DOCTYPE html><!-- ### begin template projects/edit ### -->
+<html>
+
+<head>
+	<title>{site_name} : Edit Project</title>
+	<link rel="stylesheet" href="{stylesheet='global/jquery.Jcrop.css'}" type="text/css" />
+	<link rel="stylesheet" href="{stylesheet='global/validationEngine.jquery.css'}" type="text/css" />
+	<link rel="stylesheet" href="{stylesheet='global/template.css'}" type="text/css" />
+	<link rel="stylesheet" href="{stylesheet='global/bootstrap.css'}" type="text/css" />
+	<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" />
+	<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" /><!-- include the global_styles css template -->
+
+{snip_global_header_links}
+
+{snip_global_header_meta}
+
+</head>
+
+<body>
+<a name="top"></a>
+
+<div id="externalPageWrapper"><!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+<div id="externalMastheadWrap"><!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+<div id="internalMastheadWrap"><!-- begin #internalMastheadWrap - fixed width, maybe fixed height too -->
+			
+{snip_global_tool_bar}<!-- include global_tool_bar snippet -->
+{snip_global_logo_and_nav}<!-- include global_logo_and_nav snippet -->
+{snip_global_sub_nav}<!-- include global_sub_nav snippet -->
+
+<script type="text/javascript">
+// provide faux active states for primary and secondary nav elements without having to add pages into structure  
+  var navelement1 = document.getElementById('nav-sub-projects');
+    if(navelement1) {
+      navelement1.className += navelement1.className ? ' parent-active' : '';
+    }
+</script>
+		
+</div><!-- end .internalMastheadWrap - fixed width, fixed height -->
+</div><!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+	
+<div id="mainContentArea" style="margin-top: 20px;"><!-- begin .mastheadMainContent - fixed width, fixed height, centered -->
+
+	<div class="sectionHeading">
+		<h2>Edit Project: <?= $resource['title'] ?></h2>
+	</div>
+
+	<?php
+	if(!empty($form_error)){
+		echo '<div class="form_error">';
+		echo 'Your form had the following errors: ';
+		echo implode(". ",$form_error);
+		echo '</div>';
+	}
+	?>
+
+<!-- ARE WE LOGGED IN? -->
+<?php if($has_access && $record_found): ?>
+	<div class="submitProjectFormWrap">
+	<form method="post" id="resource_form" enctype="multipart/form-data" style="width:100%;"> 
+	<input type="hidden" name="XID" value="{XID_HASH}" />
+	
+	<!-- DESCRIPTION FIELD -->
+	<div class="projectFormField">
+		<label class="label left">Project Description<span class="requiredField">*</span></label>
+		<textarea name="description" cols="" rows="" class="validate[required,minSize[20]] projectTextArea left"><?= htmlentities($resource['description']) ?></textarea>
+	</div>
+	<!-- END DESCRIPTION FIELD -->
+
+	<!-- START FUNDING FIELDS -->
+	<div id="funding_fields">
+	<?php
+		for($i=0; $i<count($resource['funding_source']); $i++){
+			echo '<div>';
+			echo '<!-- FUNDING SOURCE FIELD -->';
+			echo '<div class="projectFormField">';
+			echo '<label class="label left selectTop">Funding Source<span class="requiredField">*</span></label>';
+			echo '<div class="leadOrgStyledSelect left leadOrgSelect">';
+			echo '<select class="funding_source validate[required] projectFieldDrop" name="funding_source[]">';
+			echo '<option value="" selected="selected">Select Funding Source</option>';
+			$codes  = array('NSF','IMLS','NASA','NOAA','NIH','NEH','DOD','DOE','DOI','Private Foundation','Donor','International Public');
+			foreach($codes as $single_code){
+				$is_selected = "";
+				if($resource['funding_source'][$i] == $single_code) $is_selected = ' selected="selected" ';
+				echo '<option value="'.$single_code.'"'.$is_selected.'>'.$single_code.'</option>';
+			}
+			echo '</select>';
+			echo '</div>';
+			echo '</div>';
+			echo '<!-- END FUNDING SOURCE FIELD -->';
+
+			echo '<!-- NSF FUNDING PROGRAM -->';
+			echo '<div class="nsf_funding projectFormField">';
+			echo '<label class="label left selectTop">NSF Funding Division</label>';
+			echo '<div class="leadOrgStyledSelect left leadOrgSelect">';
+			echo '<select name="nsf_funding_program[]" class="projectFieldDrop">';
+			echo '<option value="" selected="selected">Select NSF Funding Division</option>';
+			$codes = array('AYS','DRK-12','ISE/AISL','ITEST','PRIME','REESE');
+			foreach($codes as $single_code){
+				$is_selected = "";
+				if($resource['nsf_funding_program'][$i] == $single_code) $is_selected = ' selected="selected" ';
+				echo '<option value="'.$single_code.'"'.$is_selected.'>'.$single_code.'</option>';
+			}
+			echo '</select>';
+			echo '</div>';
+			echo '</div>';
+			echo '<!-- END NSF FUNDING PROGRAM -->';
+
+			echo '<!-- FUNDING AWARD NUMBER FIELD -->';
+			echo '<div class="projectFormField marginRight">';
+			echo '<label class="label left selectTop">Funding Award #</label>';
+			echo '<input name="award_number[]" type="text" class="projectFieldDrop left" value="'.$resource['award_number'][$i].'"/>';
+			echo '</div>';
+			echo '<!-- END FUNDING AWARD NUMBER FIELD -->';
+
+			echo '<!-- AWARD AMOUNT FIELD -->';
+			echo '<div class="projectFormField">';
+			echo '<label class="label left selectTop">Award Amount $</label>';
+			echo '<input name="award_amount[]" type="text" class="validate[custom[number]] projectFieldDrop left" value="'.htmlentities($resource['award_amount'][$i]).'"/>';
+			echo '</div>';
+			echo '<!-- END AWARD AMOUNT FIELD -->';
+
+			if($i>0) echo '<a href="#" class="removeAddLink">Remove</a>';
+			echo '</div>';
+		}
+		?>
+	</div>
+	<!-- END FUNDING FIELDS -->
+	<div class="clearBoth">&nbsp;</div>
+	<a href="#" id="addAnotherFunding" class="addAnotherLink">Add Another Funding</a>
+	<div class="clearBoth">&nbsp;</div>
+
+	<!-- AWARD BEGIN DATE FIELD -->
+	<div class="projectFormField marginRight">
+		<label class="label left selectTop">Award Begin Date</label>
+		<input name="begin_date" type="text" class="date_picker validate[required] projectFieldDrop left" value="<?= htmlentities($resource['begin_date']) ?>"/>
+	</div>
+	<!-- END AWARD END DATE FIELD -->
+
+	<!-- AWARD END DATE FIELD -->
+	<div class="projectFormField">
+		<label class="label left selectTop">Award End Date</label>
+		<input name="end_date" type="text" class="date_picker projectFieldDrop left" value="<?= htmlentities($resource['end_date']) ?>"/>
+	</div>
+	<!-- END AWARD END DATE FIELD -->
+
+	<!-- LEAD ORGANIZATION FIELD -->
+	<div class="projectFormField">
+		<label class="label left selectTop">Lead Organization<span class="requiredField">*</span></label>
+		<input name="lead_organization" type="text" class="validate[required,minSize[2]] projectFieldFull left predictiveOrganization" value="<?= htmlentities($resource['lead_organization']) ?>"/>
+	</div>
+	<!-- END LEAD ORGANIZATION FIELD -->
+
+	<!-- LEAD ORGANIZATION ZIP CODE -->
+	<div class="projectFormField">
+		<label class="label left selectTop">Lead Organization Zip Code</label>
+		<input name="zip_code" type="text" class="projectFieldFull left" value="<?= htmlentities($resource['zip_code']) ?>"/>
+	</div>
+	<!-- END LEAD ORGANIZATION ZIP CODE -->
+
+	<!-- RESOURCE TYPE FIELD -->
+	<div class="left">
+		<div class="projectFormField">
+			<label class="label left selectTop">Environment Type<a href="#" style="display: none;" class="tooltips" data-title="Need Text"><img class="formTooltip" src="/images/uploads/home-tooltip.jpg" style="display: none;"></a></label>
+			<div class="projectfieldfull multiselect">
+				<?php
+					$codes  = array('Media and Technology','Media and Technology:Broadcast Media','Media and Technology:Websites, Mobile Apps, and Online Media','Media and Technology:Games, Simulations, and Interactives','Media and Technology:Films and IMAX','Media and Technology:Planetarium and Science on a Sphere','Public Educational Programs','Public Educational Programs:Afterschool Programs','Public Educational Programs:Summer and Extended Camps','Public Educational Programs:Citizen Science Programs','Public Educational Programs:Community Outreach Programs','Public Educational Programs:Making and Tinkering Programs','Public Educational Programs:Museum and Science Center Programs','Public Educational Programs:Public Events and Festivals','Public Educational Programs:Theater Programs','Public Educational Programs:Library Programs','Public Educational Programs:Park, Outdoor, and Garden Programs','Professional Development, Conferences, and Networks','Professional Development, Conferences, and Networks:Professional Development and Workshops','Professional Development, Conferences, and Networks:Conferences','Professional Development, Conferences, and Networks:Resource Centers and Networks','Exhibitions','Exhibitions:Museum and Science Center Exhibits','Exhibitions:Aquarium and Zoo Exhibits','Exhibitions:Parks, Outdoor, and Garden Exhibits','K-12 and Higher Education Programs','K-12 and Higher Education Programs:K-12 Programs','K-12 and Higher Education Programs:Higher Education Programs');
+					foreach($codes as $single_code){
+						$is_selected = "";
+						if(in_array($single_code,$resource['env_type'])) $is_selected = ' checked="checked" ';
+						echo '<label><input type="checkbox" name="env_type[]" value="'.$single_code.'"'.$is_selected.'/>'.$single_code.'</label>';
+					}
+				?>
+			</div>
+		</div>
+	</div>
+	<!-- END RESOURCE TYPE FIELD -->
+
+	<!-- AUDIENCE FIELD -->
+	<div class="left">
+		<div class="projectFormField">
+		<label class="label left selectTop">Audience<a href="#" style="display: none;" class="tooltips" data-title="Need Text"><img class="formTooltip" src="/images/uploads/home-tooltip.jpg" style="display: none;"></a></label>
+			<div class="projectfieldfull multiselect">
+				<?php
+					$codes  = array('Families','Parents/caregivers','preK Children (0-5)','elementary school Children (6-10)','middle school Children (11-13)','Youth Public/Teen (up to 17)','Adults','Seniors','General Public','Educators/Teachers','Museum/ISE Professionals','Administration/Leadership/Policymakers','Scientists','Evaluators');
+					foreach($codes as $single_code){
+						$is_selected = "";
+						if(in_array($single_code,$resource['audience'])) $is_selected = ' checked="checked" ';
+						echo '<label><input type="checkbox" name="audience[]" value="'.$single_code.'"'.$is_selected.'/>'.$single_code.'</label>';
+					}
+				?>
+			</div>
+		</div>
+	</div>
+	<!-- END AUDIENCE TYPE FIELD -->
+
+	<!-- CONTENT FIELD -->
+	<div class="left">
+		<div class="projectFormField">
+		<label class="label left selectTop">Content<a href="#" style="display: none;" class="tooltips" data-title="Need Text"><img class="formTooltip" src="/images/uploads/home-tooltip.jpg" style="display: none;"></a></label>
+			<div class="projectfieldfull multiselect">
+				<?php
+					$codes  = array('Art, music, and theater','Chemistry','Computing and information science','Ecology, forestry, and agriculture','Education and learning science','Engineering','General science','Geoscience and geography','Health and medicine','History/policy/law','Life science','Mathematics','Nature of science','Physics','Social science and psychology','Space science','Technology');
+					foreach($codes as $single_code){
+						$is_selected = "";
+						if(in_array($single_code,$resource['content'])) $is_selected = ' checked="checked" ';
+						echo '<label><input type="checkbox" name="content[]" value="'.$single_code.'"'.$is_selected.'/>'.$single_code.'</label>';
+					}
+				?>
+			</div>
+		</div>
+	</div>
+	<!-- END CONTENT FIELD -->
+
+	<!-- CONTRIBUTOR FIELD -->
+	<div class="left">
+		<div id="contributors" class="projectFormField">
+			<?php
+				for($i=0; $i<count($resource['contributor']); $i++){
+					echo '<div class="right">';
+					echo '<label class="label left" style="margin-top: 32px !important;">Contributor Name<span class="requiredField">*</span></label>';
+					echo '<input name="contributor[]" style="margin-bottom: 20px;" type="text" class="validate[required] predictivePerson projectFieldFull marginTop submitAddAnother" ';
+					echo 'value="'; if(isset($resource['contributor'][$i])) echo htmlentities($resource['contributor'][$i]); echo '"';
+					echo '/>';
+					echo '<label class="label left selectTop">Organization</label>';
+					echo '<input name="contributor_org[]" type="text" class="validate[required] predictiveOrganization projectFieldFull" value="';
+					if(isset($resource['contributor_org'][$i])) echo htmlentities($resource['contributor_org'][$i]);
+					echo '" />';
+					echo '<label class="label left" style="margin-top: 22px !important;">Role<span class="requiredField">*</span></label>';
+					echo '<input name="contributor_id[]" type="hidden" readonly="readonly" class="person_id" value="';
+					if(isset($resource['contributor_id'][$i])) echo $resource['contributor_id'][$i];
+					echo '"/>';
+					echo '<select class="validate[required]" name="contributor_type[]" style="margin-top:20px;">';
+					echo '<option value="" selected="selected">Select Contributor Role</option>';
+					$codes = array('Principal Investigator','Co-Principal Investigator','Contributor','Evaluator','Former Principal Investigator','Former Co-Principal Investigator','Author','Project Manager','Contact','Publisher','Editor');
+					foreach($codes as $single_code){
+						$is_selected = "";
+						if(isset($resource['contributor_type'][$i]) && $resource['contributor_type'][$i] == $single_code) $is_selected = ' selected="selected" ';
+						echo '<option value="'.$single_code.'"'.$is_selected.'>'.$single_code.'</option>';
+					}
+					echo '</select>';
+					if($i>0) echo '<a href="#" class="removeAddLink">Remove</a>';
+					echo '</div>';
+				}
+			?>
+		</div>
+	</div>
+	<div class="clearBoth">&nbsp;</div>
+	<a href="#" id="addAnotherContributor" class="addAnotherLink">Add Another Contributor</a>
+	<div class="clearBoth">&nbsp;</div>
+	<!-- END CONTRIBUTOR FIELD -->
+
+	<!-- WEBSITE FIELD -->
+	<div class="left">
+		<div id="websites" class="projectFormField">
+			<label class="label left selectTop">Project Website URL</label>
+			<input name="website_url[]" type="text" class="validate[custom[url]] projectFieldFull" value="<?= htmlentities($resource['website_url'][0]) ?>" />
+			<?php
+				for($i=1; $i<count($resource['website_url']); $i++){
+					echo '<div class="right">';
+					echo '<input name="website_url[]" type="text" class="validate[custom[url]] submitAddFullField marginTop submitAddAnother" value="'.$resource['website_url'][$i].'" />';
+					echo '<a href="#" class="removeAddLink">Remove</a>';
+					echo '</div>';
+				}
+			?>
+		</div>
+	</div>
+	<div class="clearBoth">&nbsp;</div>
+	<a href="#" id="addAnotherSite" class="addAnotherLink">Add Another Website URL</a>
+	<div class="clearBoth">&nbsp;</div>
+	<!-- END WEBSITE FIELD -->
+
+	<!-- SUBMITTER FIELDS -->
+	{exp:zoo_visitor:details}
+		<input readonly="readonly" type="hidden" name="submitter_firstname" value='{visitor:member_firstname}'/>
+		<input readonly="readonly" type="hidden" name="submitter_lastname" value='{visitor:member_lastname}'/>
+		<input readonly="readonly" type="hidden" name="submitter_email" value='{email}'/>
+		<input readonly="readonly" type="hidden" name="submitter_id" value='{member_id}'/>
+	{/exp:zoo_visitor:details}
+	<!-- END SUBMITTER FIELDS -->
+
+	<!-- SUBMIT BUTTON -->
+	<div class="clearBoth">&nbsp;</div>
+	
+	<div class="left">
+		<input type="submit" value="Submit Edits For Review" class="blueButtonPlain"/>
+	</div>
+	
+	<div class="clearBoth">&nbsp;</div>
+	<!-- END SUBMIT BUTTON -->
+
+	</form>
+	</div><!-- end .submitProjectFormWrap -->
+
+<!-- WE ARE NOT LOGGED IN OR RECORD NOT FOUND -->
+	<?php elseif(!$record_found): ?>
+		<p>
+		<div class="form_error">Record not found. Click <a href="{path=projects}">here</a> to go back to the project home page.</div>
+		</p>
+	<?php else: ?>
+		{snip_not_logged_in}
+	<? endif; ?>
+<!-- END WE ARE NOT LOGGED IN OR RECORD NOT FOUND-->
+
+<div class="clearBoth">&nbsp;</div>   
+<div id="externalSocialMediaSharingBlock">
+  {snip_scroll_to_top}
+  {!--{snip_social_media_sharing}--}
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+</div><!-- end #mainContentArea - fixed width, fixed height, centered -->
+
+{snip_global_footer}<!-- include global_footer snippet -->
+
+</div><!-- end #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+<?php
+
+	// grab organization list and convert to JS array for bootstrap
+	$org_results = $this->EE->db->query("SELECT name FROM organizations");
+	$orgs = array();
+	foreach($org_results->result_array() as $row){
+		$orgs[] = $row['name'];
+	}
+	$js_orgs = json_encode($orgs);
+
+	// grab members list and convert to JS array for bootstrap
+	$member_results = $this->EE->db->query("SELECT member_id,screen_name from exp_members WHERE group_id=1 OR group_id=6 OR group_id=5");
+	$names = array();
+	foreach($member_results->result_array() as $row){
+		$names[] = $row['screen_name'].'---'.$row['member_id'];
+	}
+	$js_names = json_encode($names);
+
+?>
+<!-- START JAVASCRIPT -->
+{snip_bring_js}
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	// using validation plugin to client-side validate form // validation rules are written inline with the HTML
+	$("#resource_form").validationEngine();
+
+	// show-hide nsf funding program
+	$('.funding_source').each(function(){
+		if($(this).val() == 'NSF'){
+			$(this).parent().parent().siblings('.nsf_funding').show()
+		}
+		else{
+			$(this).parent().parent().siblings('.nsf_funding').hide()
+		}
+	});
+	$(document).on('change','.funding_source',function(){
+		if($(this).val() == 'NSF'){
+			$(this).parent().parent().siblings('.nsf_funding').show()
+		}
+		else{
+			$(this).parent().parent().siblings('.nsf_funding').hide()
+		}
+	});
+
+	// date picker - using jquery ui
+	$('.date_picker').datepicker();
+	
+	// predictive search for organization fields - using bootstrap
+	var organizations = <?php echo $js_orgs; ?>;
+	$(document).on('focus','.predictiveOrganization',function(){
+		$(this).typeahead({source: organizations, items:6})
+	}); 
+	
+	
+	// predictive search for members - using bootstrap
+	var members = <?php echo $js_names; ?>;
+	$(document).on('focus','.predictivePerson',function(){
+		$('.predictivePerson').each(function(){
+			var $this = $(this);
+			$this.typeahead({
+				source: members, items:6,
+				matcher:function(item){
+					if(item.toLowerCase().replace(/---.*/,'').indexOf(this.query.trim().toLowerCase()) != -1){
+						return true;
+					}
+				},
+				highlighter: function(item){
+					var regex = new RegExp( '(' + this.query + ')', 'gi' );
+					return item.replace(/---.*/,'').replace( regex, "<strong>$1</strong>" );
+				},
+				updater:function(item){
+					var profile_id = item.replace(/.*---/,'');
+					$this.siblings('.person_id').attr('value', profile_id);
+					return item.replace(/---.*/,'');
+				}
+			});	
+		});
+	});
+
+	var fundingDivToAdd = $('#funding_fields');
+	$('#addAnotherFunding').on('click',function(){
+		$('<div>\
+			<!-- FUNDING SOURCE FIELD -->\
+			<div class="projectFormField">\
+			<label class="label left selectTop">Funding Source<span class="requiredField">*</span></label>\
+			<div class="leadOrgStyledSelect left leadOrgSelect">\
+			<select class="funding_source validate[required] projectFieldDrop" name="funding_source[]">\
+			<option value="" selected="selected">Select Funding Source</option>\
+			<option value="NSF">NSF</option>\
+			<option value="IMLS">IMLS</option>\
+			<option value="NASA">NASA</option>\
+			<option value="NOAA">NOAA</option>\
+			<option value="NIH">NIH</option>\
+			<option value="NEH">NEH</option>\
+			<option value="DOD">DOD</option>\
+			<option value="DOE">DOE</option>\
+			<option value="DOI">DOI</option>\
+			<option value="Private Foundation">Private Foundation</option>\
+			<option value="Donor">Donor</option>\
+			<option value="International Public">International Public</option>\
+			</select>\
+			</div>\
+			</div>\
+			<!-- END FUNDING SOURCE FIELD -->\
+			<!-- NSF FUNDING PROGRAM -->\
+			<div class="nsf_funding projectFormField" style="display:none">\
+			<label class="label left selectTop">NSF Funding Division</label>\
+			<div class="leadOrgStyledSelect left leadOrgSelect">\
+			<select name="nsf_funding_program[]" class="projectFieldDrop">\
+			<option value="" selected="selected">Select NSF Funding Division</option>\
+			<option value="AYS">AYS</option>\
+			<option value="DRK-12">DRK-12</option>\
+			<option value="ISE/AISL">ISE/AISL</option>\
+			<option value="ITEST">ITEST</option>\
+			<option value="PRIME">PRIME</option>\
+			<option value="REESE">REESE</option>\
+			</select>\
+			</div>\
+			</div>\
+			<!-- END NSF FUNDING PROGRAM -->\
+			<!-- FUNDING AWARD NUMBER FIELD -->\
+			<div class="projectFormField marginRight">\
+			<label class="label left selectTop">Funding Award #</label>\
+			<input name="award_number[]" type="text" class="projectFieldDrop left" />\
+			</div>\
+			<!-- END FUNDING AWARD NUMBER FIELD -->\
+			<!-- AWARD AMOUNT FIELD -->\
+			<div class="projectFormField">\
+			<label class="label left selectTop">Award Amount $</label>\
+			<input name="award_amount[]" type="text" class="validate[custom[number]] projectFieldDrop left" />\
+			</div>\
+			<!-- END AWARD AMOUNT FIELD -->\
+			<a href="#" class="removeAddLink">Remove</a> \
+			</div>').appendTo(fundingDivToAdd);
+			return false;
+	});
+
+	// be able to dynamically add contributor fields - glass added class="right" to surrounding div
+	var contributorDivToAdd = $('#contributors');
+	$('#addAnotherContributor').on('click', function() {
+		$('<div class="right"> \
+			<label class="label left" style="margin-top: 32px !important;">Contributor Name<span class="requiredField">*</span></label>\
+			<input name="contributor[]" style="margin-bottom: 20px;" type="text" class="validate[required] predictivePerson projectFieldFull marginTop submitAddAnother"/> \
+			<label class="label left selectTop">Organization</label>\
+			<input name="contributor_org[]" type="text" class="validate[required] predictiveOrganization projectFieldFull" /> \
+			<input name="contributor_id[]" type="hidden" readonly="readonly" class="person_id" /> \
+			<label class="label left" style="margin-top: 22px !important;">Role</label>\
+			<select class="validate[required]" name="contributor_type[]" style="margin-top: 20px;">\
+			<option value="" selected="selected">Select Contributor Role<span class="requiredField">*</span></option>\
+			<option value="Principal Investigator">Principal Investigator</option>\
+			<option value="Co-Principal Investigator">Co-Principal Investigator</option>\
+			<option value="Contributor">Contributor</option>\
+			<option value="Evaluator">Evaluator</option>\
+			<option value="Former Principal Investigator">Former Principal Investigator</option>\
+			<option value="Former Co-Principal Investigator">Former Co-Principal Investigator</option>\
+			<option value="Author">Author</option>\
+			<option value="Project Manager">Project Manager</option>\
+			<option value="Contact">Contact</option>\
+			<option value="Publisher">Publisher</option>\
+			<option value="Editor">Editor</option>\
+			</select>\
+			<a href="#" class="removeAddLink">Remove</a> \
+			</div>').appendTo(contributorDivToAdd);
+			return false;
+	});
+
+	// be able to dynamically add website fields - glass added class="right" to surrounding div
+	var webDivToAdd = $('#websites');
+	$('#addAnotherSite').on('click', function() {
+		$('<div class="right"> \
+			<input name="website_url[]" type="text" class="validate[custom[url]] submitAddFullField marginTop submitAddAnother"/> \
+			<a href="#" class="removeLink removeAddLink">Remove</a> \
+			</div>').appendTo(webDivToAdd);
+			return false;
+	});
+
+	// be able to remove dynamically added fields
+	$(document).on('click', '.removeAddLink',function(){
+		$(this).parent('div').remove();
+		return false;
+	});
+
+	// allow highlighting of selected multiselected fields (on failed form submission as well)
+	jQuery.fn.multiselect = function() {
+		$(this).each(function() {
+			var checkboxes = $(this).find("input:checkbox");
+			checkboxes.each(function() {
+				var checkbox = $(this);
+				// Highlight pre-selected checkboxes
+				if (checkbox.attr("checked"))
+					checkbox.parent().addClass("multiselect-on");
+
+				// Highlight checkboxes that the user selects
+				checkbox.click(function() {
+					if (checkbox.attr("checked"))
+						checkbox.parent().addClass("multiselect-on");
+					else
+						checkbox.parent().removeClass("multiselect-on");
+				});
+			});
+		});
+	};
+	$(".multiselect").multiselect();
+
+});
+</script>
+<!-- END JAVASCRIPT -->
+
+</body>
+</html>

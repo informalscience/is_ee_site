@@ -1,0 +1,21 @@
+{exp:rss:feed channel="ch_{segment_3}"}
+
+<?xml version="1.0" encoding="{encoding}"?>
+<rss version="2.0">
+<channel>
+    
+    <title><![CDATA[{channel_name}]]></title>
+    <date>{gmt_date format="%Y-%m-%dT%H:%i:%s%Q"}</date>
+    
+{exp:channel:entries channel="ch_{segment_3}" sort="desc" disable="member_data" dynamic="no"  show_empty="no" paginate="bottom" limit="10"}
+    <item>
+      <title><![CDATA[<a href="{page_url}">{title}</a>]]></title>
+      <date>{gmt_entry_date format="%Y-%m-%dT%H:%i:%s%Q"}</date>
+      <summary><![CDATA[{post_summary_excerpt}]]></summary>
+      <description>{if post_summary_excerpt_long}<![CDATA[{post_summary_excerpt_long}]]>{if:elseif post_summary_excerpt}<![CDATA[{post_summary_excerpt_long}]]>{if:else}<![CDATA[{post_main_content}]]>{/if}</description>
+    </item>
+{/exp:channel:entries}
+    
+</channel>
+</rss>
+{/exp:rss:feed}

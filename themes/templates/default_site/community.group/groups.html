@@ -1,0 +1,101 @@
+{snip_browser_sniffer}<!DOCTYPE html><!-- ### template - community.group/groups.html ### -->
+
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>>
+<head>
+
+{if segment_2 == "groups" AND segment_3 == ""}
+{snip_global_default_meta_ogp_data}
+{if page_meta_keywords}<meta name="keywords" content="{page_meta_keywords}"/>{if:else} <meta name="keywords" content="<?= $global_default_meta_keywords ?>"/>{/if} 
+{if page_meta_ogp_description}<meta name="description" content="{page_meta_ogp_description}"/>{if:else}<meta name="description" content="<?= $global_default_meta_ogp_description; ?>"/>{/if} 
+{if:elseif segment_3 != "details"}
+{if page_meta_keywords}<meta name="keywords" content="{page_meta_keywords}"/>{if:else} <meta name="keywords" content="<?= $global_default_meta_keywords ?>"/>{/if} 
+{if page_meta_ogp_description}<meta name="description" content="{page_meta_ogp_description}"/>{if:else}<meta name="description" content="<?= $global_default_meta_ogp_description; ?>"/>{/if} 
+{/if}
+
+{if segment_3 == "details"}
+<?php $groupID = $_GET['id']; if(isset($groupID)) { ?>
+{exp:query limit="1" sql="SELECT name, is_public, image_url FROM groups WHERE id = '<?= $groupID ?>'"}
+<?php $groupName = "{name}"; $groupPublic = "{is_public}"; $groupImage = "{image_url}"; ?>
+<title><?= $groupName ?> : Group Directory : {site_name}</title>
+{if is_public == "1"}
+{if page_meta_keywords}<meta name="keywords" content="{page_meta_keywords}"/>{if:else} <meta name="keywords" content="<?= $global_default_meta_keywords ?>"/>{/if} 
+<meta name="description" content="<?= $groupName ?> is a public members group on the Informal Science website which exists to advance and improve the practice of informal science education through increased community and mutual investigation, sharing and support."/>
+
+<meta property="og:type" content="article"/>
+<meta property="og:title" content="<?= $groupName ?> : a public member group on the {site_name} website"/> 
+<meta property="og:url" content="{site_url}{segment_1}/{segment_2}/{segment_3}/?id=<?= $groupID ?>"/>
+<meta property="og:image" content="{if image_url}{site_url}images/group_profile_pics/<?= $groupImage ?>{if:else}{site_url}images/branding_plus/default-meta-ogp-image.jpg{/if}"/>
+<meta property="og:site_name" content="InformalScience"/>
+<meta property="og:description" content="<?= $groupName ?> is a public members group on the InformalScience.org website which exists to advance and improve the practice of informal science education through increased community and mutual investigation, sharing and support."/> 
+{/if}
+{/exp:query}
+<?php } ?>
+
+{if:else}
+{if segment_3 != "forum"}<title>Group Directory{if segment_3 != "details" AND segment_3 != ""}<?php echo " : ".ucfirst('{segment_3}'); ?>{/if} : {site_name}</title>
+{if:elseif segment_3 == "forum"}<title>Forum for the {exp:query limit="1" sql="SELECT board_label FROM exp_forum_boards WHERE board_name = '{segment_4}'"}{board_label}{/exp:query} Group : {site_name}</title>
+{/if}
+
+{/if}
+
+<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" />{!-- include the global_styles css template --}
+<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" />{!-- include the global_styles css template --}
+<link rel="stylesheet" href="{stylesheet='global/jquery.Jcrop.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/validationEngine.jquery.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/template.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/bootstrap.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='pi_guide/jquery.fancybox.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='community/community_css'}" type="text/css" />
+
+{if segment_3 == 'forum'}<link rel="stylesheet" href="{site_url}/themes/wiki_themes/default/wiki_style.css" type="text/css" media="screen" charset="utf-8" />{/if}
+{if segment_3 == 'forum'}<link rel="stylesheet" href="{stylesheet='global/forum.css'}" type="text/css" media="screen" charset="utf-8" />{/if}
+
+{snip_global_header_links}
+{snip_global_header_meta}
+
+</head>
+
+{exp:switchee variable="{segment_1}/{segment_2}/{segment_3}" parse="inward"}
+	
+  {!-- begin index view --}
+  {case value="community/groups/create"}
+    {embed="groups/create"}
+  {/case}
+  {case value="community/groups/details"}
+    {embed="groups/details"}
+  {/case}
+  {case value="community/groups/documents"}
+    {embed="groups/documents"}
+  {/case}
+  {case value="community/groups/edit"}
+    {embed="groups/edit"}
+  {/case}
+  {case value="community/groups/forum"}
+    {embed="groups/forum"}
+  {/case}
+  {case value="community/groups/picture"}
+    {embed="groups/picture"}
+  {/case}
+  {case value="community/groups/members"}
+    {embed="groups/members"}
+  {/case}
+  {case value="community/groups/subscriptions"}
+{embed="groups/subscriptions"}
+  {/case}
+  {case value="community/groups/lost"}
+    {embed="groups/lost"}
+  {/case}
+  {case value="community/groups/no-access"}
+    {embed="groups/no-access"}
+  {/case}
+  {case value=""}
+    {embed="groups/index"}
+  {/case}
+  {case default="yes"}
+    {embed="groups/index"}
+  {/case}
+  {!-- end index view --}
+   
+{/exp:switchee}
+
+</html>

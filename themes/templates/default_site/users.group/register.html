@@ -1,0 +1,189 @@
+{snip_community_redirect}
+<!-- ### template - users.group/register.html ###  -->
+<body id="{structure:top:slug}">
+<a name="top"></a>
+
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper --}
+
+<div id="externalMastheadWrap">{!-- begin #externalMastheadWrap --}
+<div id="internalMastheadWrap">{!-- begin #internalMastheadWrap --}
+			
+{snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+{snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+{snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+
+<script type="text/javascript">
+// provide faux active states for primary and secondary nav elements without having to add pages into structure  
+	var navelement1 = document.getElementById('nav-sub-community');
+		if(navelement1) {
+			navelement1.className += navelement1.className ? ' parent-active' : '';
+		}
+	var navelement2 = document.getElementById('nav-sub-sub-member-directory');
+		if(navelement2) {
+			navelement2.className += navelement2.className ? ' parent-active' : '';
+		}
+	var navelement3 = document.getElementById('tool-users');
+		if(navelement2) {
+			navelement3.className += navelement3.className ? ' active' : '';
+		}
+</script>
+		
+</div>{!-- end .internalMastheadWrap --}
+</div>{!-- end .externalMastheadWrap --}
+	
+<div id="mainContentArea">{!-- begin .mastheadMainContent --}
+
+<div class="content singleColumn">
+	<div class="fullContentRow top">
+		<div class="externalFullBlock">
+			<div class="internalFullBlock">
+				<div class="blockHead">
+					<h1 class="specialHeader">{exp:channel:entries channel="ch_simple_page_content" limit="1" disable="pagination|member_data" dynamic="yes"}{if alt_title_for_header != ""}{alt_title_for_header}{if:else}{title}{/if}{/exp:channel:entries}</h1>
+				</div><!-- end .blockHead -->
+				{if logged_in}
+					{exp:zoo_visitor:details}
+						<p>{if member_firstname OR member_lastname}<strong>Welcome, {visitor:member_firstname}{if member_firstname == "Site" OR member_firstname == ""} {visitor:member_lastname}</strong>{/if}
+						({username})! &nbsp; You are already registered and logged in. &nbsp; 
+						<a href="{path=logout}">Logout</a>, or go to your <a href="{path=community/users/profile}">profile</a>.</p>
+					{/exp:zoo_visitor:details}
+				{/if}
+			</div><!-- end .internalFullBlock -->
+		</div><!-- end .externalFullBlock -->
+	</div><!-- end .fullContentRow .top -->
+</div><!-- end .content .singleColumn -->
+
+{if last_segment == "success"}
+
+	<div class="form_success">
+		<span>Thank you!</span>
+		Your account has been created.  Please check your email to activate your account before logging in.  <br /> <br />
+
+                If you do not receive this email, please check your SPAM or junk folder, or email us at <a href="mailto:caise@informalscience.org">caise@informalscience.org</a>.
+	</div>
+
+{if:elseif logged_out}
+
+	{exp:zoo_visitor:registration_form error_handling='inline' return='community/users/register/success'}
+
+	{field_errors}
+		<div class="form_error">{error}</div>
+	{/field_errors}
+
+	<div class="projectFormField marginRight noTopM">
+		<label class="label left selectTop" for="member_firstname">First Name</label>
+		<input class="projectFieldDrop left validate[required]" type="text" name="member_firstname" id="member_firstname" value="{if member_firstname}{member_firstname}{/if}"/>
+	</div>
+
+	<div class="projectFormField noTopM">
+		<label class="label left selectTop" for="member_lastname">Last Name</label>
+		<input class="projectFieldDrop left validate[required]" type="text" name="member_lastname" id="member_lastname" value="{if member_lastname}{member_lastname}{/if}"/>
+	</div>
+
+	<div class="projectFormField marginRight">
+		<label class="label left selectTop" for="username">Username</label>
+		<input class="projectFieldDrop left validate[required,minSize[5]]" type="text" name="username" id="username" value="{if username}{username}{/if}"/>
+	</div>
+
+	<div class="projectFormField">
+		<label class="label left selectTop" for="email">Email</label>
+		<input class="projectFieldDrop left validate[required,custom[email]]" type="text" name="email" id="email" value="{if email}{email}{/if}"/>
+	</div>
+
+	<div class="projectFormField marginRight">
+		<label class="label left selectTop" for="password">Password</label>
+		<input class="projectFieldDrop left validate[required,minSize[5]]" type="password" name="password" id="password" value="{if password}{password}{/if}"/>
+	</div>
+
+	<div class="projectFormField">
+		<label class="label left selectTop" for="password_confirm">Confirm password</label>
+		<input class="projectFieldDrop left validate[required,minSize[5],equals[password]]" type="password" name="password_confirm" id="password_confirm" value="{if password_confirm}{password_confirm}{/if}"/>
+	</div>
+
+	<div class="projectFormField">
+		<label class="label left selectTop" for="terms_of_service">Terms of service</label>
+		<textarea class="projectTextArea left" style="height: 450px;" name='terms' rows='4' readonly>
+Terms of Service
+
+Informalscience.org is managed by the Center for Advancement of Informal Science Education (CAISE). Founded in 2007 with support from the National Science Foundation (NSF), CAISE is a partnership among the Association of Science-Technology Centers (ASTC) and Co-Principal Investigators at Oregon State University (OSU), the University of Pittsburgh Center for Learning in Out-of-School Environments (UPCLOSE), The Great Lakes Science Center and KQED San Francisco. CAISE is housed at ASTC’s Washington, D.C. offices.
+
+Informalscience.org is an online community and collection of projects, evaluation reports, research and reference materials. Informalscience.org provides access to a broader collection of resources indexed from other websites serving the ISE field. These resources from other websites include: instructional materials, research and evaluation instruments, exhibit case studies and reviews, citizen science toolkits and open source software. Informalscience.org also offers groups with discussion forums to encourage dialogue surrounding special topics within the informal science education field and member directory to encourage matchmaking and networking.
+
+1. Acknowledgement and Acceptance of Terms of Service
+
+The Center for Advancement of Informal Science Education (herein "Administrators") offers these website services (the "Services") to you, subject to the terms and conditions of use ("Terms") contained herein. By accessing, creating or contributing content to any part of the informalscience.org community ("Site") and in consideration for the Services we provide to you, you agree to abide by these Terms and any changes or modifications made and published online by the Site from time to time without notice to you.
+
+2. Description of Service
+
+The Service provided to you is for the communication, promotion and free exchange of information and ideas among users of the Service (herein called "Members") in respect of information, data, text, files, photographs, graphics, video, software, sound, hyperlinks, or other materials submitted to the Service (herein collectively referred to as "Content") and provides Members the capability of participating in the community. Unless otherwise stated, any new features added to or modified within the Service shall also be subject to the Terms of Service. Administrators have the discretion to remove users from the Community at any time.
+
+You acknowledge and agree that the Administrators have no responsibility for the assessment or resolution of any disputes arising from your ability to join or remain a Member or otherwise use the Service. You acknowledge and understand that Administrators are not required to provide any assistance including any technical or customer support in connection with the Service and that your use of the Service is entirely at your own risk.
+
+3. Disclaimer
+
+Content on this Site, including blog entries and group forum posts express the research and opinions of the Members, and do not necessarily reflect the views of the Administrators. Each participant is solely responsible for the information, ideas, analysis and/or recommendations contained in their submitted content.
+
+Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) or member(s) and do not necessarily reflect the views of the National Science Foundation.
+
+4. Rights in the Content You Submit
+
+For any Content posted by you to the Site, you hereby allow other Members to view, download, share, and reference it in their own work. Unless you specify otherwise, any and all works of authorship copyrightable by you and posted by you to this Site ("Content") remain under your copyright ownership or the existing copyright ownership. Your posting or submission of Content to this Site means that you are granting a non-exclusive, royalty free, worldwide, perpetual and non-obligatory license to Administrators to reproduce, distribute and publicly display the Content on this Site and related sites under Creative Commons Attribution 3.0 unported license: http://creativecommons.org/licenses/by/3.0/deed.en_US
+
+5. Site Moderation Policy
+
+The Administrator is hosting these Services to help build the field of informal science education. We intend for posts, comments and content on this platform to be insightful, related to the field, and to meet basic standards of respect and accuracy in tone and content. Administrators may delete any Content that in the sole judgment of Administrators violates this Agreement or which may be offensive, illegal, or violate the rights, harm, or threaten the safety of any person. - See more at: http://informalscience.org/legal#sthash.1KIeUhyQ.dpuf
+		</textarea>
+
+		<label class="publicGroupLabel" for="accept_terms">Accept terms of service?<span class="requiredField">*</span></label>
+		<input class="validate[required]" type='checkbox' name='accept_terms' value='y' 
+		{if accept_terms == "y"}checked="checked"{/if} />
+	</div>
+	
+
+	{if captcha}
+	<div class="projectFormField">
+		<label class="label left selectTop" for="captcha">Captcha</label>
+		<div class="left rightMargin" style="margin-top: 5px;">{captcha}</div>
+		<input class="validate[required] projectFieldDrop left" type="text" id="captcha" name="captcha" value="" size="20" maxlength="20" style="width:571px;"/>
+		{error:captcha}
+	</div>
+	{/if}
+
+	<input type="hidden" id="member_complete_percentage" name="member_complete_percentage" readonly="readonly" value="2" />
+
+	<div class="clear"></div>
+	<div class="left">
+		<input type="submit" value="Register" class="blueButtonPlain marginTop"/>
+	</div>
+	<div class="clearBoth">&nbsp;</div>
+
+	{/exp:zoo_visitor:registration_form}
+
+	<!-- START JAVASCRIPT -->
+	{snip_bring_js_nojquery}
+	<script type="text/javascript">
+	$(document).ready(function() {
+		// using validation plugin to client-side validate form // validation rules are written inline with the HTML
+		$("#zoo_visitor_form").validationEngine();
+	});
+	</script>
+	<!-- END JAVASCRIPT -->
+
+{/if}
+
+<div class="clearBoth">&nbsp;</div>
+		
+  <div id="externalSocialMediaSharingBlock">
+    {snip_scroll_to_top}
+    {!-- snip_social_media_sharing --}
+  </div>
+
+<div class="clearBoth">&nbsp;</div>
+
+</div>{!-- end #mainContentArea --}
+
+{snip_global_footer}{!-- include global_footer snippet --}
+
+</div>{!-- end #externalPageWrapper --}
+
+</body>
+<!-- ### template embed - users.group/register.html ### -->

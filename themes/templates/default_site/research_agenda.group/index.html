@@ -1,0 +1,277 @@
+{snip_browser_sniffer}<!DOCTYPE html><!-- ### template - global.group/1column_static_pages.html ### -->
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>>
+<head>
+<title>{structure:page:title} : {site_name}</title>
+{snip_global_default_meta_ogp_data}
+{snip_page_meta_ogp}
+<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" /><!-- include the global_styles css template -->
+<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" />{!-- include the global_styles css template --}
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript" src="/js/jquery.min.js"></script>
+<script type="text/javascript" src="/js/browse.js"></script>
+<script type="text/javascript" src="/js/show.js"></script>
+<script type="text/javascript" src="/js/jquery.fancybox.js"></script>
+<link rel="stylesheet" href="/pi_guide/jquery.fancybox.css?v=2.1.0" media="screen" />
+{snip_global_header_links}
+{snip_global_header_meta}
+</head>
+<body id="{structure:top:slug}" class="{structure:parent:slug} {structure:page:slug}  static">{!-- We grab the page top-level slug as id and parent aand page slugs as super-added classes --}
+<a name="top"></a>
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding --}
+  <div id="externalMastheadWrap">{!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding --}
+    <div id="internalMastheadWrap">{!-- begin #internalMastheadWrap - fixed width, maybe fixed height too --}
+      {snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+      {snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+      {snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+    </div>{!-- end .internalMastheadWrap - fixed width, fixed height --}
+  </div>{!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding --}
+  <div id="mainContentArea">{!-- begin .mastheadMainContent - fixed width, fixed height, centered --}
+{!-- begin broader impacts template --}
+<link rel="stylesheet" href="{stylesheet='research_agenda/researchagenda.css'}" type="text/css" />{!-- include the css template --}
+<div id="sidebar">
+				<div class="related-links">
+					<h2>RELATED WEBSITES</h2>
+					<a href="http://relatingresearchtopractice.org/" target="blank"><img src="/images/researchagenda/rr2p.png"></a>
+					<a href="http://researchandpractice.org/" target="blank"><img src="/images/researchagenda/collaboratory.png"></a>
+					<!--a href="http://www.childrensmuseums.org/playing-for-keeps/play-research.html" target="blank"><img src="/images/researchagenda/acm.png"></a-->
+					<a href="http://sites.nationalacademies.org/DBASSE/BOSE/DBASSE_086989" target="blank" class="last-link"><img src="/images/researchagenda/nas.png"></a>
+				</div>
+                <div class="related-links">
+					<h2>SUBMIT YOUR AGENDA</h2>
+                    <p>If your sector, network, or institution is having a discussion about research agendas or research and practice collaborations, please contact&nbsp;<a href="mailto:jbell@astc.org">James Bell</a>, Director of CAISE, to discuss sharing your process and findings on this page.</p>
+				</div>
+				<div class="selected-links">
+					<h2>SELECTED REFERENCES</h2>
+					<!-- <a href="http://www.tandfonline.com/doi/abs/10.1080/09500690902792385#.UzLaElezeUn"><h5>Eyeballs in the Fridge</h5></a> -->
+					<a href="http://books.google.com/books/about/In_Principle_in_Practice.html?id=YrxzIpjECZAC"><h5>In Principle, in Practice: Museums as Learning Institutions</h5></a>
+					<a href="http://informalscience.org/research/ic-000-000-002-024/LSIE"><h5>Learning Science in Informal Environments: Places, People, and Pursuits</h5></a>
+                    <a href="http://informalscience.org/research/ic-000-000-003-771/Linking_Research_Practice_The_NCTM_Research_Agenda_Conference_Report"><h5>Linking Research & Practice: The NCTM Research Agenda Conference Report</h5></a>
+					<!--a href="http://informalscience.org/research/ic-000-000-003-775/Research_Practice_Partnerships_A_Strategy_for_Leveraging_Research_for_Educational_Improvement_in_School_Districts"><h5>Research-Practice Partnerships: A Strategy for Leveraging Research for Educational Improvement in School Districts</h5></a-->
+                    <a href="http://informalscience.org/research/ic-000-000-003-794/Education_for_Life_and_Work"><h5>Education for Life and Work</h5></a>
+                    <a href="http://informalscience.org/research/ic-000-000-007-930/Common_Guidelines_for_Education_Research_and_Development" class="last-link"><h5>Common Guidelines for Education Research and Development</h5></a>
+					<!-- href="http://informalscience.org/documents/group_documents/2014-01-28_bill%20watson%20curator%20article.pdf"><h5>One Hundred Strong: A Colloquium on Transforming Natural History Museums in the Twenty-ﬁrst Century</h5></a-->	
+				</div>
+			</div>
+<div id="main">
+	<div class="top">
+		<h1>CONNECTING <br />PRACTICE & RESEARCH</h1>
+			<img src="/images/broaderimpacts/undeline.gif">
+				<p>How can we best connect social science research with the practice of designing experiences and settings to advance the field of informal STEM learning? One strategy is through the process of developing a research agenda.</p>
+                <p>There is a growing number of field-initiated research framework, agenda and roadmap projects that involve deep and sustained discussions among practitioners and researchers about the kinds of questions that will be best inform practice and build knowledge. These processes typically involve reviewing current literature, summarizing what is known and identifying gaps in evidence.</p>
+                <p>The projects on this page are all at different points in their development trajectories, yet they overlap in instructive ways with regard to the processes they are employing and the categories of questions they are generating. If you would like to include your project in this mix, please contact <a href="mailto:caise@informalscience.org">CAISE</a> here.</p>
+	</div>
+        
+        <div class="top">
+            <h1>RESEARCH AGENDAS</h1>
+            <img src="/images/broaderimpacts/undeline.gif">
+        </div>    
+<div class="resources">
+    <a class="fancybox" href="#naturalhistory">  
+	<div class="resources-block1">
+		 <img src="/images/researchagenda/naturalhistory.png">
+			<h6>Learning in Natural History Settings</h6>
+				<p>People learn about nature and science in museums, zoos, aquaria, gardens, and “in the wild”. How can we inform and support the vitality and relevance of natural history settings into the 21st century?</p>
+	</div></a>
+<div id="naturalhistory" class="lightbox">
+	<h3>Learning in Natural History Settings</h3>
+		<p>Initiated by the Smithsonian Institution National Museum of Natural History, a community of natural history educators, designers and researchers has developed a learning research agenda intended to lead the field into the 21st Century. Importantly, the process has moved far beyond the Natural History Museum sector to include all environments and settings where people learn about nature and the role of collections in science.</p>
+		<span style="font-size:14px"><b>Priority areas for research and practice:</b>
+			<ul>											
+				<li><i>Understanding and facilitating stronger two-way communication between scientists and publics.</i></li>
+				<br />
+                <li><i>Understanding the affordances and value of collections and authentic objects for learning.</i></li>
+				<br />
+                <li><i>Addressing the unique challenges of learning in natural history domains such as evolution, biodiversity, and science process skills such as observation, comparison, and tree-thinking.</i></li>
+				<br />
+				<li><i>Developing and deploying innovative facilitation and mediation of natural history learning that leverage social practices, collections, social media, digital technology and more.</i></li>
+				<br />
+                <li><i>Helping to create a broader field of natural history learning by exploring connections between learning, organizational change, and the broader learning ecologies in which our institutions exist.</i></li>
+			</ul>
+			<b>Related Document:</b> <a href="http://informalscience.org/perspectives/blog/a-research-agenda-for-learning-in-natural-history-settings">A Research Agenda For Learning In Natural History Settings</a></span>
+</div>
+<a class="fancybox" href="#roadmap">    
+    <div class="resources-block2">	
+		<h6>CAISE Practice &amp; Research Roadmap</h6>
+			<p>By convening practitioners and researchers from across the field CAISE has identified core challenges that are of interest and use to both, have a high probability of gaining traction towards innovation and highlight what is most unique, valued, and powerful about informal learning.</p>
+      <br />
+    </div>
+</a>
+
+<div id="roadmap" class="lightbox">
+	<h3>CAISE Practice &amp; Research Roadmap Categories</h3>
+		<span style="font-size:14px">
+			<ol>
+                <li><i>Learning viewed in the context of an ecology of experiences and changes over time</i></li>
+				<br />
+                <li><i>Identity development and STEM engagement</i></li>
+				<br />
+                <li><i>The role of interest, motivation and curiosity in STEM pathways</i></li>
+				<br />
+                <li><i>Understanding learners and learning</i></li>
+				<br />
+                <li><i>"21st century citizens" as an educational outcome</i></li>
+				<br />
+				<li><i>Design principles to support informal STEM learning</i></li>
+				<br />
+                <li><i>Methods, instruments, assessments for informal learning</i></li>
+				<br />
+				<li><i>Capacity building and professional development for the field</i></li>
+            </ol>
+            <b>Related Document:</b> <a href="http://informalscience.org/research/ic-000-000-010-060/PAR_Roadmap_JRST">Informal STEM Learning: A Roadmap for Research and Practice</a><br />
+            </span>
+</div>
+    <a class="fancybox" href="#giantscreen">
+	<div class="resources-block3">
+			 <img src="/images/researchagenda/giantscreencinema.png">
+				<h6>Giant Screen Cinema</h6>
+					<p>Large format media includes domes, flat screen,  and panoramic theaters that immerse audiences in image and sound. These are popular experiences, but we are only just beginning to understand their unique role in learning.</p>
+	</div></a>
+		<div id="giantscreen" class="lightbox">
+			<h3>Giant Screen Cinema</h3>
+            <span style="font-size:14px"><p>The Giant Screen Cinema Association is developing a research agenda with input from researchers from multiple research disciplines (e.g. education, communication, psychology) and key stakeholders from the giant screen film industry. The group met in the fall of 2013 to develop key research questions, priorities, and strategies related to giant screen cinema characteristics that impact STEM learning. Future outcomes of the project will include development of future research proposals and collaborative communities that will address the questions related to the impact of giant screen films and the role of immersion and presence on learning.</p>
+                <b>Related Document:</b> <a href="http://informalscience.org/images/research/GSWorkshopReport071814.pdf">Setting the Agenda for Giant Screen Research Workshop</a>
+		</div>
+        <a class="fancybox" href="#aza">
+		<div class="resources-block4">
+			<h6>Association of Zoos and Aquariums (AZA) <!--Committee on Education and Conservation (CEC)--></h6>
+                <p>Since 2009 a group of researchers have been working with the AZA Committee on Education and Conservation (CEC) to develop and iterate a research agenda framework that has informed a number of studies, some of which are completed and some of which are currently underway.</p>
+		</div>
+        </a>
+		<div id="aza" class="lightbox">
+			<h3>Association of Zoos and Aquariums (AZA) Committee on Education and Conservation (CEC)</h3>
+                <span style="font-size:14px"><p>This evolving  framework provides an opportunity for all AZA‐accredited institutions and independent researchers to become involved in social science research and to work collaboratively in order to enhance the impact of zoos and aquariums and the conservation field as a whole. It also provides a structure for individual institution and multi‐institutional studies to be interpreted in the larger picture of what is known about zoos and aquariums, their visitors,and their community relationships. The overarching questions below are designed to facilitate the synthesis of information that is useful for and accessible to researchers, educators, marketers, administrators, and other stakeholders:</p>
+			<ul>
+                <li><i>What Role do Zoos/Aquariums play in Lifelong Learning Experiences?</i></li>
+				<br />
+                <li><i>How Do Zoos and Aquariums Compare with Other Informal Learning Institutions?</i></li>
+				<br />
+                <li><i>How Do Zoos and Aquariums Shape Social Action and Social Activism?</i></li>
+				<br />
+                <li><i>What Role do Zoos or Aquariums play regarding Social Services?</i></li>
+				<br />
+                <li><i>What are the Unique Characteristics of Learning in Zoos and Aquariums?</i></li>
+				<br />
+				<li><i>A Zoo and Aquarium Education Profession?</i></li>
+				<br />
+                <li><i>How do we Assess, Disseminate and Apply Existing Knowledge?</i></li>
+            </ul>
+                <!--<b>Related Link:</b> <a href="#">link</a>-->
+                <b>Related Document:</b> <a href="http://informalscience.org/research/ic-000-000-010-061/AZA_Framework_for_Zoo_and_Aquarium_Social_Science_Research">The AZA Framework for Zoo and Aquarium Social Science Research</a>
+            </span>
+		</div>
+        <!--a class="fancybox" href="#making"-->        
+            <div class="resources-block5">
+                <img src="/images/researchagenda/making.png">
+                <h6>Making As Learning</h6>
+                <p>In the creative process of Making, learners mess around at the crossroads of the disciplines of science, technology, engineering, art and math. Making has developed into a cultural, social, technological and economic movement, and a group of researchers and practitioners is now exploring its potential to contribute to education and lifelong learning.</p>    
+            </div>
+        <!--/a>    
+            <div id="making" class="lightbox">
+             light box content here   
+            </div-->
+        <a class="fancybox" href="#childrens-museums">     
+            <div class="resources-block6">
+                <h6>Children's Museums</h6>
+                    <p>Children's museums support children's cognitive, social, and emotional development by combining learning and play. How do we document, communicate, and improve the value of museum learning?</p>
+            </div>
+        </a>    
+		<div id="childrens-museums" class="lightbox">
+			<h3>Children's Museums</h3>
+            <span style="font-size:14px">
+            <p>The Association of Children’s Museums is leading a research agenda development process for the children’s museum field. Practitioners, researchers, and evaluators gathered in Washington D.C. in Fall 2013 for a two day brainstorming meeting which was followed up by a series of webinars intended to invite broader participation from the whole children’s museum field. The U.S. Institute of Museum and Library Services (IMLS) recently re-funded ACM to continue its fruitful partnership with the University of Washington's Museology Graduate Program to advance the field's research agenda.</p>
+            <p>Phase 2: Building a Practicing Research Network will begin to build the evidence about learning and children's museums called for by the agenda. The 3-year project will work to identify a cohort of children's museums to participate in a research network, identify potential research projects that will respond to the priorities in the research agenda, conduct research projects across multiple institutions in the research network, and aggregate data to share with the broader children's museum field.</p>
+          <b>Priority areas for research and practice:</b>
+						<ul>
+                            <li><i>Generating evidence to support value statements about children's museums.</i></li>
+							<br />
+                            <li><i>Measuring learning impacts of visits to children’s museums.</i></li>
+							<br />
+                            <li><i>Defining the role of children’s museums in broader community learning ecosystems and their connection to education, health, culture, economic impact, etc.</i></li>
+							<br />
+                            <li><i>Understanding how museums learn as institutions, including how staff beliefs about learning impact programming and how research/practice connections can be facilitated on a daily basis.</i></li>
+							<br />
+                            <li><i>Focusing on the museum’s role in promoting diversity, inclusion, and cultural competence.</i></li>
+							<br />
+                            <li><i>Designing innovative learning environments and strategies that focus on play, creativity, and 21st century skills.</i></li>
+							<br />
+                            <li><i>Taking a lead on early learning research and the foundational skills necessary for success.</i></li>
+							<br />
+                            <li><i>Understanding and supporting adult/child learning and how it builds stronger outcomes for the child, family, and community.</i></li>
+						</ul>
+						<b>Related Document:</b>&nbsp;<a href="http://informalscience.org/research/ic-000-000-009-494/The_Learning_Value_of_Children%27s_Museums">The Learning Value of Children's Museums: Building a Field-Wide Research Agenda, A Landscape Review</a>
+                        <br />
+                        <b>Related Link:</b>&nbsp;<a href="http://www.childrensmuseums.org/playing-for-keeps/play-research.html">The Learning Value of Children's Museums Project</a>
+            </span>
+		</div>
+	</div>
+
+<div class="clearBoth">&nbsp;</div>
+
+<div class="browse">
+	<h1>BROWSE RELATED RESOURCES</h1>
+		<img src="/images/broaderimpacts/undeline.gif">
+		<p>Select a Research Agenda:</p>
+			<article class="research-agenda-box">
+				<a href="#div1" class="browse-icons icon1"></a>
+				<a href="#div2" class="browse-icons icon2"></a>
+				<a href="#div3" class="browse-icons icon3"></a>
+				<a href="#div4" class="browse-icons icon4"></a>
+				<a href="#div5" class="browse-icons icon5"></a>
+			</article>
+					<div id="div1" class="browse-content">
+						<p>Choose a Resource Type:</p>
+    					<p><a href="http://informalscience.org/search/informal-commons?search=natural%20history&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3Dnatural%2Bhistory%26resourceType%3DProject%2BDescriptions#topSearch">Projects</a> | <a href="http://informalscience.org/search/informal-commons?search=natural%20history&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3Dnatural%2Bhistory%26projectResearchReferenceScope%3DProfessional%2BDevelopment%252C%2BConferences%252C%2Band%2BNetworks%253AConferences#topSearch">Conferences</a> | <a href="http://informalscience.org/research/browse?type=research&search=natural+history&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3Dnatural%2Bhistory#topSearch">Literature</a> </p>
+					</div>
+
+					<div id="div2" class="browse-content">
+						<p>Choose a Resource Type:</p>
+    					<p><a href="http://informalscience.org/search/informal-commons?search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3FprojectResearchReferenceScope%3DPublic%2BEducational%2BPrograms%253AMaking%2Band%2BTinkering%2BPrograms%26resourceType%3DProject%2BDescriptions#topSearch">Projects</a> | <a href="http://informalscience.org/search/informal-commons?search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3FprojectResearchReferenceScope%255B%255D%3DPublic%2BEducational%2BPrograms%253AMaking%2Band%2BTinkering%2BPrograms%26projectResearchReferenceScope%255B%255D%3DProfessional%2BDevelopment%252C%2BConferences%252C%2Band%2BNetworks#topSearch">Conferences</a> | <a href="http://informalscience.org/search/informal-commons?search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3FprojectResearchReferenceScope%3DPublic%2BEducational%2BPrograms%253AMaking%2Band%2BTinkering%2BPrograms%26resourceType%3DResearch%2BProducts#topSearch">Literature</a></p>
+					</div>
+
+					<div id="div3" class="browse-content">
+						<p>Choose a Resource Type:</p>
+    					<p><a href="http://informalscience.org/search/informal-commons?search=children%27s%20museums&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3Dchildren%2527s%2Bmuseums%26resourceType%3DProject%2BDescriptions#topSearch">Projects</a> | <a href="http://informalscience.org/search/informal-commons?search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3Dchildren%2527s%2Bmuseums%26projectResearchReferenceScope%3DProfessional%2BDevelopment%252C%2BConferences%252C%2Band%2BNetworks#topSearch">Conferences</a> | <a href="http://informalscience.org/search/informal-commons?search=children%27s%20museum&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3Dchildren%2527s%2Bmuseum%26resourceType%3DResearch%2BProducts#topSearch">Literature</a></p>
+					</div>
+					<div id="div4" class="browse-content">
+						<p>Choose a Resource Type:</p>
+    					<p><a href="http://informalscience.org/search/informal-commons?search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3FprojectResearchReferenceScope%3DMedia%2Band%2BTechnology%253AFilms%2Band%2BIMAX%26resourceType%3DProject%2BDescriptions#topSearch ">Projects</a> | <a href="http://informalscience.org/search/informal-commons?search=giant%20screen&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3Dgiant%2Bscreen%26projectResearchReferenceScope%3DProfessional%2BDevelopment%252C%2BConferences%252C%2Band%2BNetworks#topSearch">Conferences</a> | <a href="http://informalscience.org/search/informal-commons?search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3FresourceType%3DResearch%2BProducts%26projectResearchReferenceScope%3DMedia%2Band%2BTechnology%253AFilms%2Band%2BIMAX#topSearch">Literature</a>
+					</div>
+					<!--div id="div4" class="browse-content">
+						<p>Choose a Resource Type:</p>
+    					<p><a href="#esc-result1" class="link">Literature</a> | <a href="#esc-result2" class="link">Projects</a> | <a href="#esc-result3" class="link">Conferences & Communities</a> | <a href="#esc-result4" class="link">Professional Development</a></p> 
+					</div-->
+					<div id="div5" class="browse-content">
+				        <p><a href="http://informalscience.org/search/informal-commons?search=Aquarium%20and%20Zoo&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3DAquarium%2Band%2BZoo%26resourceType%3DProject%2BDescriptions#topSearch">Projects</a> | <a href="http://informalscience.org/search/informal-commons?search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3DAquarium%2Band%2BZoo%26projectResearchReferenceScope%3DProfessional%2BDevelopment%252C%2BConferences%252C%2Band%2BNetworks#topSearch">Conferences</a> | <a href="http://informalscience.org/search/informal-commons?search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3DAquarium%2Band%2BZoo%26resourceType%3DResearch%2BProducts#topSearch">Literature</a>
+					</div>
+				</div>
+			</div>
+{!-- end begin broader impacts template --}
+    <div class="clearBoth">&nbsp;</div>
+      <div id="externalSocialMediaSharingBlock">
+        {snip_scroll_to_top}
+        {snip_social_media_sharing}
+      </div>
+    
+    <div class="clearBoth">&nbsp;</div>
+   
+  </div>{!-- end #mainContentArea --}
+  
+  {snip_global_footer}{!-- include global_footer snippet --}
+  
+  <!-- bring script -->
+  {snip_bring_js}
+  <!-- show/hide script -->
+  {snip_show_hide_script}
+
+</div>{!-- end #externalPageWrapper --}
+
+{snip_bring_piguide_js}
+<script type='text/javascript'>
+$(document).ready(function() {
+	// fancybox js
+	$('.fancybox').fancybox();
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,38 @@
+.chapters .accordion a{font: bold 14px Arial, Helvetica, sans-serif; border-bottom: 1px solid #ccc;  }
+.chapters .accordion li {margin: 0; padding: 0; border: none;}
+.chapters .accordion {/*margin: 20px;*/ }
+.chapters .accordion li ul li a{padding: 10px 0px 10px 10px; text-decoration:none; display: block; border-top: 0px !important; color: #00394d; line-height: 18px; font-size: 14px; padding-right: 30px;}
+.chapters .accordion li ul li {background-color: #f0f0f0; margin-top: -1px;}
+.chapters .accordion ul li ul li a{padding-left: 20px; color: #707070; font-weight: normal;}
+.chapters .accordion ul li ul li a:hover{background-color: #d6e2e6; color: #313131;}
+.chapters .accordion ul li ul li ul li a{padding-left: 40px;}
+.chapters .accordion a {padding: 20px 10px 20px 10px; text-decoration:none; display: block; position: relative; }
+.no-border-top a{
+	border-top: 0px !important; 
+}
+.no-border-bottom a{
+	border-bottom: 0px !important; 
+}
+p.chapter-sub {
+	 color: #313131;
+	 font: 14px Arial, Helvetica, sans-serif;
+	 line-height: 25px;
+}
+.chapters .accordion a.dcjq-parent, .chapters .accordion a.dcjq-parent:hover { padding-right: 26px;}
+.chapters .accordion a .dcjq-icon {position: absolute; top: 0; right: 10px; width: 16px; margin-top: 0px; height: 34px; background: url({site_url}images/uploads/pi_guide/arrow_grey_right.png) no-repeat right center; }
+.chapters .accordion ul li a.dcjq-parent.active .dcjq-icon {background: url({site_url}images/uploads/pi_guide/arrow_grey_down.png) no-repeat 0 center; }
+.chapters .accordion a.dcjq-parent.active {background-color: #00394d; color: #fff;}
+.sub-arrow a.dcjq-parent.active .dcjq-icon {background: url({site_url}images/uploads/pi_guide/sub-active.png) no-repeat 0 center !important;}
+.dcjq-icon {background: url({site_url}images/uploads/pi_guide/arrow_grey_right_sub.png) no-repeat 0 center !important; }
+.active .dcjq-icon {background: url({site_url}images/uploads/pi_guide/arrow_grey_down.png) no-repeat 0 center !important; }
+.chapters .accordion a:hover {background: #00394d; color: #fff; background-image: none !important;}
+.chapters .accordion a:active{ }
+
+ul.children-to-show {
+margin-left: 10px;
+margin-right: 10px;
+}
+
+.side_open_close .dcjq-parent a{
+margin-left: 20px;
+}

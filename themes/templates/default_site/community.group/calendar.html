@@ -1,0 +1,45 @@
+<!DOCTYPE html><!-- template community.group/calendar.html -->
+{snip_browser_sniffer}
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>>
+
+<head>
+
+<title>{if segment_3 == 'details'}{exp:channel:entries status="open" channel="ch_calendar" show_expired="yes" show_future_entries="yes" limit="1" dynamic="no" url_title='{segment_4}'}{title} Calendar Entry{/exp:channel:entries}{if:else}Calendar{/if}{if segment_3 == "add-event"} : Add Event{if:elseif segment_3 == "add-funding"} : Add Funding{/if} : {site_name}</title>
+
+{embed="calendar/calendar_meta_ogp"}
+
+<link rel="stylesheet" href="{stylesheet='global/jquery.Jcrop.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/validationEngine.jquery.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/template.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/bootstrap2.css'}" type="text/css" />
+
+<link href="{path=css/_ee_channel_form_css}" type="text/css" rel="stylesheet" media="screen">
+<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" /><!-- include the global_styles css template -->
+
+{snip_global_header_links}
+{snip_global_header_meta}
+
+</head>
+
+{exp:switchee variable="{segment_2}/{segment_3}" parse="inward"}
+
+  {case value="calendar/add-event"}
+    {embed="calendar/add-event"}
+  {/case}
+  {case value="calendar/add-funding"}
+    {embed="calendar/add-funding"}
+  {/case}
+  {case value="calendar/details"}
+    {embed="calendar/details"}
+  {/case}
+  {case value=""}
+    {embed="calendar/index"}
+  {/case}
+  {case default="yes"}
+    {embed="calendar/index"}
+  {/case}
+  
+{/exp:switchee}
+
+</html>

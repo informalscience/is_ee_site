@@ -1,0 +1,251 @@
+
+<div id='topBar'>
+<div id="topBarWrapper">
+<div class='topBarLinks'>
+<!--<a href="{path:wiki_home}">Main Page</a>
+<a href="{path:wiki_base_url}{special_namespace}:Categories" title="{special_namespace}:Categories">Categories</a>
+<a href="{path:wiki_base_url}{special_namespace}:Titles" title="List of Titles">Title List</a>
+<a href="{path:wiki_base_url}{special_namespace}:Recentchanges" title="Recent Changes Page">Recent Changes</a>
+<a href="{path:wiki_base_url}{special_namespace}:Random_page" title="Random Page">Random Page</a>
+<a href="http://expressionengine.com/user_guide/modules/wiki/getting_started.html">Help</a>-->
+</div>
+</div>
+</div>
+
+<!-- END Subheader -->
+
+<!-- END Subheader -->
+
+<div id="maincontent">
+
+
+<div style="width:980px; margin: 0 auto;">
+<div class="wikiSearchPanel">
+  <div class="sectionHeading">
+    <h2>Find & Contribute Evidence of Impact</h2>
+  </div>
+
+  <div class="wikiSearchOptionsContainer">
+  <div class="wikiSearchContainer" style="margin-right: 20px;">
+       <h2 class="wikiSearch">Search</h2>
+<div class="marginpad">
+<form method="post" action="{path:wiki_base_url}{special_namespace}:Search_results">
+<div><input type="hidden" name="XID" value="{XID_HASH}" /></div>
+<input type="text" class="input wikiMainSearch" name="keywords" size="20" value="" maxlength="80"/>
+<div class="wikiMainSearchBut">
+<input name="" type="image" src="/themes/wiki_themes/default/images/wiki-main-search.jpg"/>
+</div>
+</form>
+</div>
+</div>
+
+<div class="wikiSearchContainer">
+<h2 class="wikiSearch">Create or Find Page</h2>
+<div class="marginpad">
+<form method="post" action="{path:wiki_base_url}{special_namespace}:Find_page">
+<div><input type="hidden" name="XID" value="{XID_HASH}" /></div>
+<input type="text" class="input wikiMainSearch" name="title" size="20" value="" maxlength="80"/>
+<div class="wikiMainSearchBut">
+<input name="" type="image" src="/themes/wiki_themes/default/images/wiki-create-find.jpg"/>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="clear"></div>
+<div class="wikiSearchPanel marginFix">
+<div class="sectionHeading">
+<h2>Wiki Sections</h2>
+</div>
+
+<div class="projectListingToggle marginFix">
+    <ul class="sectionLinks">
+    {if topic == 'index'}
+     <li class="active"><a href="{path:wiki_home}">Wiki Main</a><li>
+     {if:else}
+      <li><a href="{path:wiki_home}">Wiki Main</a><li>
+      {/if}
+      {if special_page == 'Categories'}
+     <li class="active"><a href="{path:wiki_base_url}{special_namespace}:Categories" title="Article Categories">Article Categories</a></li>
+      {if:else}
+     <li><a href="{path:wiki_base_url}{special_namespace}:Categories" title="Article Categories">Article Categories</a></li>
+     {/if}
+     {if special_page == 'Titles'}
+     <li class="active"><a href="{path:wiki_base_url}{special_namespace}:Titles" title="List of Titles">Article List</a></li>
+      {if:else}
+     <li><a href="{path:wiki_base_url}{special_namespace}:Titles" title="List of Titles">Article List</a></li>
+     {/if}
+     <li><a href="{path:wiki_base_url}Community-Portal">Community Portal</a></li>
+   </ul>
+</div>
+</div>
+
+
+
+
+
+<!--<h2>Toolbox</h2>
+<div class="marginpad">
+&nbsp;&#183;&nbsp;&nbsp; <a href="{path:wiki_base_url}{special_namespace}:Uncategorized" title="Uncategorized Pages">Uncategorized Pages</a><br />
+&nbsp;&#183;&nbsp;&nbsp; <a href="{path:wiki_base_url}{special_namespace}:Recentchanges_RSS" title="Recent Changes in RSS">RSS</a><br />
+&nbsp;&#183;&nbsp;&nbsp; <a href="{path:wiki_base_url}{special_namespace}:Recentchanges_Atom" title="Recent Changes in Atom">Atom</a><br />
+&nbsp;&#183;&nbsp;&nbsp; <a href="{path:wiki_base_url}{special_namespace}:Associated_Pages/{url_title}" title="What Links Here">What Links Here</a><br />
+</div>-->
+
+<!-- Project Detail Content -->
+<div class="wikiDetailContent">
+  <div class="sectionHeading">
+    <h2>Welcome to the Evidence Wiki</h2>
+{if cannot_edit}
+
+<span class="actionButtons"> <a href="/community/users/login?redirect=%2Fresearch%2Fwiki" class="createProjectButton right" style="top:0px; white-space:nowrap; margin-right:10px">Log In To Contribute</a></span>
+
+{/if}
+
+
+
+ {if topic == 'index'}
+{if:else}   
+    <span class="actionButtons">
+{if special_page}
+<!--<a href="{path:view_article}">Special Page</a>-->
+{if:elseif file_page}
+<!--<a href="{path:view_article}">File Page</a>-->
+{if:else}
+<!-- <a href="{path:view_article}" class="wikiButton viewWikiButton">View</a> -->
+{if can_edit}
+<a href="{path:view_article}" class="wikiButton viewWikiButton">View</a>
+<a href="{path:edit_article}{if revision}/revision/{revision_id}{/if}" class="wikiButton editWikiButton">Edit</a>
+ <a href="{path:article_history}" class="wikiButton historyWikiButton">History</a>
+{/if}
+{/if}
+</span>
+{/if}
+  </div>
+
+
+<div id="article">
+
+<div id="subheader">
+{if topic == 'index'}
+{if:else}
+<div class="itempadbig"><div class="breadcrumb">
+
+<a href="{path:wiki_home}">Main Wiki</a>
+<span class="breadcrumbspacer">&nbsp;&nbsp;&gt;&nbsp;&nbsp;</span>
+
+{if edit_article}
+<a href="{path:view_article}">{title}</a>
+{if can_edit}<span class="breadcrumbspacer">&nbsp;&nbsp;&gt;&nbsp;&nbsp;</span>Editing{/if}
+{if cannot_edit}<span class="breadcrumbspacer">&nbsp;&nbsp;&gt;&nbsp;&nbsp;</span>Source{/if}
+
+{if:elseif article_history}
+<a href="{path:view_article}">{title}</a>
+<span class="breadcrumbspacer">&nbsp;&nbsp;&gt;&nbsp;&nbsp;</span>History
+
+{if:elseif revision}
+<a href="{path:view_article}">{title}</a>
+<span class="breadcrumbspacer">&nbsp;&nbsp;&gt;&nbsp;&nbsp;</span>Revision - {revision_id}
+
+{if:else}
+{title}
+{/if}
+
+</div></div>
+</div>
+{/if}
+{if topic == 'index'}
+{if:else}
+<h2 class="wikiTitle">
+{if edit_article}
+{if can_edit}<span class="wikiDoing">Editing:</span> {/if}
+{if cannot_edit}<span class="wikiDoing">View Source:</span> {/if}
+{/if}
+{/if}
+
+{if article_history}
+<span class="wikiDoing">Viewing History: </span>
+{/if}
+{if revision}
+<span class="wikiDoing">Revision: </span>
+{/if}
+
+{if topic == 'index'}
+{if:else}
+{title}
+<hr class="wikiEntry" />
+{/if}
+</h2>
+
+
+<!-- Begin Main Content of Page -->
+
+{if redirected}
+<div class="lighttext">Redirected from: <a href="{path:original_page}">{original_page}</a></div>
+{/if}
+
+{if redirect_page}
+<div class="lighttext">Page Redirects To: <a href="{path:redirect_page}">{redirect_page}</a></div>
+{/if}
+
+
+<div id="content">
+
+<!--THIS IS MAIN PAGE ONLY -->
+{if topic == 'index'}
+<div class="mainIntroText">
+<div class="vsa-logo left">
+<img src="/themes/wiki_themes/default/images/vsa-logo.jpg"/>
+</div>
+
+
+{if cannot_edit}
+<div class="mainIntro left">
+The Informal Science Education Evidence Wiki exists to support a public discussion of the case for informal science, technology, engineering, and math (STEM) education. The goal is to provide easy to read summaries of evidence that characterize the benefits and outcomes of ISE experiences. Please <a href="http://dev.informalscience/community/users/login">log in</a> to contribute to the ISE Evidence Wiki.
+{/if}
+{if can_edit}
+<div class="mainIntro left">
+The Informal Science Education Evidence Wiki exists to support a public discussion of the case for informal science, technology, engineering, and math (STEM) education. The goal is to provide easy to read summaries of evidence that characterize the benefits and outcomes of ISE experiences.
+{/if}
+
+
+<!-- <br /><br />
+<a href="#">Log in</a> or <a href="#">request an account</a> to write your own post, edit an existing post, or add your comments. Use the <a href="#">Community Portal</a> to learn how you may contribute to this wiki. -->
+</div>
+<div class="clear"></div>
+<hr class="wikiEntry" />
+<div class="mainArticleList">
+<h2 class="homeTitle">Wiki Content Index</h2>
+{wiki:page}
+</div>
+{/if}
+
+<!--END MAIN PAGE ONLY -->
+
+{if new_article}
+<strong>This Article Does Not Exist Yet.</strong><br /><br />
+{if can_edit}
+Click edit to create this article or page</br></br>
+{/if}
+{if cannot_edit}
+
+<p><a href="/community/users/login?redirect=%2Fresearch%2Fwiki">Log in</a> to add articles to the wiki.</p>
+{/if}
+{/if}
+
+{if topic == 'index'}
+{if:else}
+{wiki:page}
+{/if}
+
+</div>
+
+</div>
+
+</div>
+<div class="clear"></div>
+
+</div>

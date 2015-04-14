@@ -1,0 +1,245 @@
+{snip_community_redirect}
+<!-- ### template embed - users.group/picture.html ### -->
+<?php
+
+$image_validation = true;
+$form_error = "";
+
+// resize and store cropped image - store a big version (450px) and a small version (120px)
+if(!empty($_FILES['image']['name']) && $_FILES['image']['error'] == 0){
+	// make sure they attempted to crop their image
+	if($_POST){
+		if($_POST['w'] == 0){
+			$form_error = "Please crop your uploaded picture";
+			$image_validation = false;
+		}
+	}
+	
+	$upload_dir = "/var/www/ee/images/member_profile_pics/";
+	$image_info = getimagesize($_FILES['image']['tmp_name']);
+	$extension = $image_info['mime'];
+
+	$file_name = $_FILES['image']['name'];
+	$file_name = explode(".",$file_name);
+	$file_name = date('Y-m-d')."_".$file_name[0].".jpg";
+	$tmp_name = $_FILES['image']['tmp_name'];
+	$file_size = $_FILES['image']['size'];
+
+	if($extension != "image/jpeg" && $extension != "image/jpg" && $extension != "image/png"){
+		$form_error = "Please upload an image of type jpg, jpeg, or png";
+		$image_validation = false;
+	}
+	else{
+		if($file_size > 2*1024*1024){
+			$form_error = "Please upload an image smaller than 2MB";
+			$image_validation = false;
+		}
+		else{
+			if($extension == "image/jpg" || $extension == "image/jpeg"){
+				$src_file = imagecreatefromjpeg($tmp_name);
+			}
+			else if($extension == "image/png"){
+				$src_file = imagecreatefrompng($tmp_name);
+			}
+			
+			list($width,$height) = getimagesize($tmp_name);
+			
+			// the denominator of this equation must be equal to the value in "generate_preview.php", the file that generates the AJAX image preview!
+			$resize_factor = $width/250;
+
+			$tmp = imagecreatetruecolor(225, 225);
+			imagecopyresampled($tmp, $src_file, 0, 0, $_POST['x']*$resize_factor, $_POST['y']*$resize_factor, 225, 225, $_POST['w']*$resize_factor, $_POST['h']*$resize_factor);      
+			$profile_pic_file_path = $upload_dir.$file_name;
+			imagejpeg($tmp,$profile_pic_file_path,85);
+
+			$tmp = imagecreatetruecolor(100, 100);
+			imagecopyresampled($tmp, $src_file, 0, 0, $_POST['x']*$resize_factor, $_POST['y']*$resize_factor, 100, 100, $_POST['w']*$resize_factor, $_POST['h']*$resize_factor);      
+			$profile_pic_file_path = $upload_dir.'small/'.$file_name;
+			imagejpeg($tmp,$profile_pic_file_path,85);
+		}
+	}
+}
+
+// update profile picture in correct entry field
+$zoo_visitor_id = '{zoo_visitor_id}';
+require_once('/var/www/settings.php');
+$db = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+
+// field_id_107 is the field where the member_photo_url is stored
+if($image_validation && $zoo_visitor_id && isset($file_name)){
+	$query = "UPDATE exp_channel_data SET field_id_107='{$file_name}' WHERE entry_id='{$zoo_visitor_id}'";
+}
+else if($image_validation && $zoo_visitor_id && !isset($file_name) && isset($_POST['delete_current_flag'])){
+	if($_POST['delete_current_flag'] == 'yes'){
+		$query = "UPDATE exp_channel_data SET field_id_107='' WHERE entry_id='{$zoo_visitor_id}'";
+	}
+}
+
+// query the database to update a channel field
+if(isset($query)){
+	if(!$db->query($query)){
+		$form_error = "Error updating profile picture";
+	}
+	else{
+		header('Location: /community/users/profile');
+		exit();
+	}
+}
+
+?>
+<body id="{structure:top:slug}">
+<a name="top"></a>
+
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper --}
+
+<div id="externalMastheadWrap">{!-- begin #externalMastheadWrap --}
+<div id="internalMastheadWrap">{!-- begin #internalMastheadWrap --}
+      
+{snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+{snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+{snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+
+<script type="text/javascript">
+// provide faux active states for primary and secondary nav elements without having to add pages into structure  
+  var navelement1 = document.getElementById('nav-sub-community');
+    if(navelement1) {
+      navelement1.className += navelement1.className ? ' parent-active' : '';
+    }
+  var navelement2 = document.getElementById('nav-sub-sub-member-directory');
+    if(navelement2) {
+      navelement2.className += navelement2.className ? ' parent-active' : '';
+    }
+  var navelement3 = document.getElementById('tool-users');
+    if(navelement3) {
+      navelement3.className += navelement3.className ? ' active' : '';
+    }
+</script>
+    
+</div>{!-- end .internalMastheadWrap --}
+</div>{!-- end .externalMastheadWrap --}
+  
+<div id="mainContentArea">{!-- begin .mastheadMainContent --}
+
+<div class="content singleColumn">
+{exp:zoo_visitor:details}
+<div class="sectionHeading"><h2>{if member_firstname OR member_lastname}{visitor:member_firstname}'<?php $theName = "{visitor:member_firstname}"; $lastLetter = substr($theName, -1); if($lastLetter != 's') { echo "s"; } ?> Tools</h2></div>
+	<div class="accountTools accountToolsFix">{snip_member_navigation}</div>
+{/exp:zoo_visitor:details}
+  <div class="fullContentRow top variation">
+    <div class="externalFullBlock">
+      <div class="internalFullBlock">
+        <div class="blockHead">
+          <h1 class="specialHeader">Edit Picture</h1>
+        </div>{!-- end .blockHead --}
+      </div>{!-- end .internalFullBlock --}
+    </div>{!-- end .externalFullBlock --}
+  </div>{!-- end .fullContentRow .top --}
+</div>{!-- end .content .singleColumn --}
+
+{if logged_in AND segment_4 == "success"}
+
+	<div class="form_success"><span>Success!</span> Profile picture updated.</div>
+	{snip_update_profile_score}
+
+{if:elseif logged_in}
+	
+	{exp:channel:entries entry_id="{zoo_visitor_id}" status="not closed" limit="1"}
+	<div class="grayBG left">
+		<form id="update_photo" method="post" enctype="multipart/form-data">
+			<input id="input_XID_value" type="hidden" name="XID" value="{XID_HASH}" />
+
+			<?php if($form_error != ""): ?> 
+				<div class="form_error"><?=$form_error?></div>
+			<?php endif; ?>
+
+			{if member_photo_url}
+			<div id="currentImage">
+				<div class="left" style="margin-right: 20px;">
+					<h2>Current Image</h2>
+					<img class="currentImage" width="225" height="225" src="{site_url}images/member_profile_pics/{member_photo_url}" />
+					<a class="removeAddLink" href="#" id="removeImage">Remove Current Image</a>
+				</div>
+			</div>
+			{/if}
+			<input type="hidden" id="delete_current_flag" name="delete_current_flag" />
+			
+			<div class="left">
+				<h2>Change Photo</h2>
+				<input style="" type="file" name="image" accept="image/jpeg, image/jpg, image/png" />
+				<div id="preview"></div>
+			</div>
+			<div class="clearBoth">&nbsp;</div>
+
+			<input type="hidden" size="4" id="x" name="x" />
+			<input type="hidden" size="4" id="y" name="y" />
+			<input type="hidden" size="4" id="w" name="w" />
+			<input type="hidden" size="4" id="h" name="h" />
+
+			<input type="submit" class="blueButtonPlain" value="Update Profile Picture" />
+
+		</form>
+	</div>
+	{/exp:channel:entries}
+
+
+{if:else}
+	{snip_not_logged_in}
+{/if}
+
+<div class="clearBoth">&nbsp;</div>		
+<div id="externalSocialMediaSharingBlock">
+  {snip_scroll_to_top}
+  {!--{snip_social_media_sharing}--}
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+
+</div>{!-- end #mainContentArea --}
+
+{snip_global_footer}{!-- include global_footer snippet --}
+
+</div>{!-- end #externalPageWrapper --}
+
+<!-- START JAVASCRIPT -->
+{snip_bring_js}
+<script type="text/javascript">
+$(document).ready(function(){
+	
+	// set delete current profile picture to true
+	$('#removeImage').on('click',function(){
+		$('#delete_current_flag').val('yes');
+		$('#currentImage').remove();
+		return false;
+	});
+
+	// generate ajax project image preview
+	$('input[name=image]').on('change', function(){ 
+		$("#preview").html("<img src='{site_url}images/uploads/ajax-loader.gif'/><div class='description'>Crop the image by dragging the bounding box from the top left corner.</div>");
+		var options = {
+			target: "#preview",
+			url: "{path='global/generate_preview.php'}",
+		}
+		$("#update_photo").ajaxSubmit(options);
+	});
+
+	// allow jcropping functionality
+	$(document).on('hover','#target',function(){
+		$('#target').Jcrop({
+			onChange: showCoords,
+			onSelect: showCoords,
+			aspectRatio: 1
+		});
+	});
+	function showCoords(c){
+		jQuery('#x').val(c.x);
+		jQuery('#y').val(c.y);
+		jQuery('#w').val(c.w);
+		jQuery('#h').val(c.h);
+	};
+	
+});
+</script>
+<!-- END JAVASCRIPT -->
+
+</body>
+<!-- ### template embed - users.group/picture.html ###

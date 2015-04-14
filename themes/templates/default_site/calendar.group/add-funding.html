@@ -1,0 +1,149 @@
+{snip_community_redirect}
+<!-- begin embed calendar/add-event.html into community/calendar.html template -->
+<style>
+.fullContentRow.top.variation { margin-bottom:0; }
+.projectFormField.newSelect { width:440px; min-height:37px; }
+.newSelect select { width:250px; height:39px; margin-top:7px; }/* shunt this into stylesheet after development is complete */
+.projectFieldDrop2 { border:1px solid #cecece; width:228px; color:#707070; font-size:14px; padding:7px 10px; }
+.projectFormField { padding:7px 10px; }
+</style>
+
+<body>
+
+<div id="externalPageWrapper"><!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+<div id="externalMastheadWrap"><!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+<div id="internalMastheadWrap"><!-- begin #internalMastheadWrap - fixed width, maybe fixed height too -->
+
+{snip_global_tool_bar}<!-- include global_tool_bar snippet -->
+{snip_global_logo_and_nav}<!-- include global_logo_and_nav snippet -->
+{snip_global_sub_nav}<!-- include global_sub_nav snippet -->
+
+<script type="text/javascript">
+// provide faux active states for primary and secondary nav elements without having to add pages into structure  
+	var navelement1 = document.getElementById('nav-sub-community');
+		if(navelement1) {
+			navelement1.className += navelement1.className ? ' parent-active' : '';
+		}
+	var navelement2 = document.getElementById('nav-sub-sub-calendar');
+		if(navelement2) {
+			navelement2.className += navelement2.className ? ' parent-active' : '';
+		}
+</script>
+        
+</div><!-- end .internalMastheadWrap - fixed width, fixed height -->
+</div><!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+  
+<div id="mainContentArea"><!-- begin .mastheadMainContent - fixed width, fixed height, centered -->
+
+{if logged_in AND segment_4 == "success"}
+
+<div class="form_success"><span>Success!</span> Funding deadline has been sent to the admin for review.</div>
+
+{if:elseif logged_in}
+
+{!-- exp:channel:entries channel="ch_simple_page_content" limit="1" disable="pagination|member_data" dynamic="yes" --}
+  <div class="content singleColumn">
+    <div class="fullContentRow top variation">
+      <div class="externalFullBlock">
+        <div class="internalFullBlock">
+          <div class="blockHead">
+            <h1 class="specialHeader">{if alt_title_for_header != ""}{alt_title_for_header}{if:elseif segment_3 == "add-event"}Add Event{if:elseif segment_3 == "add-funding"}Add Funding{/if}</h1>
+          </div>{!-- end .blockHead --}
+          {!-- {if content_for_page_header != ""}{content_for_page_header}{/if} --}
+        </div>{!-- end .internalFullBlock --}
+      </div>{!-- end .externalFullBlock --}
+    </div>{!-- end .fullContentRow .top --}
+  </div>{!-- end .content .singleColumn --}
+{!-- /exp:channel:entries --}
+
+	{exp:channel:form channel="ch_calendar" return="community/calendar/add-funding/success" error_handling="inline"}
+	
+	<!-- PROGRAM NAME FIELD -->
+	<div class="projectFormField">
+		<label class="label left selectTop" for="title">Program Name</label>
+		<input class="validate[required] projectFieldFull left" id="title" name="title" type="text" value="{title}" />
+		{error:title}
+	</div>
+  <!-- END PROGRAM NAME FIELD -->
+
+	<!-- FUNDING SOURCE FIELD -->
+	<div class="projectFormField marginRight">
+		<label class="label left selectTop" for="funding_source">Funding Source</label>
+		<input class="validate[required] projectFieldDrop2 left" type="text" id="funding_source" name="funding_source" value="{funding_source}" />
+		{error:funding_source}
+	</div>
+  <!-- END FUNDING SOURCE FIELD -->
+
+	<!-- DEADLINE DATE FIELD -->
+	<div class="projectFormField">
+		<label class="label left selectTop" for="expiration_date">Deadline Date</label>
+		<input class="dateValue validate[required] projectFieldDrop2 left" type="text" id="expiration_date" name="expiration_date" value="{expiration_date}" maxlength="23" size="25">
+	</div>
+	<!-- END DEADLINE DATE FIELD -->
+
+	<!-- EVENT LINK FIELD -->
+	<div class="projectFormField">
+		<label class="label left selectTop" for="event_link">Link to Funding Announcement</label>
+		<input class="projectFieldFull left validate[custom[url]]" id="event_link" name="event_link" value="{event_link}" />
+		{error:event_link}
+	</div>
+	<!-- END EVENT LINK FIELD -->
+
+	<!-- DESCRIPTION FIELD -->
+	<div class="projectFormField">
+		<label class="label left" for="event_description">Description</label>
+		<textarea class="validate[required,minSize[20]] projectTextArea left" col="" rows="" id="event_description" name="event_description">{event_description}</textarea>
+		{error:event_description}
+	</div>
+	<!-- END DESCRIPTION FIELD -->
+
+	<!-- HIDDEN FORM FIELDS -->
+	<input type="hidden" id="searchable" name="searchable_title" />
+	<input type="hidden" id="entry_date" name="entry_date" maxlength="23" size="25">
+	<input type="hidden" name="event_category" value="Funding" />
+	
+	<!-- SUBMIT BUTTON -->
+	<div class="clear">&nbsp;</div>
+  
+	<div class="left" style="margin-bottom:30px;">
+		<input type="submit" value="Submit Funding" class="blueButtonPlain"/>
+	</div>
+  
+	<div class="clearBoth">&nbsp;</div>
+	<!-- END SUBMIT BUTTON -->
+
+	{/exp:channel:form}
+
+ 
+	{snip_bring_js_nojquery}
+	<script>
+		$(document).ready(function(){
+			// validate form
+			$('#publishForm').validationEngine();
+
+			$('#publishForm').submit(function(){
+				$('#searchable').val($('#title').val());
+				$('#entry_date').val($('#expiration_date').val());
+			});
+
+	});
+	</script>
+
+{if:else}
+	{snip_not_logged_in}
+{/if}
+
+<div id="externalSocialMediaSharingBlock">
+	{snip_scroll_to_top}
+</div>
+
+<div class="clearBoth">&nbsp;</div> 
+</div><!-- end #mainContentArea - fixed width, fixed height, centered -->
+
+{snip_global_footer}<!-- include global_footer snippet -->
+
+</div><!-- end #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+</body>
+<!-- end embed calendar/add-funding.html into community/calendar.html template

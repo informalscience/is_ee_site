@@ -1,0 +1,375 @@
+{snip_community_redirect}
+<!-- ### template embed - users.group/profile.html ### -->
+<?php
+
+$this->EE =& get_instance();
+
+$segment_url = $this->EE->uri->segment(4);
+$member_id = $this->EE->session->userdata('member_id');
+
+// which page are we on?
+$my_page = false;
+if($member_id == $segment_url){
+	$my_page = true; 
+}
+
+// get a members document data
+$db_member_id = $segment_url;
+if($db_member_id == "") $db_member_id = $this->EE->session->userdata('member_id');
+$db_member_id = $this->EE->db->escape_str($db_member_id);
+
+$site_url = '{site_url}';
+$document_string = "";
+$document_query = "SELECT * FROM member_documents WHERE member_id ='{$db_member_id}' ";
+$results = $this->EE->db->query($document_query);
+if($results->num_rows() > 0){
+	foreach($results->result_array() as $single_doc){
+		$docExt = pathinfo($single_doc['document_name'], PATHINFO_EXTENSION); // parse document_name to get file extension - use value below to determine document icon to use
+		$document_string .= '
+		<li><div class="docIcon"><a target="_blank" href="'.$site_url.'documents/member_documents/'.rawurldecode($single_doc['document_url']).'"><img 
+		src="{site_url}images/profile_section/profile-icon-'.$docExt.'.png" alt="Download '.$single_doc['document_type'].' '.$docExt.'" title="Download \''.$single_doc['document_type'].'\' - '.$docExt.'" /></a></div>
+		<!-- <div class="docType">'.$single_doc['document_type'].'</div> -->
+		<div class="docName"><a target="_blank" href="'.$site_url.'documents/member_documents/'.rawurldecode($single_doc['document_url']).'">'.$single_doc['document_name'].'</a></div>
+		<div class="docLink"><a target="_blank" href="'.$site_url.'documents/member_documents/'.rawurldecode($single_doc['document_url']).'"><img 
+		class="downloadIcon" src="{site_url}images/profile_section/profile-icon-magnfier-13x13.png" alt="Download \''.$single_doc['document_type'].'\' - '.$docExt.'" 
+		title="Download \''.$single_doc['document_type'].'\' - '.$docExt.'" /></a>
+		<a target="_blank" href="'.$site_url.'documents/member_documents/'.rawurldecode($single_doc['document_url']).'">Download</a></div><div class="clearBoth">&nbsp;</div></li>' ;
+	}
+}
+
+?>
+<body id="{structure:top:slug}" class="{structure:parent:slug} {structure:page:slug}">
+
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper --}
+
+<div id="externalMastheadWrap">{!-- begin #externalMastheadWrap --}
+<div id="internalMastheadWrap">{!-- begin #internalMastheadWrap --}
+			
+{snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+{snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+{snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+
+<script type="text/javascript">
+// provide faux active states for primary and secondary nav elements without having to add pages into structure  
+	var navelement1 = document.getElementById('nav-sub-community');
+		if(navelement1) {
+			navelement1.className += navelement1.className ? ' parent-active' : '';
+		}
+	var navelement2 = document.getElementById('nav-sub-sub-member-directory');
+		if(navelement2) {
+			navelement2.className += navelement2.className ? ' parent-active' : '';
+		}
+	var navelement3 = document.getElementById('tool-users');
+		if(navelement3) {
+			navelement3.className += navelement3.className ? ' active' : '';
+		}
+</script>
+		
+</div>{!-- end .internalMastheadWrap --}
+</div>{!-- end .externalMastheadWrap --}
+	
+<div id="mainContentArea">{!-- begin .mastheadMainContent --}
+
+<div class="staticPage profile">
+
+{if logged_in AND segment_4 != ""}
+
+	{exp:zoo_visitor:details member_id='{segment_4}'}
+		{if no_results}{redirect="404"}{/if}
+
+		<?php if($my_page): ?>
+			
+			<div class="content singleColumn">
+				<div class="fullContentRow top">
+					<div class="externalFullBlock">
+						<div class="internalFullBlock">
+							<div class="blockHead">
+								<h1 class="specialHeader">Welcome, {visitor:member_firstname}{if member_firstname == "Site" OR member_firstname == ""} {visitor:member_lastname}{/if}</h1>
+							</div><!-- end .blockHead -->
+						</div><!-- end .internalFullBlock -->
+					</div><!-- end .externalFullBlock -->
+				</div><!-- end .fullContentRow .top -->
+			</div><!-- end .content .singleColumn -->
+			
+		<? endif; ?>
+		
+		<div id="profileMainBLock">
+			
+			<div class="profileCompleteionWrap">
+				
+				<?php if($my_page): ?>
+				
+					<span class="profileCompletionTitle">Profile Completion:</span>
+					<div class="guageExternalWrap">
+						<div class="guageInternalWrap">
+							<?php $percentComplete = floor(100*({visitor:member_complete_percentage}/12)); // lets calculate our percentage ?>
+							<div class="guageBar" style="width:<?= $percentComplete ?>%;"></div>
+						</div>
+						<div class="profilePercentage">
+							<?= $percentComplete ?>%
+						</div>
+					</div>
+					<div class="profileCompleteionMessage">
+						{if visitor:member_complete_percentage != 12}{!-- don't display anything if value is 100% --}
+							<a href="{path='community/users/edit'}">Complete your profile</a> to fully contribute to Informal Science
+						{/if}
+					</div>       
+				
+				<?php else: ?>    
+					<a href="{path='community/users/email/{segment_4}'}" class="userblueButton emailMember">Send Email to {visitor:member_firstname}<span class="arrowCircle">&nbsp;</span></a>          
+				<?php endif; ?>        
+				
+			</div>
+
+			{if member_photo_url}
+				<div class="profileMemberImage">
+					<a href="{site_url}community/users/profile/{member_id}"><img class="userListThumb" src="{site_url}images/member_profile_pics/small/{visitor:member_photo_url}" /></a>
+				</div>
+			{/if}
+
+			<div class="profileMemberDataWrap">
+				
+				<div class="profileMemberName">{visitor:member_firstname} {visitor:member_lastname} ({visitor:username})</div>
+				
+				<div class="profileMemberTitle">
+					<strong>{visitor:member_title}</strong> {if member_institution}at{/if} 
+					<div class="ellipsisMaker"><strong>{visitor:member_institution backspace="2"}{org_name}, {/visitor:member_institution}</strong></div>
+				</div>
+				
+				<div class="profileMemberLocation">{if member_city != "" OR member_state != "" OR member_country != ""}Lives {if member_state != "Outside of US / Canada"}in {/if}
+				<strong>{visitor:member_city}{if member_city != "" AND member_state != ""},{/if} {visitor:member_state}</strong>{if member_country}{if member_state != "Outside of US / Canada"}, {/if}
+				{if member_state == "Outside of US / Canada"} in {/if}<em>{visitor:member_country}</em>.{/if}{/if}</div>
+				<!-- Asif, we need some conditional here (above) to not display various elements depending on what values are returned -->
+				<div class="profileMemberWebsite">
+					<div class="ellipsisMaker">{visitor:member_website backspace="3"}<a href="<?php if(strpos('{site}','http://') === false) { echo 'http://'.'{site}'; } else { echo '{site}'; } ?>">{site}</a> | {/visitor:member_website}</div>
+				</div>
+
+			</div>
+			<?php if($my_page): ?>
+				<div class="clearBoth">&nbsp;</div>
+				{snip_member_navigation}
+			<?php endif; ?>
+			<div class="clearBoth">&nbsp;</div>
+		</div>
+
+	<?php if(!$my_page): ?>	
+		<div class="profileContent noTopM">
+			<div class="profileSectionHeading">
+				<img class="profileSectionIcon" src="{site_url}images/profile_section/profile-section-icons-bio-25x25.png" alt="{visitor:username}'s Bio" />
+				<h2>Bio</h2>
+			</div>
+			<div class="sectionContentBlock">
+				{if member_bio}
+					{visitor:member_bio} 
+				{if:else}
+					 User has not added a bio yet.
+				{/if}
+			</div>
+		</div>
+		
+		<div class="profileContent">
+			<div class="profileSectionHeading">
+				<img class="profileSectionIcon" src="{site_url}images/profile_section/profile-section-icons-experience-25x25.png" alt="{visitor:username}'s Experience" />
+				<h2>Experience</h2>
+			</div>
+			<div class="sectionContentBlock">
+				{if member_experience}
+					{visitor:member_experience} 
+				{if:else}
+					 User has not added experience yet.
+				{/if}
+			</div>
+		</div>
+		<div class="clearBoth">&nbsp;</div>
+	<?php endif; ?>
+
+  
+    <?php if($my_page): ?>	
+        <div class="projectOptionsPanel" style="display: block;">
+	
+		<div class="sectionHeading">
+		<h2>Subscribe</h2>
+	</div>
+
+       <div class="subscribeLink">
+       <a class="blueButtonPlain subscribeNews" href="/perspectives/rss/news">Subscribe to news</a>
+       <a class="blueButtonPlain subscribeBlog" href="/perspectives/rss/blog">Subscribe to blog</a>
+       </div>
+          
+      </div>
+  <?php endif; ?>  
+ 
+
+</div>
+
+
+<?php if($my_page): ?>		
+{embed="users/recent-activity"}
+<?php endif; ?>
+<div class="clear"></div>
+	 
+		<div class="content singleColumn">
+		
+			{embed="users/my-activity"}
+			
+			<div class="halfColumn right"> 
+
+				<div class="profileContent groups">
+				
+					<div class="profileSectionHeading">
+						<img class="profileSectionIcon" src="{site_url}images/profile_section/profile-section-icons-groups-25x25.png" alt="{visitor:username}'s Groups" />
+						<h2>My Groups</h2>
+					</div><!-- end .profileSectionHeading -->
+					
+					<div class="sectionContentBlock">
+						<ul class="isBulleted">
+							{exp:query sql="SELECT name, groups.id FROM groups WHERE is_public=1 "}
+							<li><span><a href="{site_url}community/groups/details?id={id}">{name}</a></span></li>
+							{/exp:query}
+							{exp:query sql="SELECT name, groups.id FROM groups LEFT JOIN groups_members ON groups.id=groups_members.group_id WHERE groups_members.member_id={segment_4} AND is_public=0 AND status=1"}
+							<li><span><a href="{site_url}community/groups/details?id={id}">{name}</a></span></li>
+							{/exp:query}
+						</ul><div class="clearBoth">&nbsp;</div>
+					</div><!-- end .sectionContentBlock -->
+					
+				</div><!-- end .profileContent .groups -->
+			
+				<div class="profileContent interests">
+				
+					<div class="profileSectionHeading">					
+						<img class="profileSectionIcon" src="{site_url}images/profile_section/profile-section-icons-expertise-25x25.png" alt="{visitor:username}'s Expertise and Interests" />
+						<h2>Expertise &amp; Interests</h2>
+					</div><!-- end .profileSectionHeading -->
+					
+					<div class="sectionContentBlock">
+						{if member_learning_institutions != "" OR member_community_groups != "" OR member_software_development != "" OR member_media != "" OR member_research_evaluation_organ != "" OR member_content_interests != "" OR member_project_interest_expertis != "" OR member_region != "" OR member_research_evaluation_metho != "" OR member_position_interests != "" OR member_other_interests != ""}
+						<ul class="isBullet horizontal">
+							<?php
+							if("{member_learning_institutions}" != "") echo "<li><span>".str_replace("||","</span></li><li><span>","{member_learning_institutions}")."</span></li>";
+							if("{member_community_groups}" != "") echo "<li><span>".str_replace("||","</span></li><li><span>","{member_community_groups}")."</span></li>";
+							if("{member_software_development}" != "") echo "<li><span>".str_replace("||","</span></li><li><span>","{member_software_development}")."</span></li>";
+							if("{member_media}" != "") echo "<li><span>".str_replace("||","</span></li><li><span>","{member_media}")."</span></li>";
+							if("{member_research_evaluation_organ}" != "") echo "<li><span>".str_replace("||","</span></li><li><span>","{member_research_evaluation_organ}")."</span></li>";
+							if("{member_content_interests}" != "") echo "<li><span>".str_replace("||","</span></li><li><span>","{member_content_interests}")."</span></li>";
+							if("{member_project_interest_expertis}" != "") echo "<li><span>".str_replace("||","</span></li><li><span>","{member_project_interest_expertis}")."</span></li>";
+							if("{member_region}" != "") echo "<li><span>".str_replace("||","</span></li><li><span>","{member_region}")."</span></li>";
+							if("{member_research_evaluation_metho}" != "") echo "<li><span>".str_replace("||","</span></li><li><span>","{member_research_evaluation_metho}")."</span></li>";
+							if("{member_position_interests}" != "") echo "<li><span>".str_replace("||","</span></li><li><span>","{member_position_interests}")."</span></li>";
+							if("{member_other_interests}" != "") echo "<li><span>".str_replace("||","</span></li><li><span>","{member_other_interests}")."</span></li>";
+							?>
+						</ul>
+						{if:else}
+							User has not added any items yet.
+						{/if}
+					</div><!-- end .sectionContentBlock -->
+					
+				</div><!-- end .profileContent .interests -->
+				
+				<div class="profileContent documents">
+
+					<div class="profileSectionHeading">
+						<img class="profileSectionIcon" src="{site_url}images/profile_section/profile-section-icons-documents-25x25.png" alt="{visitor:username}'s Documents" />
+						<h2>Documents</h2>
+					</div><!-- end .profileSectionHeading -->
+
+					<div class="sectionContentBlock">
+						<ul class="notBulleted">
+							<?php if ($document_string != "") { echo $document_string; } else { echo "User has not added any documents yet."; } ?>
+						</ul>
+						<div class="clearBoth">&nbsp;</div>
+					</div><!-- end .sectionContentBlock -->
+
+				</div><!-- end .profileContent .documents -->
+				
+
+			
+			</div><!-- end .halfColumn .right -->
+	
+		</div><!-- end .content singleColumn -->
+		<div class="clear"></div>
+
+
+	<?php if($my_page): ?>	
+		<div class="profileContent noTopM staticPage">
+			<div class="profileSectionHeading">
+				<img class="profileSectionIcon" src="{site_url}images/profile_section/profile-section-icons-bio-25x25.png" alt="{visitor:username}'s Bio" />
+				<h2>Bio</h2>
+			</div>
+			<div class="sectionContentBlock">
+				{if member_bio}
+					{visitor:member_bio} 
+				{if:else}
+					 User has not added a bio yet.
+				{/if}
+			</div>
+		</div>
+		
+		<div class="profileContent staticPage">
+			<div class="profileSectionHeading">
+				<img class="profileSectionIcon" src="{site_url}images/profile_section/profile-section-icons-experience-25x25.png" alt="{visitor:username}'s Experience" />
+				<h2>Experience</h2>
+			</div>
+			<div class="sectionContentBlock">
+				{if member_experience}
+					{visitor:member_experience} 
+				{if:else}
+					 User has not added experience yet.
+				{/if}
+			</div>
+		</div>
+	<?php endif; ?>
+
+		{snip_update_profile_score}
+
+	{/exp:zoo_visitor:details}
+
+{if:else}
+	{snip_not_logged_in}
+{/if}
+
+</div><!-- .staticPage .profile -->
+
+<div class="clearBoth">&nbsp;</div>
+		
+  <div id="externalSocialMediaSharingBlock">
+    {snip_scroll_to_top}
+    {snip_social_media_sharing}
+  </div>
+
+<div class="clearBoth">&nbsp;</div>
+
+</div>{!-- end #mainContentArea --}
+
+{snip_global_footer}{!-- include global_footer snippet --}
+
+</div>{!-- end #externalPageWrapper --}
+
+<!-- START JAVASCRIPT -->
+{snip_bring_js}
+<script>
+$(document).ready(function(){
+	$('.switch_section').on('click',function(){
+		$('.show_hide_section').hide();
+		var to_show_section = '#' + $(this).attr('title');
+		$(to_show_section).show();
+		return false;
+	});
+	$('.myResources').each(function(){
+		$(this).find('li:gt(2)').hide();
+	});
+	$('.showHideChanger').on('click',function(){
+		$(this).toggleClass('closeDetails');
+		$(this).text(($(this).text() == "show additional participation") ? "hide additional participation" : "show additional participation");
+		$('.myResources').each(function(){
+			$(this).find('li:gt(2)').toggle();
+		});
+
+		return false;
+	});
+
+});
+</script>
+<!-- END JAVASCRIPT -->
+
+</body>
+<!-- ### template embed - users.group/profile.html ###

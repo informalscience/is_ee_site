@@ -1,0 +1,312 @@
+{snip_community_redirect}
+{if segment_3}{redirect="404"}{/if}
+<!-- ### begin embed groups/index ### -->
+<body id="{structure:top:slug}" class="{structure:parent:slug} {structure:page:slug}">{!-- We grab the page top-level slug as id and parent and page slugs as super-added classes --}
+
+<a name="top"></a>
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper --}
+
+<div id="externalMastheadWrap">{!-- begin #externalMastheadWrap --}
+<div id="internalMastheadWrap">{!-- begin #internalMastheadWrap --}
+      
+{snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+{snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+{snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+
+<script type="text/javascript">
+// provide faux active states for primary, secondary and 'toolbar' nav elements for pages not in structure  
+	var navelement1 = document.getElementById('nav-sub-community');
+		if(navelement1) {
+			navelement1.className += navelement1.className ? ' parent-active' : '';
+		}
+	var navelement2 = document.getElementById('nav-sub-sub-groups');
+		if(navelement2) {
+			navelement2.className += navelement2.className ? ' parent-active' : '';
+		}
+</script>
+    
+</div>{!-- end .internalMastheadWrap --}
+</div>{!-- end .externalMastheadWrap --}
+  
+<div id="mainContentArea">{!-- begin .mastheadMainContent --}
+
+{exp:channel:entries channel="ch_simple_page_content" limit="1" disable="pagination|member_data" dynamic="yes"}
+    
+  {if add_a_page_content_header == "Yes"}{!-- Check to see if we have header title/content --}
+    <div class="content singleColumn">
+      <div class="fullContentRow top">
+        <div class="externalFullBlock">
+          <div class="internalFullBlock">
+            <div class="blockHead">
+              <h1 class="specialHeader">{if alt_title_for_header != ""}{alt_title_for_header}{if:else}{title}{/if}</h1>
+            </div>{!-- end .blockHead --}
+            {if content_for_page_header != ""}{content_for_page_header}{/if}
+          </div>{!-- end .internalFullBlock --}
+        </div>{!-- end .externalFullBlock --}
+      </div>{!-- end .fullContentRow .top --}
+    </div>{!-- end .content .singleColumn --}
+  {/if}
+
+  <div id="twoThirdsContentColumn" class="content twoThirdsContentColumn floatLeft">
+    
+    {if simple_page_content != ""}{!-- Check to see if we have page body content --}
+      <div class="fullContentRow top">{!-- begin .fullContentRow --}      
+        <div class="externalFullBlock staticPage">{!-- begin .externalFullBlock --}        
+          <div class="internalFullBlock">{!-- begin .internalFullBlock --}    
+            {simple_page_content}        
+          </div>{!-- end .internalFullBlock --}        
+        </div>{!-- end .externalFullBlock --}        
+      </div>{!-- end .fullContentRow --}
+    {/if}
+  
+  </div><!-- end #twoThirdsContentColumn .content .twoThirdsContentColumn .floatLeft -->
+  
+{/exp:channel:entries}
+
+<div class="content singleColumn">
+	<div class="fullContentRow top">
+		<div class="externalFullBlock">
+			<div class="internalFullBlock" style="position:relative;">
+				<div class="blockHead">
+					<h1 class="specialHeader">Group Directory</h1>
+					{if logged_in} <a href="{site_url}community/groups/create" class="createProjectButton right">Create Group</a>{/if}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<?php
+	$this->EE =& get_instance();
+
+	$my_id = $this->EE->session->userdata('member_id');
+
+	$has_access = false;
+	if($my_id){
+		$has_access = true;
+	}
+
+	$is_admin = false;
+	if($this->EE->session->userdata['group_id'] == 1){
+		$is_admin = true;
+	}
+
+	$groups_found = true;
+
+	$count_groups_query = "SELECT * FROM groups";
+	$num_of_entries = $this->EE->db->query($count_groups_query)->num_rows();
+	if(!$num_of_entries){
+		$groups_found = false;
+	}
+
+	$entries_per_page = 10; 
+	$total_pages = ceil($num_of_entries/$entries_per_page);
+
+// get page number
+	if(!isset($_GET['page'])){
+	  $current_page = 1;
+	}
+	else{
+		if($_GET['page'] < 1){
+			$current_page = 1;
+		}
+		elseif($_GET['page'] > $total_pages){
+			$current_page = $total_pages;
+		}
+		else{
+			$current_page = $_GET['page'];	
+		}
+	}
+
+// pagination results
+  $first_page = 1;
+  $last_page = $total_pages;
+  $second_page = min(2,$last_page);
+  $third_page = min(3,$last_page);
+  $prev_page = max(1,$current_page-1);
+  $two_prev = max(1,$current_page-2);
+  $three_prev = max(1,$current_page-3);
+  $second_to_last = max(1,$last_page-1);
+  $third_to_last = max(1,$last_page-2);
+  $next_page = min($last_page,$current_page+1);
+  $two_next = min($last_page,$current_page+2);
+  $three_next = min($last_page,$current_page+3);
+
+  $all_pages = array($current_page,$first_page,$second_page,$third_page,$prev_page,$last_page,$second_to_last,$third_to_last,$next_page,$two_prev,$three_prev,$two_next,$three_next);
+  $all_pages = array_filter(array_unique($all_pages));
+  sort($all_pages);
+  if($current_page > $second_page + 5){
+    $all_pages[2] = '...';
+  }
+  if($current_page < $second_to_last - 5){
+    $all_pages[count($all_pages)-3] = '...';
+  }
+
+// create pagination html
+  $pagination_html = "";
+  $pagination_html.= '<div class="pagination">';
+  if($total_pages > 0){
+    foreach($all_pages as $single_page){
+      if($current_page == $single_page || $single_page == '...'){
+        if($single_page == '...'){
+          $pagination_html.= '<span class="page">';
+        }
+        else{
+          $pagination_html.= '<span class="page active">'; 
+        }
+        $pagination_html.= $single_page;
+        $pagination_html.= '</span>';
+      }
+      else {
+        $pagination_html.= '<a class="page first" href="?page='.$single_page.'">';
+        $pagination_html.= $single_page;
+        $pagination_html.= '</a>';
+      }
+    }
+    // previous and next page buttons
+    $pagination_html.= '<div class="paginationToggle">';
+    if($current_page > 1){
+      $pagination_html.= '<a class="previousPage" href="?page='.($current_page-1).'">';
+      $pagination_html.= '<img src="/images/uploads/left.jpg" />';
+      $pagination_html.= '</a>';
+    }
+    if($current_page < $last_page){
+      $pagination_html.= '<a class="nextPage" href="?page='.($current_page+1).'">';
+      $pagination_html.= '<img src="/images/uploads/right.jpg" />';
+      $pagination_html.= '</a>';
+    }
+    $pagination_html.= '</div>';
+  }
+  $pagination_html.= '</div>';
+
+// add page number to SQL query and get group results
+	$max = ' LIMIT '.($current_page-1)*$entries_per_page.','.$entries_per_page;
+	
+	$groups_query = "SELECT groups.is_public, groups.name, groups.id, groups.image_url, groups_members.member_id, exp_members.screen_name FROM groups 
+									LEFT JOIN groups_members ON groups.id=groups_members.group_id LEFT JOIN exp_members ON exp_members.member_id=groups_members.member_id 
+									WHERE groups_members.is_admin = 1 ORDER BY groups.id DESC ".$max;
+	$group_results = $this->EE->db->query($groups_query);
+	$groups_array = array();
+	if($group_results->num_rows() > 0){
+		foreach($group_results->result_array() as $row){
+			$groups_array[] = $row;
+		}
+	}
+
+// generate group html
+	foreach($groups_array as $single_group){
+		$group_id = $single_group['id'];
+
+		// is this a public group?
+		$is_public = false;
+		if($single_group['is_public'] == 1){
+			$is_public = true;
+		}
+
+		$group_status_query = "SELECT groups_members.status FROM groups_members
+		WHERE group_id = '{$group_id}' AND member_id = '{$my_id}' ";
+		$group_status_results = $this->EE->db->query($group_status_query);
+
+		$in_group = false;
+		$is_approved = 0;
+		if($group_status_results->num_rows() > 0){
+			$in_group = true;
+			$is_approved = 1;
+			foreach($group_status_results->result_array() as $row){
+				if($row["status"] == 1){
+					$is_approved = 2;
+				}
+			}
+		}
+
+		echo '<div class="listEntry" style="display: table;">';
+		if($single_group['image_url'] != ""){
+			echo '<img src="{site_url}images/group_profile_pics/small/'.$single_group['image_url'].'" />';
+		} 
+		else {
+			echo '<img src="{site_url}images/uploads/list-no-image-default.png"/>';
+		}
+		echo '<div class="info">';
+		echo '<div class="title">';
+		echo '<a href="{site_url}community/groups/details/?id='.$group_id.'">'.$single_group['name'].'</a>';
+		echo '</div>';
+		echo '<div class="subTitle">Organizer: <a href="{site_url}community/users/profile/'.$single_group['member_id'].'">'.$single_group['screen_name'].'</a></div>';
+		echo '</div>';
+		echo ' ';
+		echo '<div class="actionButtons">';
+		if(($is_approved < 2) && $has_access && !$is_admin && !$is_public){
+			if($is_approved == 1) echo "<a class='grayButton blueButton addMarginRight' href='#'>Pending...</a>";
+			else echo '<a id="join" class="statusButton blueButton addMarginRight" href="#">Join Group</a>';
+			echo '<input id="member_id" type="hidden" readonly="readonly" value="'.$my_id.'"/>';
+			echo '<input class="group_id" type="hidden" readonly="readonly" value="'.$group_id.'"/>';
+		}
+		echo '<a class="blueButton right" href="{site_url}community/groups/details/?id='.$group_id.'">View Group<span class="arrowCircle">&nbsp;</span></a>';
+		echo '</div>';
+		echo '</div>';
+	}    
+
+	echo $pagination_html;
+	
+?>
+
+<div id="target_approval_status" style="width:400px;height:125px;display:none;"></div>
+<a id="hidden_link" href="#target_approval_status" class="fancybox" style="display:none;">Click Me</a>
+
+<div class="clearBoth">&nbsp;</div>
+		
+  <div id="externalSocialMediaSharingBlock">
+    {snip_scroll_to_top}
+    {!-- snip_social_media_sharing --}
+  </div>
+
+<div class="clearBoth">&nbsp;</div>
+
+</div>{!-- end #mainContentArea --}
+
+{snip_global_footer}{!-- include global_footer snippet --}
+
+</div>{!-- end #externalPageWrapper --}
+
+<!-- START JAVASCRIPT -->
+{snip_bring_js}
+<script src="{path=js/fancybox.js}"></script>
+<script>
+$(document).ready(function(){
+	// join group
+	$(".fancybox").fancybox();
+	$('.grayButton').on('click', function(){
+		return false;
+	});
+	$('.statusButton').on('click',function(){
+		var myButton = $(this);
+		var messageBox = $('#target_approval_status');
+		var memberID = $('#member_id').val();
+		var groupID = $(this).siblings('.group_id').val();
+		var actionType = $(this).attr('id');
+
+		if(actionType == 'join'){
+			var dataString = 'action='+actionType+'&member_id='+memberID+'&group_id='+groupID;
+			$.ajax({
+				url: "{path=groups/process_members.php}",
+				type: "GET",
+				data: dataString,
+				success: function(response){
+					(messageBox).html(response);
+					myButton.addClass("grayButton");
+					myButton.removeClass("statusButton");
+					myButton.text("Pending...");
+				},
+				error: function(response){
+					(messageBox).html(response);
+				}
+			});
+		}
+		$('#hidden_link').fancybox().trigger('click');
+		return false;
+	});
+});
+</script>
+<!-- END JAVASCRIPT -->
+
+</body>
+<!-- ### end embed groups/index ### -->

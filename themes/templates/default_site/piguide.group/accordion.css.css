@@ -1,0 +1,255 @@
+#accordion {
+  font-weight: 300;
+  font-size: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+
+
+#accordion * {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  -ms-box-sizing: border-box;
+}
+
+
+
+p {
+  font-family: 'Open Sans';
+  font-size: 14px;
+  line-height: 1.8em;
+  color: #454545;
+  /*margin-bottom: 20px;*/
+}
+h1 {
+  font-family: 'Open Sans';
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 2em;
+  color: #333;
+}
+
+h2 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #454545;
+}
+h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #d16234;
+
+}
+h4 {
+  font-size: 12px;
+  line-height: 19px;
+  font-weight: 400;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.white-full li{
+  font-family: 'Open Sans';
+  font-size: 14px;
+  line-height: 1.8em;
+  font-style: italic;
+  color: #454545;
+}
+/*table {
+  padding: 20px 20px 20px 20px;
+}*/
+td {
+  padding: 20px 20px 20px 20px;
+}
+
+input[name='panel'] {
+  display: none;
+}
+
+label {
+  display: block;
+  padding-top: 0.7em;
+  padding-left: 20px;
+  width: 885px;
+  height: 2.5em;
+  margin: 0 auto;
+  border-bottom: 0.1em solid hsl(0, 100%, 100%);
+  background: #03394d;
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 1em;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+label:hover {
+  background-color: #d16233;;
+}
+
+.block{
+  float: left;
+  display: inline;
+  height: 260px;
+  width: 662px;
+  background-color: #f1f1f1;
+  padding: 20px 20px 20px 20px;
+  margin-bottom: 20px;
+}
+
+.white-block{
+  float: left;
+  display: inline;
+  clear: both;
+  height: auto;
+  width: 662px;
+  background-color: #fff;
+  padding: 20px 20px 20px 20px;
+}
+
+#accordion .white-block li {
+	font-family: 'Open Sans';
+    font-size: 14px;
+    line-height: 1.8em;
+    font-style: italic;
+    color: #454545;
+}
+
+#accordion .white-block ol {
+	font-family: 'Open Sans';
+    font-size: 14px;
+    line-height: 1.8em;
+    font-style: italic;
+    color: #454545;
+}
+
+.white-full{
+  height: auto;
+  width: auto;
+  clear: both;
+  background-color: #fff;
+  padding: 0px 20px 20px 20px;
+}
+
+.white-full b{
+  font-weigth: 600;	!important
+}
+
+
+.avatar {
+  float: right;
+  display: inline;
+  height: 250px;
+  width: 200px;
+  margin-bottom: 20px;
+}
+
+.spotlight {
+  float: right;
+  display: inline;
+  height: auto;
+  width: 200px;
+  margin-bottom: 20px;
+}
+
+.spotlight-bg {
+  padding: 10px 20px 20px 20px;
+  margin-bottom: 20px;
+  background: #d16233;
+}
+
+.spotlight-bg p {
+  color: #000;
+}
+
+.spotlight h1{
+  font-family: 'Open Sans';
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 2em;
+  color: #fff;
+}
+
+.spotlight h2{
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.innerblock{
+  height: auto;
+  width: 100%;
+  clear: both;
+  background-color: #f1f1f1;
+  padding: 20px 20px 20px 20px;
+  margin: 00px 0px 20px 0px;
+}
+.innerblock h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #d16234;
+}
+.block h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #d16234;
+}
+
+.block p {
+  font-family: 'Open Sans';
+  font-size: 12px;
+  line-height: 1.8em;
+  color: #454545;
+}
+
+.innersection{
+  margin-bottom: 20px;
+}
+.section {
+  font-size: 12px;
+  font-weight: 400;
+  color:#666666;
+  display: block;
+  padding: 20px 20px 20px 20px;
+  width: 923px;
+  margin: 0 auto;
+}
+
+
+
+#accordion .section a {
+	font-size: 14px;
+	letter-spacing:0.5px;
+	font-weight: 400;
+}
+div.toggler { 
+    background:#f1f1f1; 
+    cursor:pointer; 
+}
+
+div.toggler div { 
+    display:none; 
+}
+
+input[name='panel'] + .section {
+  overflow: hidden;
+  max-height: 290px;
+  -webkit-transition: max-height 0.5s ease;
+  -moz-transition: max-height 0.5s ease;
+  -ms-transition: max-height 0.5s ease;
+  -o-transition: max-height 0.5s ease;
+  transition: max-height 0.5s ease;
+
+}
+
+input[name='panel']:checked + .section {
+  max-height: 1000000px; /* needs a numeric value here to keep transition */
+}
+
+input[type='checkbox']:checked + label { 
+  background-color: #d16233;
+}
+
+input[name='panel']:checked + label { 
+  background-color: #d16233;
+}

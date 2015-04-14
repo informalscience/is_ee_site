@@ -1,0 +1,396 @@
+<?php
+
+$this->EE =& get_instance();
+
+// has access to member functions relating to project
+$my_id = $this->EE->session->userdata('member_id');
+$has_access = true;
+if(!$my_id){
+	$has_access = false;
+}
+
+$what_project = "";
+$what_project = $this->EE->db->escape_str($this->EE->uri->segment(3));
+$record_found = true;
+
+// is correct URL segment set?
+if($what_project == ""){
+	$record_found = false;
+}
+
+// hit the NCS url -- see if we get valid results
+$base_url = 'http://api.informalscience.org/record/'.$what_project;
+$record_results = json_decode(file_get_contents($base_url),true);
+if($record_results == ""){
+	$record_found = false;
+}
+else{
+	$record = $record_results['record'];
+	// get project title
+	if(isset($record['resource']['title'])){
+		$record_title = $record['resource']['title']['values'][0]['value'];
+	}
+}
+// we do not have a valid record or no record at all
+if(!$record_found){
+	header('Location: '.$this->EE->config->config['site_url'].'lost');
+	exit();
+}
+
+$form_error = array();
+$form_success = "";
+
+// if we have POST data
+if($_POST){
+	$passed_form_validation = true;
+
+	$main_picture_url = "";
+	if(isset($_POST['current_image'])){
+		$main_picture_url = $_POST['current_image'];	
+	}
+
+	$other_picture_array = array();
+	if(isset($_POST['current_other_images'])){
+		$other_picture_array = $_POST['current_other_images'];
+	}
+
+	// rules for Jcrop validation
+	if($_FILES['image']['error'] == 0){
+		if($_POST['w'] == 0 || $_POST['h'] == 0){
+			$form_error[] = "Please crop the project logo image";
+			$passed_form_validation = false;
+		}
+	}
+
+	// process new profile picture
+	if($passed_form_validation && !empty($_FILES['image']['name']) && $_FILES['image']['error'] == 0){
+		$upload_dir = "/var/www/ee/images/projects/logos/";
+		$image_info = getimagesize($_FILES['image']['tmp_name']);
+		$extension = $image_info['mime'];
+
+		$file_name = $_FILES['image']['name'];
+		$file_name = explode(".",$file_name);
+		$file_name = date('Y-m-d')."_".$file_name[0].".jpg";
+		$tmp_name = $_FILES['image']['tmp_name'];
+		$file_size = $_FILES['image']['size'];
+
+		if($extension != "image/jpeg" && $extension != "image/jpg" && $extension != "image/png"){
+			$form_error[] = "Please upload an image of type jpg, jpeg, or png";
+			$passed_form_validation = false;
+		}
+		else{
+			if($file_size > 2*1024*1024){
+				$form_error[] = "Please upload an image smaller than 2MB";
+				$passed_form_validation = false;
+			}
+			else{
+				if($extension == "image/jpg" || $extension == "image/jpeg"){
+					$src_file = imagecreatefromjpeg($tmp_name);
+				}
+				else if($extension == "image/png"){
+					$src_file = imagecreatefrompng($tmp_name);
+				}
+				
+				list($width,$height) = getimagesize($tmp_name);
+				
+				// the denominator of this equation must be equal to the value in "generate_preview.php", the file that generates the AJAX image preview!
+				$resize_factor = $width/250;
+
+				$tmp = imagecreatetruecolor(125, 125);
+				imagecopyresampled($tmp, $src_file, 0, 0, $_POST['x']*$resize_factor, $_POST['y']*$resize_factor, 125, 125, $_POST['w']*$resize_factor, $_POST['h']*$resize_factor);
+				$logo_file_path = $upload_dir.$file_name;
+				$project_image = $file_name;
+				imagejpeg($tmp,$logo_file_path,85);
+
+				$main_picture_url = $file_name;
+			}
+		}
+	}
+
+	$project_other_images = array();
+	// process other project images (move uploaded file and create a small thumbnail)
+	if($passed_form_validation && !empty($_FILES['otherimages']['name'])){
+		for($i=0; $i<count($_FILES['otherimages']['name']); $i++){
+			$name = $_FILES['otherimages']['name'][$i];
+			$name = explode(".",$name);
+			$name = date('Y-m-d')."_".$name[0].".jpg";
+			$type = $_FILES['otherimages']['type'][$i];
+			$tmp_name = $_FILES['otherimages']['tmp_name'][$i];
+			$error = $_FILES['otherimages']['error'][$i];
+			$size = $_FILES['otherimages']['size'][$i];
+
+			if($error == 0){
+				$upload_dir = "/var/www/ee/images/projects/gallery/";
+				$upload_thumb_dir = $upload_dir."thumbs/";
+				$image_info = getimagesize($tmp_name);
+				$extension = $image_info['mime'];
+
+				// create thumbnail
+				if($extension == "image/jpeg" || $extension == "image/jpg" || $extension == "image/png"){
+					if($type == "image/jpg" || $type == "image/jpeg"){
+						$src_file = imagecreatefromjpeg($tmp_name);
+					}
+					else if($type == "image/png"){
+						$src_file = imagecreatefrompng($tmp_name);
+					}
+
+					list($width,$height) = getimagesize($tmp_name);
+
+					// resize to a thumbnail type size
+					$new_width = 100;
+					$new_height = $height/$width * $new_width;
+					$tmp = imagecreatetruecolor($new_width, $new_height);
+					imagecopyresampled($tmp, $src_file, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
+
+					$thumb_pic_file_path = $upload_thumb_dir.$name;
+					if(!file_exists($thumb_pic_file_path)){
+						imagejpeg($tmp,$thumb_pic_file_path,85);
+					}
+
+					// move uploaded file
+					move_uploaded_file($tmp_name, $upload_dir.$name);
+					$project_other_images[] = $name;
+				}
+			}
+		}
+	}
+	$other_picture_array = array_merge($project_other_images,$other_picture_array);
+
+	// update image data
+	if($passed_form_validation){
+		$other_image_string = "";
+		if(isset($other_picture_array) && count($other_picture_array) > 0){
+			$other_image_string = implode("***",$other_picture_array);
+		}
+		
+		$db_project_image = $this->EE->db->escape_str($main_picture_url);
+		$db_other_image_string = $this->EE->db->escape_str($other_image_string);
+
+		$does_entry_exist = true;
+		$does_entry_exist_query = "SELECT * FROM ncs_project WHERE ncs_id = '{$what_project}' ";
+		if($this->EE->db->query($does_entry_exist_query)->num_rows < 1){
+			$does_entry_exist = false;
+		}
+
+		$update_image_query = "UPDATE ncs_project SET main_image = '{$db_project_image}', other_images = '{$db_other_image_string}' WHERE ncs_id = '{$what_project}' ";
+		if(!$does_entry_exist){
+			$update_image_query = "INSERT INTO ncs_project (ncs_id, main_image, other_images) VALUES ('{what_project}', '{$db_project_image}', '{$db_other_image_string}' );";
+		}
+		
+		if(!$this->EE->db->query($update_image_query)){
+			$passed_form_validation = false;
+			$form_error[] = "Error inserting image/submitter data into database";
+		}
+	}
+
+	// success message
+	if($passed_form_validation){
+		$form_success = "<span>Success!</span>Images updated!"; 
+	}
+
+
+}
+else{
+	// get picture data about the project
+	$main_picture_url = "";
+	$other_picture_urls = "";
+	$other_picture_array = array();
+	$project_picture_query = "SELECT * FROM ncs_project where ncs_id = '{$what_project}' ";
+	$project_picture_results = $this->EE->db->query($project_picture_query);
+	if($project_picture_results->num_rows() > 0){
+		foreach($project_picture_results->result_array() as $row){
+			$main_picture_url = $row['main_image'];
+			$other_picture_urls = $row['other_images'];
+		}
+		if($other_picture_urls != "") $other_picture_array = explode('***',$other_picture_urls);
+	}
+}
+
+?>
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>{site_name}: Edit Project Images</title>
+
+<link rel="stylesheet" href="{stylesheet='global/jquery.Jcrop.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/template.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" /><!-- include the global_styles css template -->
+
+{snip_global_header_links}
+
+{snip_global_header_meta}
+
+</head>
+<body>
+ 
+<!-- {exp:structure:breadcrumb here_as_title="yes" inc_here="yes"} --><!-- BREADCRUMBS ARE NOT USED ON HOME PAGE - just saving code-->
+
+<div id="externalPageWrapper"><!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+<div id="externalMastheadWrap"><!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+	
+<div id="internalMastheadWrap"><!-- begin #internalMastheadWrap - fixed width, maybe fixed height too -->
+
+{snip_global_tool_bar}<!-- include global_tool_bar snippet -->
+
+{snip_global_logo_and_nav}<!-- include global_logo_and_nav snippet -->
+
+{snip_global_sub_nav}<!-- include global_sub_nav snippet -->
+<script type="text/javascript">
+// provide faux active states for primary and secondary nav elements without having to add pages into structure  
+  var navelement1 = document.getElementById('nav-sub-projects');
+    if(navelement1) {
+      navelement1.className += navelement1.className ? ' parent-active' : '';
+    }
+</script>
+		
+</div><!-- end .internalMastheadWrap - fixed width, fixed height -->
+	
+</div><!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+	
+<div id="mainContentArea" style="margin-top: 20px;"><!-- begin .mastheadMainContent - fixed width, fixed height, centered -->
+<div style="width:980px; margin: 0 auto;">
+
+	<div class="submitProjectFormWrap">
+	<form method="post" id="project_form" enctype="multipart/form-data">
+	<input type="hidden" name="XID" value="{XID_HASH}" />
+	<div class="sectionHeading"><h2 style="width:760px;"><?= $record_title ?></h2><a href="{site_url}projects/{segment_3}" class="editProjectButton backButton right">Back to Project</a></div>
+
+	<?php
+		if(!empty($form_error)) echo '<div class="form_error">Your form had the following errors: '.implode(". ",$form_error).'</div>';
+		if($form_success != "") echo '<div class="form_success">'.$form_success.'</div>';
+	?>
+
+	<!-- MAIN PROJECT IMAGE FIELD -->
+	<div class="projectFormField">
+		<label class="label left selectTop">Main Project Image</label>
+		<input name="image" type="file" class="mainImgUpload" accept="image/jpeg, image/jpg, image/png"/>
+		<div class="current_images">
+			<?php
+			if($main_picture_url != ""){
+				echo '<label class="label left selectTop" style="margin-top: 75px !important;">Current Main Image</label>';
+				echo '<img src="{site_url}images/projects/logos/'.$main_picture_url.'" class="marginTop"/>';
+				echo '<div class="clear"></div>';
+				echo '<input type="hidden" readonly="readonly" name="current_image" value="'.$main_picture_url.'" />';
+				echo '<a href="#" class="removeImage removeAddLink marginLeft">Remove</a>';
+			}
+			?>
+		</div>
+		<div id="preview" class="marginLeft" style="margin-top: 0px !important"></div>
+	</div>
+	<!-- END MAIN PROJECT IMAGE FIELD -->
+
+	<!-- PROJECT IMAGE FIELD -->
+	<div class="left">
+		<div id="otherimages" class="projectFormField">
+			<label class="label left selectTop">Other Project Images</label>
+                        <div class="clear"></div>
+			<?php
+			foreach($other_picture_array as $single_url){
+				echo '<div class="left">';
+				echo '<div class="current_images">';
+				echo '<img src="{site_url}images/projects/gallery/thumbs/'.$single_url.'" style="margin: 20px 20px 0px 0px;" />';
+        echo '<div class="clear"></div>';
+				echo '<input type="hidden" readonly="readonly" name="current_other_images[]" value="'.$single_url.'" />';
+				echo '<a href="#" class="removeImage removeAddLink">Remove</a>';
+				echo '</div>';
+				echo '</div>';
+			}
+			?>
+			<div class="left">
+					<label class="label left selectTop">Other Project Image</label>      
+					<input name="otherimages[]" type="file" class="submitAddFullField" accept="image/jpeg, image/jpg, image/png"/>
+					<a href="#" class="removeImage removeAddLink">Remove</a>
+			</div>
+		</div>
+	</div>
+	<div class="clearBoth">&nbsp;</div>
+	<a href="#" id="addAnotherImage" class="addAnotherLink left">Add Another Project Image</a>
+	<div class="clearBoth">&nbsp;</div>
+	<!-- END PROJECT IMAGE FIELD -->
+
+	<!-- JCROP FIELDS -->
+	<input type="hidden" size="4" id="x" name="x" />
+	<input type="hidden" size="4" id="y" name="y" />
+	<input type="hidden" size="4" id="w" name="w" />
+	<input type="hidden" size="4" id="h" name="h" />
+	<!-- END JCROP FIELDS -->
+
+	<!-- SUBMIT BUTTON -->
+	<div class="clear"></div>
+	<div class="left">
+		<input type="submit" value="Update Project Images" class="blueButtonPlain"/>
+	</div>
+	<div class="clearBoth">&nbsp;</div>
+	<!-- END SUBMIT BUTTON -->
+
+</form>
+</div><!-- end .submitProjectFormWrap -->
+
+</div>
+
+<div class="clearBoth">&nbsp;</div>   
+<div id="externalSocialMediaSharingBlock">
+  {snip_scroll_to_top}
+  {!--{snip_social_media_sharing}--}
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+</div><!-- end #mainContentArea - fixed width, fixed height, centered -->
+
+{snip_global_footer}<!-- include global_footer snippet -->
+
+</div><!-- end #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+{snip_bring_js}
+<script type="text/javascript">
+$(document).ready(function() {
+	
+	// generate ajax project image preview
+	$('input[name=image]').on('change', function(){ 
+		$("#preview").html("<img src='{site_url}images/uploads/ajax-loader.gif'/>");
+		var options = {
+			target: "#preview",
+			url: "{path=global/generate_preview.php}",
+		}
+		$("#project_form").ajaxSubmit(options);
+	});
+
+	// allow jcropping functionality
+	$('#project_form').on('hover','#target',function(){
+		$('#target').Jcrop({
+			onChange: showCoords,
+			onSelect: showCoords,
+			aspectRatio: 1
+		});
+	});
+	function showCoords(c){
+		jQuery('#x').val(c.x);
+		jQuery('#y').val(c.y);
+		jQuery('#w').val(c.w);
+		jQuery('#h').val(c.h);
+	};
+
+	// be able to dynamically add additional image fields - glass removed marginTop super-added class to get rid of imporper spacing after removal and addition of a field, and added class="right" to surrounding div
+	var imageDivToAdd = $('#otherimages');
+	$('#addAnotherImage').on('click', function() {
+		$('<div class="right"> \
+			<input name="otherimages[]" type="file" class="submitAddFullField  submitAddAnother" accept="image/jpeg, image/jpg, image/png"/> \
+			<a href="#" class="removeImage removeAddLink">Remove</a> \
+			</div>').appendTo(imageDivToAdd);
+			return false;
+	});
+
+	// be able to remove dynamically added fields
+	$(document).on('click', '.removeAddLink',function(){
+		$(this).parent('div').remove();
+		return false;
+	});
+
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html><!-- ### TEMPLATE perspectives/post_detail ### -->
+{snip_browser_sniffer}
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>>
+
+<head>
+
+<title>{structure:page:title} : {site_name}</title>
+
+{snip_post_default_meta_ogp_data}
+
+{snip_post_meta_ogp}
+
+{if segment_2 != "newsletter"}
+<link rel="alternate" type="application/rss+xml" title="CAISE Blog Feed" href="http://informalscience.org/perspectives/rss/{segment_2}" />
+{/if}
+<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" /><!-- include the global_styles css template -->
+
+{snip_global_header_links}
+
+{snip_global_header_meta}
+
+</head>
+
+<body>
+
+<!-- The actual path to a detail page would look like this: /projects/spotlights/beyond-earth-weaving-science-and-indigenous-culture -->
+ 
+<!-- {exp:structure:breadcrumb here_as_title="yes" inc_here="yes"} --><!-- BREADCRUMBS ARE NOT USED ON HOME PAGE - just saving code-->
+
+<div id="externalPageWrapper"><!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+<div id="externalMastheadWrap"><!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+	
+<div id="internalMastheadWrap"><!-- begin #internalMastheadWrap - fixed width, maybe fixed height too -->
+
+{snip_global_tool_bar}<!-- include global_tool_bar snippet -->
+
+{snip_global_logo_and_nav}<!-- include global_logo_and_nav snippet -->
+
+{snip_global_sub_nav}<!-- include global_sub_nav snippet -->
+				 
+</div><!-- end .internalMastheadWrap - fixed width, fixed height -->
+	
+</div><!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+	
+<div id="mainContentArea"><!-- begin .mastheadMainContent - fixed width, fixed height, centered -->
+
+	<!-- ### BEGIN PERSPECTIVES POST DETAIL TEMPLATE EMBED ### -->
+	
+	<div id="twoThirdsContentColumn" class="content twoThirdsContentColumn floatLeft">
+
+<div class="fullContentRow">{!-- begin .fullContentRow --}
+				<div class="externalFullBlock postList">{!-- begin .externalFullBlock --}
+	
+		{exp:channel:entries channel="ch_{segment_2}" limit="1" disable="pagination|member_data" dynamic="yes" show_future_entries="no"}
+		
+			<!-- <div class="fullContentRow">{!-- begin .fullContentRow --}
+				<div class="externalFullBlock postList">{!-- begin .externalFullBlock --} 
+Moved the two lines above ('fullContentRow' and 'externalFullBlock postList') outside ee entries tag to correct future date display error. restore to this location if other display issues arise
+-->
+					<div class="itemBlock{if post_listing_image == ""} noImage{/if}">
+						<div class="itemImageBlock">
+							<!-- <a href="{url_title_path='perspectives/{segment_2}'}"> --><img class="postListingImage" src="{post_listing_image}" alt="{title}" class="clearfix" /><!-- </a> -->
+						</div>
+						<div class="postData" style="margin-top:20px;">
+							{exp:zoo_visitor:details member_id='{author_id}'}
+							<img src="{if visitor:member_photo_url != ""}{site_url}images/member_profile_pics/small/{visitor:member_photo_url}{if:else}{site_url}images/uploads/list-no-image-default-lg.png{/if}" 
+							width="80" height="80" alt="{screen_name}'s avatar" class="postAuthorAvatar floatLeft addMarginRight" />
+							{/exp:zoo_visitor:details}
+							<h3><!-- <a href="{url_title_path='perspectives/{segment_2}'}"> -->{title}<!-- </a> --></h3>
+							<p>Posted on {entry_date format='%F %d, %Y'} <!-- at {entry_date format='%h:%i %A'} --> &nbsp;by {author}&nbsp;in {categories backspace="3"}
+							<a href="/{segment_1}/{segment_2}/category/{category_id}">{category_name}</a> | {/categories}
+							{if allow_comments}
+								 | <a href="{url_title_path='perspectives/{segment_2}'}#comments">Comments</a>&nbsp;({comment_total}){if logged_in} /&nbsp;<a href="?reply=#reply">Leave&nbsp;Comment</a>{/if}
+							{/if} | <a href="{url_title_path='perspectives/{segment_2}'}">Permalink</a></p>
+							<div class="clearBoth">&nbsp;</div>
+							<div class="staticPage">
+								{post_main_content}
+								<div class="clearBoth">&nbsp;</div>              
+							</div>
+						</div>
+					</div><!-- end .itemBlock -->
+					
+					
+					<!-- <div class="fullContentRow{if allow_comments} postAllowsComments{/if}"> -->
+          
+		
+				{/exp:channel:entries}
+				
+				<a name="comments"></a>
+				
+					{exp:channel:entries channel="ch_{segment_2}" limit="1"}
+					
+						<div class="blockHead">
+							<h1 class="specialHeader">Comments ({comment_total})</h1>
+						</div>
+					
+						{if allow_comments}
+						
+							{if comment_total == '0'}<p class="noCommentsYet" style="padding-left:19px;"><strong>No comments yet. Be the first to leave a comment below!</strong></p>{/if}
+							
+						{/if}
+					
+						{if allow_comments == FALSE}
+							<p>Commenting is turned off for this post.</p>
+						{/if}
+						
+					{/exp:channel:entries}
+				
+
+
+					{exp:comment:entries channel="ch_{segment_2}" entry_id="{structure:page:entry_id}" parse="inward"}<a name="comment_{comment_id}"></a>
+					
+						<div class="commentItemBlock">
+						
+							<blockquote>
+							
+								{exp:zoo_visitor:details member_id='{author_id}'}
+									<img src="{if visitor:member_photo_url != ""}{site_url}images/member_profile_pics/small/{visitor:member_photo_url}{if:else}{site_url}images/uploads/list-no-image-default-lg.png{/if}" 
+									width="80" height="80" alt="{screen_name}'s avatar" class="postAuthorAvatar floatLeft addMarginRight" />
+								{/exp:zoo_visitor:details}
+								
+								<article>{comment}</article>
+								
+								<cite>
+									<p class="postAvatarJog" style="display:inline-block;">Posted by {author} on {comment_date format='%F %d, %Y'} | {if logged_in}<a href="?reply={comment_id}#reply">Reply</a>{/if}
+
+								{if editable} |
+									<a href="#" title="{comment_id}" class="edit_link">Edit</a>
+									<div id="box_{comment_id}" class="editCommentBox">
+										<textarea id="text_{comment_id}" cols="70" rows="8">{comment_stripped}</textarea><br />
+										<input id="xid_{comment_id}" type="hidden" name="XID" value="{XID_HASH}" />
+										<input type="submit" name="cancel" value="Cancel" class="cancel_edit">
+										<input title="{comment_id}" type="submit" name="save" value="Save" class="submit_edit">
+									</div>
+								{/if}
+									
+								</cite>
+	
+								<div class="clearBoth">&nbsp;</div>
+								
+							</blockquote>
+							
+						</div>
+						
+					{/exp:comment:entries}
+					
+					<a name="reply"></a>       
+					<div class="blockHead">
+						<h1 class="specialHeader">Submit a comment</h1>
+					</div>
+						
+					{if logged_in}
+					
+						<div class="commentFormWrap">
+							<div class="clearBoth">&nbsp;</div>
+							{exp:comment:form channel="ch_{segment_2}" entry_id="{structure:page:entry_id}" parse="inward"}
+								<textarea name="comment" id="comment">{comment}</textarea><br />
+								<input class="blueButtonPlain" name="submit"type="submit" value="Submit Comment" />
+								<!-- comment notifications -->
+					{exp:comment:notification_links entry_id="{structure:page:entry_id}" parse="inward"}
+
+        				{if subscribed}
+
+                			<a class="blueButton" href="{unsubscribe_link}">Unsubscribe to comment notifications for this post</a>
+        				{if:else}
+
+                			<a class="blueButton" href="{subscribe_link}">Subscribe to comment notifications for this post</a>
+
+        				{/if}
+					
+					{/exp:comment:notification_links}
+					
+				<!-- </div> -->
+							{/exp:comment:form}
+						</div>
+					
+					{if:else}
+							
+						<p class="addMarginLeft">You must <a href="{path='community/users/login'}">Log in</a> to reply.</p>              
+							
+					{/if}
+
+				
+			</div>{!-- end .externalFullBlock --}
+			
+		</div>{!-- end .fullContentRow --}
+		
+	</div><!-- end .twoThirdsContentColumn -->
+	
+	<div id="oneThirdContentColumn" class="floatRight">
+		{snip_perspectives_sidebar}
+	</div>
+
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+		
+	<div id="externalSocialMediaSharingBlock">
+		{snip_scroll_to_top}
+		{snip_social_media_sharing}
+	</div>
+
+<div class="clearBoth">&nbsp;</div>
+
+</div><!-- end #mainContentArea - fixed width, fixed height, centered -->
+
+{snip_global_footer}<!-- include global_footer snippet -->
+
+{snip_bring_js}
+<script>
+$(document).ready(function(){
+	$('.editCommentBox').hide();
+	$('.edit_link').on('click',function(){
+		var commentTitle = $(this).attr('title');
+		var commentTitle = '#box_'+commentTitle;
+		$(commentTitle).show();
+		return false;
+	});
+	$('.cancel_edit').on('click',function(){
+		$(this).parent().hide();
+		return false;
+	});
+	$('.submit_edit').on('click',function(){
+		var theID = $(this).attr('title');
+		var theXID = $('#xid_'+theID).val();
+		var theComment = $('#text_'+theID).val();
+		var data = {comment: theComment, comment_id: theID, XID: theXID};
+		$.post("{exp:comment:ajax_edit_url}",data, function(res){
+			if(res.error){
+				$('#box_'+theID).html('<div class="form_error">Could not moderate comment</div>');
+			}
+			else{
+				$('#box_'+theID).html('<div class="form_success">Comment has been updated</div>');	
+			}
+		});
+	})
+});
+</script>
+
+</div><!-- end #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+</body>
+</html>

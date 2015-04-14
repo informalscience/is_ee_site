@@ -1,0 +1,560 @@
+/*
+    Default Body
+------------------------------------------------------ */ 
+body {
+ margin:            0;
+ padding:           0;
+ font-family:       Arial, Sans-serif;
+ font-size:         14px;
+ color:             #707070;
+ background-color:  #fff;
+ line-height: 		19px;
+}
+
+
+/*
+    Special formatting for quotes, code, pre etc..
+------------------------------------------------------ */ 
+
+code {
+  white-space: normal;
+ }
+
+ pre {
+ background: 		#EFEFF4;
+ border:			1px solid #B2B3CE;
+ font-family:       Verdana, Geneva, Tahoma, Trebuchet MS, Arial, Sans-serif;
+ font-size:         11px;
+ color:             #38394B;
+ margin:			8px 2px 10px 6px;
+ padding:			10px 10px 10px 6px;
+ white-space: 		normal;
+}
+
+.codeblock {
+ background: 		#ebebeb;
+ border: 			8px solid #ebebeb;
+ -moz-border-radius: 10px;
+ border-radius: 	10px;
+ font-family: 		Arial, Helvetica, sans-serif;
+ font-size:         16px;
+ color:             ##707070;
+ margin:			8px 4px 10px 3px;
+ padding:			10px 10px 10px 6px;
+}
+
+blockquote {
+ background: 		#EFEFF4;
+ border-left:		4px solid #6363A0;
+ border-top:		1px solid #B2B3CE;
+ border-bottom:		1px solid #B2B3CE;
+ border-right:		1px solid #B2B3CE;
+ font-family:       Verdana, Geneva, Tahoma, Trebuchet MS, Arial, Sans-serif;
+ font-size:         11px;
+ color:             #38394B;
+ margin:			8px 2px 10px 6px;
+ padding:			5px 10px 10px 6px;
+}
+
+/*
+    Top Bar 
+------------------------------------------------------ */ 
+
+#topBar {  
+ background: #d36532;
+ height: 54px;
+}
+
+#topBarWrapper {
+	width: 980px;
+	margin: 0 auto;
+}
+
+.topBarLinks { 
+ color:             #fff;
+ background:        transparent;
+ font-family:       'Lato-Regular', sans-serif;
+ font-size:         16px;
+ margin: 			0 auto;
+ width: 			980px;
+ padding:			15px 15px 0 0px;
+ list-style: 		none;
+}
+.topBarLinks a { 
+ color:             #fff;
+ background:        transparent;
+ text-decoration:   none;
+ list-style: 	none;
+ padding-right: 15px;
+} 
+
+.topBarLinks a:hover {   
+ background:        transparent;
+ text-decoration:   underline;
+}
+
+/*
+    Page Header 
+------------------------------------------------------ */ 
+
+#pageheader {  
+ background: #3F4585;
+ border-bottom: 1px solid #000;
+}
+
+
+/*
+    Sub-header Bar
+    Contains the breadcrumb links
+------------------------------------------------------ */ 
+#subheader {
+ padding: 			20px 0px 3px 0px;
+ width: 930px;
+ margin: 0 auto;
+}
+/*
+    Breadcrumb Links
+------------------------------------------------------ */ 
+.breadcrumb {  
+ background-color:  transparent;
+ color: #d36531;
+ font-weight: 		bold;
+ font-family: 		Arial, Helvetica, sans-serif;
+ font-size:         14px;
+}
+.breadcrumb a, .breadcrumb a:link { 
+ color:             #007099;
+ font-weight:		normal;
+ background:        transparent;
+ text-decoration:   none;
+} 
+.breadcrumb a:visited { 
+ color:             #007099;
+ background:        transparent;
+ text-decoration:   none;
+}
+.breadcrumb a:hover {     
+ background:        transparent;
+ text-decoration:   underline;
+}
+
+.breadcrumbspacer {
+ color:  #6B6B85;
+}
+
+/*
+    Misc. Formatting Items
+------------------------------------------------------ */ 
+.spacer {
+ margin-bottom:     12px;
+}
+
+.itempad {
+padding: 2px 0 2px 0;
+}
+
+.itempadbig {
+padding: 5px 0 5px 0;
+}
+
+.bottompad {
+padding: 0 0 2px 0;
+}
+
+.marginpad {
+ margin: 12px 0 10px 3px;
+}
+
+.leftpad {
+ margin: 0;
+ padding: 0 0 0 4px;
+}
+
+.default, .defaultBold, .defaultRight, .defaultCenter {
+ background:		transparent;
+ font-family:       Verdana, Geneva, Tahoma, Trebuchet MS, Arial, Sans-serif;
+ font-size:         11px;
+ color:             #38394B;
+}
+
+.defaultBold {
+ font-weight: bold;
+}
+
+.defaultRight {
+ text-align: right;
+}
+
+.defaultCenter {
+text-align: center;
+}
+
+/*
+    Main Content Wrapper
+------------------------------------------------------ */ 
+#content {
+ left:              0px;
+ right:             10px;
+ margin:            10px 20px 0 0;
+ padding:           0;
+}
+* html #content {
+ width:             100%;
+ width:            auto;
+}
+
+#maincontent {
+ left:              0px;
+ margin:            20px auto;
+ padding:           0;
+ width:             980px;
+}
+
+
+.clear { clear: both;}
+
+
+
+
+    Form Field Formatting
+------------------------------------------------------ */ 
+
+form {
+ margin:            0;
+ padding:           0;
+ border:            0;
+}
+
+.textarea {
+ border-top:        2px solid #dcdbdb;
+ border-left:       2px solid #dcdbdb;
+ border-bottom:     1px solid #dcdbdb;
+ border-right:      1px solid #dcdbdb;
+ color:             #333;
+ font-family: 		Arial, Helvetica, sans-serif;
+ font-size:         14px;
+ padding:           0;
+ margin:        	10px;
+}
+.checkbox {
+ background-color:  transparent;
+ padding:           0;
+ border:            0;
+}
+
+.submit {
+ font-family:       Verdana, Geneva, Tahoma, Trebuchet MS, Arial, Sans-serif;
+ font-size:         11px;
+ font-weight:       bold;
+ border-top:		1px solid #9EA3D5;
+ border-left:		1px solid #9EA3D5;
+ border-right:		1px solid #000;
+ border-bottom:		1px solid #000;
+ letter-spacing:    .1em;
+ margin:        	0;
+ padding:			1px 4px 1px 4px;
+ background-color:  #3F4471;
+ color:             #fff;
+ cursor: pointer;
+}  
+
+.alert {
+ font-family:       Verdana, Geneva, Tahoma, Trebuchet MS, Arial, Sans-serif;
+ font-size:         11px;
+ color:             #990000;
+ font-weight:		bold;
+}
+
+.highlight {
+ color:             #990000;
+}
+
+ul.sectionLinks  {
+	width: 980px;
+	margin: 0px;
+	padding: 0px 0px 20px 0px;
+	
+}
+
+ul.sectionLinks li.active a {
+	color: #007099 !important;
+	font-weight: bold;
+	background: url(/themes/wiki_themes/default/images/nav-active-wiki.png) no-repeat left;
+	padding-left: 20px;
+	
+}
+
+
+
+ul.sectionLinks li  {
+	list-style: none;
+}
+
+ul.sectionLinks li a  {
+	color: #313131 !important;
+	padding-right: 25px;
+	float: left;
+	list-style: none;
+	font-family: 'Lato', sans-serif;
+	font-size: 15px;
+}
+
+.wikiSearchPanel {
+width: 964px;
+border: 8px solid #ebebeb;
+-moz-border-radius: 10px;
+border-radius: 10px;
+float: left;
+margin-bottom: 20px;
+}
+
+h2.wikiSearch {
+	font-size: 16px;
+	color: #00394d;
+	font-family: 'Lato', sans-serif;
+	margin-bottom: 10px;
+	text-transform:uppercase;
+}
+
+h2.wikiTitle {
+	font-size: 18px;
+	color: #00394d;
+	font-weight:bold;
+	margin-top: 10px;
+}
+
+span.wikiDoing {
+	color: #d36531;
+}
+
+#content p a {
+	font-size: 14px;
+	color: #007099;
+	font-weight:normal;
+}
+	
+
+hr.wikiEntry {
+	margin: 10px 0px;
+	border: 0px;
+	height: 1px;
+	background-color: #dcdbdb;
+	width: 925px;
+}
+
+.wikiSearchContainer {
+	float: left;
+	position: relative;
+}
+
+.wikiSearchOptionsContainer {
+background-color: #dcdbdb;
+padding: 0px 20px 20px 20px;
+width: 924px;
+float: left;
+}
+
+.wikiMainSearch {
+border: 1px solid #cecece;
+width: 426px;
+height: 39px;
+-moz-box-shadow: 3px 3px 4px #c4c4c4;
+-webkit-box-shadow: 3px 3px 4px #c4c4c4;
+box-shadow: 3px 3px 4px #c4c4c4;
+position: relative;
+padding-left: 20px;
+color: #b7b7b7;
+font-size: 14px;
+font-family: Arial, Helvetica, sans-serif;
+font-style: italic;
+}
+
+.wikiMainSearchBut {
+position: absolute;
+right: 0;
+width: 30px;
+right: 22px;
+top: 44px;
+}
+
+.wikiDetailContent {
+width: 964px;
+border: 8px solid #ebebeb;
+-moz-border-radius: 10px;
+border-radius: 10px;
+margin-bottom: 20px;
+margin-top: 20px;
+float: left;
+}
+
+#article {
+	padding: 0px 20px;
+}
+
+.wikiButton{	
+	display:inline-block;
+	color:#ffffff;
+	font-family:'Lato-Bold', sans-serif;
+	font-size:14px;
+	font-weight:bold;
+	padding: 10px 45px 10px 20px;
+	text-decoration:none;
+	right: 0;
+	top: 5px;
+	text-transform:uppercase;
+	float: left;
+}
+.wikiButton:hover {
+	text-decoration:underline;
+}
+
+.wikiButton.active{
+	background-color: #d36531
+	;
+}
+
+.editWikiButton {
+	background: url(/themes/wiki_themes/default/images/wiki-edit.png) no-repeat center right #007099;
+	margin-right: 20px;
+	background-position: 85%;
+}
+
+.viewWikiButton {
+	background: url(/themes/wiki_themes/default/images/wiki-view.png) no-repeat center right #007099;
+	margin-right: 20px;
+	background-position: 85%;
+}
+
+.historyWikiButton {
+	background: url(/themes/wiki_themes/default/images/wiki-history.png) no-repeat center right #007099;
+	background-position: 85%;
+}
+
+span.actionButtons {
+	float: right; 
+	clear:both;
+	position: absolute;
+	right: 0;
+	top: 5px;
+}
+
+.mainIntro {
+	width: 680px;
+	font-family: Arial;
+	font-size: 14px;
+	color: #707070;
+}
+
+.vsa-logo {
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+.mainArticleList {
+	background-color: #f3f3f3;
+	padding: 20px;
+	float:left;
+	margin-bottom: 20px;
+	width: 885px;
+}
+
+.codeblock .label {
+width: 190px;
+margin-top: 6px;
+}
+
+.wikiFieldFull {
+border: 1px solid #cecece;
+width: 653px;
+height: 10px;
+color: #707070;
+font-size: 14px;
+padding: 10px;
+}
+
+h2.homeTitle {
+	color: #00394d;
+	font-size:17px;
+	font-weight: bold;
+	margin: 0px 0px 0px 0px;
+	padding: 0px;
+	text-transform:uppercase;
+}
+
+h3.categoryTitle {
+	font-weight:bold;
+}
+
+h6 a{
+	font-weight: bold;
+	color: #00394d;
+	font-size: 15px;
+	margin: 0px;
+	paddng: 0px;
+}
+
+h6 {
+	margin: 20px 0px 0px 0px;
+	paddng: 0px !important;
+}
+
+a.articleTitle {
+	color: #9C3;
+}
+
+h5 a {
+	font-size: 14px;
+	color: #007099;
+	font-weight: normal;
+	text-transform: none;
+	padding-left: 15px;
+	margin-left: 25px;
+	background: url(/themes/wiki_themes/default/images/title-dot.jpg) no-repeat left; 
+	display: block;
+}
+
+h5 {
+	margin: 10px 0px 10px 0px !important;
+}
+
+h3 a {
+	background: none !important;
+	padding-left: 0px;
+	margin-left: 0px;
+	color: #00394d;
+}
+
+h3 {
+	color: #00394d;
+	font-size: 16px;
+}
+
+ul#nav_categories {
+	list-style:none;
+	padding:0pc;
+	margin: 0px;
+}
+
+ul#nav_categories li a {
+	list-style:none;
+	font-weight: bold;
+	color: #00394d;
+	font-size: 14px !important;
+}
+
+.marginFix {
+	margin-bottom: 0px !important;
+}
+
+#content ul li a, #content ul li {
+	padding-left: 15px;
+	margin-left: 0px;
+	background: url(/themes/wiki_themes/default/images/title-dot.jpg) no-repeat left; 
+	display: block;
+}
+	
+	
+ul#nav_categories li h5 a {
+	background: none !important;
+	padding-left: 0px !important;
+}

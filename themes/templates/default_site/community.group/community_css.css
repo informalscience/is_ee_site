@@ -1,0 +1,7 @@
+.grayButton {
+  cursor: default;
+  background-color: #777777;
+}
+.grayButton:hover {
+  background-color: #777777;
+}

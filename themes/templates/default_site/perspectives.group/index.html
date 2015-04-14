@@ -1,0 +1,152 @@
+{snip_browser_sniffer}<!DOCTYPE html><!-- ### template - perspective.group/index.html ### -->
+
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>>
+<head>
+{if segment_4 != "all"}{exp:query sql="SELECT cat_name FROM `exp_categories` WHERE cat_id = '{segment_4}' LIMIT 0,1"}<?php $newsCatName = "{cat_name}"; ?>{/exp:query}{/if}
+<title>{if segment_3 == "archive"}Archive of {if segment_4 AND segment_5}<?php echo $month_name = date( 'F', mktime(0, 0, 0, '{segment_5}') ); ?> {/if}{segment_4}{if segment_4 == ""}all{/if}<?php echo ' '.ucfirst('{segment_2}'); ?>{if segment_2 == "newsletter" AND segment_4 == ""}s{/if}{if segment_2 != "newsletter"} Posts{/if} : {/if}Perspectives :{if segment_2 == "newsletter" AND segment_3 == ""} Newsletter :{/if}{if (segment_2 == "news" OR segment_2 =="blog") AND segment_3 == "category"} <?php echo ucfirst('{segment_2}'); ?> Posts {if segment_4 == "all"}in All Categories{if:else}in the <?= $newsCatName ?> Category{/if} :{/if} {site_name}</title>
+
+{snip_global_default_meta_ogp_data}
+
+{if segment_3 == "detail"}
+{snip_post_meta_ogp}
+{if:else}
+{snip_page_meta_ogp}
+{/if}
+
+{if segment_2 != "newsletter"}
+<link rel="alternate" type="application/rss+xml" title="CAISE Blog Feed" href="http://informalscience.org/perspectives/rss/{segment_2}" />
+{/if}
+
+<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" />
+
+{snip_global_header_links}
+
+{snip_global_header_meta}
+
+</head>
+
+<body id="{structure:top:slug}" class="{structure:parent:slug} {structure:page:slug}">{!-- We grab the page top-level slug as id and parent and page slugs as super-added classes --}
+ 
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper --}
+
+<div id="externalMastheadWrap">{!-- begin #externalMastheadWrap --}
+  <div id="internalMastheadWrap">{!-- begin #internalMastheadWrap --}
+    {snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+    {snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+    {snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+		<script type="text/javascript">  
+		var navelement1 = document.getElementById('nav-sub-perspectives');
+			if(navelement1) {
+				navelement1.className += navelement1.className ? ' parent-active' : '';
+			}
+		var navelement2 = document.getElementById('nav-sub-sub-{segment_2}');
+			if(navelement2) {
+				navelement2.className += navelement2.className ? ' parent-active' : '';
+			}
+</script>
+  </div>{!-- end .internalMastheadWrap --}
+</div>{!-- end .externalMastheadWrap --}
+  
+<div id="mainContentArea">{!-- begin .mastheadMainContent --}
+
+{exp:switchee variable="{segment_2}" parse="inward"}
+	
+  {!-- begin blog view --}
+  {case value="blog"}
+    {switchee variable="{segment_3}" parse="inward"}
+
+      {case value="archive"}
+       	{if segment_4 == ""}{redirect='/perspectives/blog/archive/all'}{/if}
+        {embed="perspectives/post_listing" channel_type="blog" display="archive" share_type="page"}
+      {/case}
+
+      {case value="details"}
+      	{embed="perspectives/post_details" channel_type="blog" display="listing"}
+      {/case}
+
+      {case value="category"}
+      	{if segment_4 == ""}{redirect='/perspectives/blog/category/all'}{/if}
+      	{embed="perspectives/post_listing" channel_type="blog" display="listing"}
+      {/case}
+
+      {case default="yes"}
+        {if segment_4 == ""}{embed="perspectives/post_listing" channel_type="blog" display="detail"}
+	{if:else}{redirect="404"}{/if}
+      {/case}
+
+    {/switchee}
+  {/case}
+  {!-- end blog view --}  
+    
+  {!-- begin News view --}
+  {case value="news"}
+    {switchee variable="{segment_3}" parse="inward"}
+
+      {case value="archive"}
+      	{if segment_4 == ""}{redirect='/perspectives/news/archive/all'}{/if}
+        {embed="perspectives/post_listing" channel_type="blog" display="archive" share_type="page"}
+      {/case}
+
+      {case value="details"}
+        {embed="perspectives/post_details" channel_type="blog" display="listing"}
+      {/case}
+
+      {case value="category"}
+      	{if segment_4 == ""}{redirect='/perspectives/news/category/all'}{/if}
+        {embed="perspectives/post_listing" channel_type="blog" display="listing"}
+      {/case}
+
+      {case default="yes"}
+	{if segment_4 == ""}{embed="perspectives/post_listing" channel_type="blog" display="detail"}
+	{if:else}{redirect="404"}{/if}
+      {/case}
+
+    {/switchee}
+  {/case}
+  {!-- end News view --}
+
+  {!-- begin Newsletter view --}
+  {case value="newsletter"}
+    {switchee variable="{segment_3}" parse="inward"}
+
+      {case value="archive"}
+        {embed="perspectives/newsletter_archive" channel_type="blog" display="archive" share_type="page"}
+      {/case}
+    
+      {case value="output"}
+        {embed="perspectives/newsletter_output" channel_type="blog" display="listing"}
+      {/case}
+      
+      {case default="yes"}
+	{if segment_4 == ""}{embed="perspectives/newsletter_landing" channel_type="blog" display="detail"}
+	{if:else}{redirect="404"}{/if}
+      {/case}
+    {/switchee}
+
+  {/case}
+  {!-- end Newsletter view --}
+    
+  {!-- blog default view --}
+  {case default="yes"}
+  	{redirect='/perspectives/blog'}
+  {/case}
+  {!-- end default view --}
+
+{/exp:switchee}
+
+<div class="clearBoth">&nbsp;</div>
+ 
+</div>{!-- end #mainContentArea --}
+
+{snip_global_footer}{!-- include global_footer snippet --}
+
+<!-- bring script -->
+{snip_bring_js}
+<!-- show/hide script -->
+{snip_show_hide_script}
+
+</div>{!-- end #externalPageWrapper --}
+
+</body>
+</html>

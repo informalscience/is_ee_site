@@ -1,0 +1,757 @@
+<!DOCTYPE html><!-- ### template - global.group/1column.html ### - used for newsletter section -->
+{snip_browser_sniffer}
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>>
+<head>
+
+<title>{site_name} : {structure:page:title}</title>{!-- native EE title would be {exp:channel:entries channel="ch_home"}{title}{/exp:channel:entries} --}
+
+<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" /><!-- include the global_styles css template -->
+<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" />{!-- include the global_styles css template --}
+
+{snip_global_header_links}
+
+{snip_global_header_meta}
+
+</head>
+
+<body id="{structure:top:slug}" class="{structure:parent:slug} {structure:page:slug}">{!-- We grab the page top-level slug as id and parent aand page slugs as super-added classes --}
+
+<a name="top"></a>
+
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding --}
+
+<div id="externalMastheadWrap">{!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding --}
+	
+<div id="internalMastheadWrap">{!-- begin #internalMastheadWrap - fixed width, maybe fixed height too --}
+			
+{snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+
+{snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+
+{snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+		
+</div>{!-- end .internalMastheadWrap - fixed width, fixed height --}
+	
+</div>{!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding --}
+	
+<div id="mainContentArea">{!-- begin .mastheadMainContent - fixed width, fixed height, centered --}
+
+{exp:switchee variable="{segment_1}" parse="inward"} {!-- {structure:page:title} --}
+
+	{case value="about-caise"}
+		{switchee variable="{segment_2}/{segment_3}" parse="inward"}
+			{case value="resources/"}
+				{embed="tool_pages/about_childpage" display="landing"}
+			{/case}
+			{case value="initiatives/"}
+				{embed="tool_pages/about_childpage" display="landing"}
+			{/case}
+			{case value="informal-commons/"}
+				{embed="tool_pages/about_childpage" display="landing"}
+			{/case}
+			{case value="investigators-staff-and-advisors/"}
+				{embed="tool_pages/about_childpage" display="landing"}
+			{/case}
+			{case value="''"}
+				{embed="tool_pages/about_caise" display="landing"}
+			{/case}
+			{case default="yes"}
+				{embed="tool_pages/about_caise" display="landing"}
+			{/case}
+		{/switchee}
+	{/case}
+	{case value="member-directory"}
+		{embed="tool_pages/member_directory" display="landing"}
+	{/case}
+	{case value="participate"}
+		{embed="tool_pages/participate" display="landing"}
+	{/case}
+	
+{/exp:switchee}
+
+
+<!-- dynamic content start -->
+
+<div class="content singleColumn">
+    
+      {exp:channel:entries channel="ch_simple_page_content" limit="1" disable="pagination|member_data" dynamic="yes"}
+      {if add_a_page_content_header == "Yes"}{!-- Check to see if we have header title/content --}
+        
+        
+          <div class="content singleColumn">
+            <div class="fullContentRow top">
+              <div class="externalFullBlock">
+                <div class="internalFullBlock">
+                  <div class="blockHead">
+                    <h1 class="specialHeader">{if alt_title_for_header != ""}{alt_title_for_header}{if:else}{title}{/if}</h1>
+                  </div>{!-- end .blockHead --}
+                  {if content_for_page_header != ""}{content_for_page_header}{/if}
+                </div>{!-- end .internalFullBlock --}
+              </div>{!-- end .externalFullBlock --}
+            </div>{!-- end .fullContentRow .top --}
+          </div>{!-- end .content .singleColumn --}
+        {/if}
+      
+        <div class="content singleColumn floatLeft">
+          
+          {if simple_page_content != ""}{!-- Check to see if we have page body content --}
+            <div class="fullContentRow top">{!-- begin .fullContentRow --}      
+              <div class="externalFullBlock staticPage">{!-- begin .externalFullBlock --}        
+              <div class="internalFullBlock">{!-- begin .internalFullBlock --}    
+                  {simple_page_content}   
+
+<!-- start -->
+<style>
+
+.masonryItem { margin: 0 16px 16px 0; float: left; clear:none; }
+.box1 { width:446px; padding: 5px; background: #E6E6E6; float: left; -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; }
+.box2 { width:210px; padding: 5px; background: #E6E6E6; float: left; -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; }
+/**** Clearfix ****/
+.clearfix:before, .clearfix:after { content: ""; display: table; }
+.clearfix:after { clear: both; }
+.clearfix { zoom: 1; }
+/* Infinite Scroll loader */
+#infscr-loading { text-align: center; z-index: 100; position: fixed; left: 45%; bottom: 1px; width: 200px; padding: 10px; background: #000; opacity: 0.8; color: #FFF; -webkit-border-radius: 10px; 
+-moz-border-radius: 10px; border-radius: 10px; }
+
+.masonryItem p {  margin: 8px 0!important; padding: 0!important; font-size:13px!important; line-height:1.2em!important; border: 0; vertical-align: baseline; border-image: initial; display: block; 
+color: #666; font-family: Arial,Helvetica,sans-serif; font-size: 13px; line-height: 1.2em; } 
+#column-right .masonryItem a img { background: none; margin:0; padding: 0; }
+#breadcrumbs a { font-size:1em!important; }
+</style>
+
+<!-- copy between here -->
+
+<div class="masonryWrap" style="clear:both;float:none;">
+            
+              <div id="masonryContainer" style="zoom: 1; position: relative; height: 12909px;" class="masonry">
+
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 0px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-859/The_Cryptoclub:_Cryptography_and_Mathematics_Afterschool_and_Online"><img src="/images/uploads/2012pimeeting/281.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>					  
+					  <a href="/projects/ic-000-000-001-859/The_Cryptoclub:_Cryptography_and_Mathematics_Afterschool_and_Online"">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 0px; left: 236px;">
+					  <a href="/projects/ic-000-000-001-736/LEAP_into_Science:_A_National_Museum_Library_Partnership"><img src="/images/uploads/2012pimeeting/280.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>					  
+					  <a href="/projects/ic-000-000-001-736/LEAP_into_Science:_A_National_Museum_Library_Partnership"">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 0px; left: 472px;">
+					  <a href="/projects/ic-000-000-001-761/Ice_Stories:_A_Public_Educational_Resource_for_IPY"><img src="/images/uploads/2012pimeeting/279.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Adele penguins near Cape Royds, Antarctica. Photo by John Weller 
+					  
+					  <a href="/projects/ic-000-000-001-761/Ice_Stories:_A_Public_Educational_Resource_for_IPY">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 199px; left: 0px;">
+					  <a href="/projects/ic-000-000-000-105/Ship_To_Shore,_The_R/V_JOIDES_Resolution__As_A_Platform_For_Learning"><img src="/images/uploads/2012pimeeting/278.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>The 143 m JOIDES Resolution has traveled 417,630 miles, crossed the Equator, Arctic Cirle, and Antarctic Circle several times, and drilled in all the world's oceans from 80 degrees N to 71 degrees S, and recovered more than 155 miles of core samples.					  
+					  <a href="/projects/ic-000-000-000-105/Ship_To_Shore,_The_R/V_JOIDES_Resolution__As_A_Platform_For_Learning">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 218px; left: 472px;">
+					  <a href="/projects/ic-000-000-000-088/Taking_NPASS_to_Scale_(NPASS2):_Creating_State-based_Professional_Development_Networks_for_Out-of-School_Time_Science"><img src="/images/uploads/2012pimeeting/277.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Rubber Band Powered Cars (Design-It!) at an NPASS afterschool site					  
+					  <a href="/projects/ic-000-000-000-088/Taking_NPASS_to_Scale_(NPASS2):_Creating_State-based_Professional_Development_Networks_for_Out-of-School_Time_Science">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 357px; left: 236px;">
+					  <a href="/projects/ic-000-000-000-074/Full-Scale_Development_Project:_Marcellus_Matters:_Engaging_Adults_in_Science_and_Energy"><img src="/images/uploads/2012pimeeting/273.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Project team at Marcellus drill site					  
+					  <a href="/projects/ic-000-000-000-074/Full-Scale_Development_Project:_Marcellus_Matters:_Engaging_Adults_in_Science_and_Energy">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 468px; left: 472px;">
+					  <a href="/projects/ic-000-000-001-632/Impacting_Informal_Learning:_Moving_the_Conversation_Forward"><img src="/images/uploads/2012pimeeting/271.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Over 50,000 people turned out at Central Park to engage in playful learning! Each activity was grounded in a nugget of science and we gave out a free 75-page Playbook that offered scientific underpinnings in lay language.					  
+					  <a href="/projects/ic-000-000-001-632/Impacting_Informal_Learning:_Moving_the_Conversation_Forward">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 532px; left: 0px;">
+					  <a href="/projects/ic-000-000-003-104/Science_Friday_Radio_Program_&_Social_Community"><img src="/images/uploads/2012pimeeting/270.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>					  
+					  <a href="/projects/ic-000-000-003-104/Science_Friday_Radio_Program_&_Social_Community">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 735px; left: 236px;">
+					  <a href="/projects/ic-000-000-000-967/3rd_Rock_Reality"><img src="/images/uploads/2012pimeeting/269.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>					  
+					  <a href="/projects/ic-000-000-000-967/3rd_Rock_Reality">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 760px; left: 472px;">
+					  <a href="/projects/ic-000-000-001-861/PBS_NewsHour:_STEM_Learning_For_Adults,_Teens_And_At-Risk_Populations"><img src="/images/uploads/2012pimeeting/268.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Will we soon be able to grow human hearts? Part of the PBS NewsHour's look at Tissue Engineers					  
+					  <a href="/projects/ic-000-000-001-861/PBS_NewsHour:_STEM_Learning_For_Adults,_Teens_And_At-Risk_Populations">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 790px; left: 0px;">
+					  <a href="/projects/ic-000-000-000-072/Out_of_This_World"><img src="/images/uploads/2012pimeeting/267.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Mae Jemison, the first African-American woman in space, leads young people through Cape Cosmos, an introduction to women and African-Americans in the space program at http://capecosmos.org					  
+					  <a href="/projects/ic-000-000-000-072/Out_of_This_World">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 852px; left: 236px;">
+					  <a href="/projects/ic-000-000-007-576/StarDate_Black_Hole_Encyclopedia_and_Enciclopedia_de_Agujeros_Negros"><img src="/images/uploads/2012pimeeting/266.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>					  
+					  <a href="/projects/ic-000-000-007-576/StarDate_Black_Hole_Encyclopedia_and_Enciclopedia_de_Agujeros_Negros">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 1003px; left: 472px;">
+					  <a href="/projects/ic-000-000-001-749/FETCH!_with_Ruff_Ruffman,_Season_Five"><img src="/images/uploads/2012pimeeting/262.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>					  
+					  <a href="/projects/ic-000-000-001-749/FETCH!_with_Ruff_Ruffman,_Season_Five">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 1113px; left: 236px;">
+					  <a href="/projects/ic-000-000-001-127/Peep_and_The_Big_Wide_World_Season_Five"><img src="/images/uploads/2012pimeeting/261.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Hatching new scientists every day					  
+					  <a href="/projects/ic-000-000-001-127/Peep_and_The_Big_Wide_World_Season_Five">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 1224px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-859/The_Cryptoclub:_Cryptography_and_Mathematics_Afterschool_and_Online"><img src="/images/uploads/2012pimeeting/257.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>					  
+					  <a href="/projects/ic-000-000-001-859/The_Cryptoclub:_Cryptography_and_Mathematics_Afterschool_and_Online">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 1261px; left: 472px;">
+					  <a href="/projects/ic-000-000-000-078/National_Science_Festival_Network"><img src="/images/uploads/2012pimeeting/256.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Researchers and the public interacting at the Cambridge Science Festival's Science Carnival.					  
+					  <a href="/projects/ic-000-000-000-078/National_Science_Festival_Network">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 1338px; left: 236px;">
+					  <a href="/projects/ic-000-000-000-970/Science_in_the_Stack"><img src="/images/uploads/2012pimeeting/255.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Science and Literacy					  
+					  <a href="/projects/ic-000-000-000-970/Science_in_the_Stack">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 1423px; left: 0px;">
+					  <a href="/projects/ic-000-000-000-116/RAPID:_Underwater_Robotics_Applied_To_STEM_Education:_A_Time-Sensitive_Discovery_In_Marine_Archeology"><img src="/images/uploads/2012pimeeting/253.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Middle school students prepare an Autonomous Underwater Vehicle for launch into the York River, Chesapeake Bay. Here they attach the side scan sonar to the robot that will image shipwrecks from the last major battle of the American Revolution.					  
+					  <a href="/projects/ic-000-000-000-116/RAPID:_Underwater_Robotics_Applied_To_STEM_Education:_A_Time-Sensitive_Discovery_In_Marine_Archeology">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 1494px; left: 472px;">
+					  <a href="/projects/ic-000-000-000-937/TechXcite"><img src="/images/uploads/2012pimeeting/251.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>					  
+					  <a href="/projects/ic-000-000-000-937/TechXcite">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 1540px; left: 236px;">
+					  <a href="/projects/ic-000-000-000-080/EARTH_-_The_Operators'_Manual"><img src="/images/uploads/2012pimeeting/250.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Richard Alley's avatar rides the "climate roller coaster" in a sequence illustrating tipping points, from the second "Earth: The Operators' Manual" special, POWERING THE PLANET. Premiering on PBS and online, Earth Day 2012. “Check local listings!"					  
+					  <a href="/projects/ic-000-000-000-080/EARTH_-_The_Operators'_Manual">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 1681px; left: 472px;">
+					  <a href="/projects/ic-000-000-001-857/SciGames:_A_Technology-enhanced_Model_for_Bridging_Informal_and_Formal_Science_Learning"><img src="/images/uploads/2012pimeeting/249.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>					  
+					  <a href="/projects/ic-000-000-001-857/SciGames:_A_Technology-enhanced_Model_for_Bridging_Informal_and_Formal_Science_Learning">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 1723px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-828/Math_on_a_Sphere:_An_Interactive_Exploration_of_3D_Surfaces_for_Public_Audiences"><img src="/images/uploads/2012pimeeting/248.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>					  
+					  <a href="/projects/ic-000-000-001-828/Math_on_a_Sphere:_An_Interactive_Exploration_of_3D_Surfaces_for_Public_Audiences">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 1865px; left: 236px;">
+					  <a href="/projects/ic-000-000-001-826/Broad_Implementation_Of_The_Lost_Ladybug_Project:_Integrating_New_Places_And_New_Faces_Into_A_National_Lifelong_Learning_Opportunity"><img src="/images/uploads/2012pimeeting/247.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Citizen Scientists find ladybugs, take pictures, send data to The Lost Ladybug Project at lostladybug.org !					  
+					  <a href="/projects/ic-000-000-001-826/Broad_Implementation_Of_The_Lost_Ladybug_Project:_Integrating_New_Places_And_New_Faces_Into_A_National_Lifelong_Learning_Opportunity">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 1869px; left: 472px;">
+					  <a href="/projects/ic-000-000-000-085/Tornado_Alley"><img src="/images/uploads/2012pimeeting/246.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Tornado Alley is a large-format 2D/3D film and comprehensive outreach program exploring the science behind severe weather events.					  
+					  <a href="/projects/ic-000-000-000-085/Tornado_Alley">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 1928px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-789/City_as_Living_Laboratory_for_Sustainability_in_Urban_Design"><img src="/images/uploads/2012pimeeting/245.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>The project experimented with interpretive bilingual installations in a New York public park.  Each set of signs focused on a sustainability issue that engaged passers-by and transformed the park into a STEM learning opportunity.					  
+					  <a href="/projects/ic-000-000-001-789/City_as_Living_Laboratory_for_Sustainability_in_Urban_Design">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 2238px; left: 236px;">
+					  <a href="/projects/ic-000-000-001-828/Math_on_a_Sphere:_An_Interactive_Exploration_of_3D_Surfaces_for_Public_Audiences"><img src="/images/uploads/2012pimeeting/242.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>					  
+					  <a href="/projects/ic-000-000-001-828/Math_on_a_Sphere:_An_Interactive_Exploration_of_3D_Surfaces_for_Public_Audiences">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 2253px; left: 0px;">
+					  <a href="/projects/ic-000-000-000-094/Be_a_Scientist!"><img src="/images/uploads/2012pimeeting/241.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>					  
+					  <a href="/projects/ic-000-000-000-094/Be_a_Scientist!">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 2288px; left: 472px;">
+					  <a href="/projects/ic-000-000-000-102/Collaborative_Research:_Portal_to_Current_Research:_Life_in_Extreme_Environments"><img src="/images/uploads/2012pimeeting/238.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>During the Visions'11 expedition, live video from 300 miles off the OR coast and from 9000 ft beneath the oceans surface was streamed live to the Internet and into the Portal at the Pacific Science Center					  
+					  <a href="/projects/ic-000-000-000-102/Collaborative_Research:_Portal_to_Current_Research:_Life_in_Extreme_Environments">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 2443px; left: 236px;">
+					  <a href="/projects/ic-000-000-001-834/DO_IT!"><img src="/images/uploads/2012pimeeting/237.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Youth Radio students experiment with DIY digital instruments during a Brains &amp; Beakers event in Oakland. Photo: Kai Hsing.					  
+					  <a href="/projects/ic-000-000-001-834/DO_IT!">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 2588px; left: 472px;">
+					  <a href="/projects/ic-000-000-001-050/Making_Natural_Connections:_An_Authentic_FIeld_Research_Collaboration"><img src="/images/uploads/2012pimeeting/236.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Ecologist Dr. Simon Hart (right) studies community assembly and species coexistence in aquatic ecosystems.  During July 2011, high school students in the SIFT and TERF programs helped him set up a new large-scale project at Tyson Research Center.					  
+					  <a href="/projects/ic-000-000-001-050/Making_Natural_Connections:_An_Authentic_FIeld_Research_Collaboration">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 2669px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-750/NOVA_scienceNOW_Seasons_5_and_6"><img src="/images/uploads/2012pimeeting/235.gif" width="446"></a>
+					  <div class="ImgCaption" style="width:446px;">
+					  <p>The most recent season of NOVA scienceNOW featured the work of scientists who are developing new space suits, foods, and rockets that may support future Mars-bound astronaut, among other stories from the frontiers of scientific research.					  
+					  <a href="/projects/ic-000-000-001-750/NOVA_scienceNOW_Seasons_5_and_6">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 2913px; left: 472px;">
+					  <a href="/projects/ic-000-000-000-063/Math_off_the_Shelf"><img src="/images/uploads/2012pimeeting/234.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Putting math into a common library display: the estimating jar.  We use two jars, one with small objects, and one with identical larger objects.  Estimations are public: children and parents write their thinking about how many and why for all to see.					  
+					  <a href="/projects/ic-000-000-000-063/Math_off_the_Shelf">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 3013px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-802/A_Science_Education_Center_for_the_Third_Age"><img src="/images/uploads/2012pimeeting/233.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>The OLLI at Southern Oregon U collaborated with ScienceWorks on a class about Leonardo da Vinci. Class members on their own initiative built a working camhammer and painted a mural, both now are exhibits at ScienceWorks.					  
+					  <a href="/projects/ic-000-000-001-802/A_Science_Education_Center_for_the_Third_Age">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 3188px; left: 236px;">
+					  <a href="/projects/ic-000-000-001-458/RESEARCH:_Master_Science_Hobbyists:_Characteristics,_Motivations,_Experiences,_and_Career_Trajectories"><img src="/images/uploads/2012pimeeting/232.gif" width="446"></a>
+					  <div class="ImgCaption" style="width:446px;">
+					  <p>Exploring hobbies					  
+					  <a href="/projects/ic-000-000-001-458/RESEARCH:_Master_Science_Hobbyists:_Characteristics,_Motivations,_Experiences,_and_Career_Trajectories">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 3359px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-753/SciGirls_TV_Series,_Website_and_Outreach_-_Season_Two"><img src="/images/uploads/2012pimeeting/231.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>					  
+					  <a href="/projects/ic-000-000-001-753/SciGirls_TV_Series,_Website_and_Outreach_-_Season_Two">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 3481px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-737/CYBERCHASE:_THE_NEXT_FRONTIER"><img src="/images/uploads/2012pimeeting/230.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Cyberchase, the award-winning PBS KIDS GO! math series, offers an extensive website for 8 to 11-year-olds featuring hundreds of videos, games and hands-on activities to support STEM learning.					  
+					  <a href="/projects/ic-000-000-001-737/CYBERCHASE:_THE_NEXT_FRONTIER">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 3754px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-831/Time_Team_America_And_The_Science_Of_Archaeology"><img src="/images/uploads/2012pimeeting/229.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Time Team America is a television program with an integrated field school about archaeology in North America that promotes 'Archaeology as a Gateway to Science.'					  
+					  <a href="/projects/ic-000-000-001-831/Time_Team_America_And_The_Science_Of_Archaeology">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 3842px; left: 236px;">
+					  <a href="/projects/ic-000-000-000-109/Communicating_Ocean_Sciences_Informal_Education_Network:_Scientists_and_Educators_Working_Together_to_Promote_Ocean_Literacy"><img src="/images/uploads/2012pimeeting/228.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>University of California, Berkeley student facilitating a sink and float exploration with young visitors to the Lawrence Hall of Science.					  
+					  <a href="/projects/ic-000-000-000-109/Communicating_Ocean_Sciences_Informal_Education_Network:_Scientists_and_Educators_Working_Together_to_Promote_Ocean_Literacy">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 3842px; left: 472px;">
+					  <a href="/projects/ic-000-000-000-064/The_Black_Hole_Experiment_Gallery:_Testing_the_theories_of_gravity_and_of_free-choice_learning"><img src="/images/uploads/2012pimeeting/227.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Visitors entering the Black Holes exhibition choose a nickname and take a digital picture or avatar image to create their own Black Hole Explorer's Card. At other stations, they use the card to collect discoveries and generate a personalized website.					  
+					  <a href="/projects/ic-000-000-000-064/The_Black_Hole_Experiment_Gallery:_Testing_the_theories_of_gravity_and_of_free-choice_learning">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 4090px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-738/Portal_to_the_Public"><img src="/images/uploads/2012pimeeting/226.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>A scientist who has participated in a science communication workshop interacts with a young visitor on the museum fllor.					  
+					  <a href="/projects/ic-000-000-001-738/Portal_to_the_Public">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 4107px; left: 236px;">
+					  <a href="/projects/ic-000-000-007-593/Studying_and_Improving_Networks_for_Disseminating_STEM_Educational_Materials_in_After-School_Programs"><img src="/images/uploads/2012pimeeting/224.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>					  
+					  <a href="/projects/ic-000-000-007-593/Studying_and_Improving_Networks_for_Disseminating_STEM_Educational_Materials_in_After-School_Programs">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 4157px; left: 472px;">
+					  <a href="/projects/ic-000-000-000-106/Sharing_the_Universe"><img src="/images/uploads/2012pimeeting/223.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>The ASP produced outreach training materials to help amateur astronomy clubs improve their public outreach, as part of a project to assess and enhance cultures of outreach in astronomy clubs.					  
+					  <a href="/projects/ic-000-000-000-106/Sharing_the_Universe">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 4242px; left: 236px;">
+					  <a href="/projects/ic-000-000-000-081/STAR_Library_Education_Network:_A_Hands-on_Learning_Program_for_Libraries_and_Their_Communities"><img src="/images/uploads/2012pimeeting/222.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Young library patrons learn about our planet at the Discover Earth exhibition in Diboll, TX.					  
+					  <a href="/projects/ic-000-000-000-081/STAR_Library_Education_Network:_A_Hands-on_Learning_Program_for_Libraries_and_Their_Communities">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 4492px; left: 236px;">
+					  <a href="/projects/ic-000-000-000-076/Asteroids!_An_integrated_astronomy_education_program_for_small_science_centers_and_libraries"><img src="/images/uploads/2012pimeeting/221.gif" width="446"></a>
+					  <div class="ImgCaption" style="width:446px;">
+					  <p>Yong visitors tour the Great Balls of Fire exhibition at the Science Museum of Virginia.					  
+					  <a href="/projects/ic-000-000-000-076/Asteroids!_An_integrated_astronomy_education_program_for_small_science_centers_and_libraries">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 4513px; left: 0px;">
+					  <a href="/projects/ic-000-000-000-144/The_Matter_of_Origins"><img src="/images/uploads/2012pimeeting/220.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>A scene from the tea room of The Matter of Origins.					  
+					  <a href="/projects/ic-000-000-000-144/The_Matter_of_Origins">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 4676px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-820/The_Change"><img src="/images/uploads/2012pimeeting/219.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>					  
+					  <a href="/projects/ic-000-000-001-820/The_Change">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 4842px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-767/LOOP_Production_Season_One"><img src="/images/uploads/2012pimeeting/218.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>					  
+					  <a href="/projects/ic-000-000-001-767/LOOP_Production_Season_One">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 4854px; left: 236px;">
+					  <a href="/projects/ic-000-000-001-840/STUFF:_The_Materials_that_Shape_our_World"><img src="/images/uploads/2012pimeeting/218.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>NOVA's Making Stuff and host David Pogue					  
+					  <a href="/projects/ic-000-000-001-840/STUFF:_The_Materials_that_Shape_our_World">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 4854px; left: 472px;">
+					  <a href="/projects/ic-000-000-000-742/Quest:_Exploring_our_Natural_World"><img src="/images/uploads/2012pimeeting/216.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>QUEST, Exploring Science and Environment in Northern California and Beyond
+
+ 
+
+				
+					  <a href="/projects/ic-000-000-000-742/Quest:_Exploring_our_Natural_World">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 5030px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-784/Collaborative_Research:_Hurricane_Katrina--What_Have_We_Learned?"><img src="/images/uploads/2012pimeeting/213.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Representative page from the project's website - Hurricanes: Science and Society					  
+					  <a href="/projects/ic-000-000-001-784/Collaborative_Research:_Hurricane_Katrina--What_Have_We_Learned?">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 5095px; left: 236px;">
+					  <a href="/projects/ic-000-000-000-089/3D_Visualization_Tools_For_Enhancing_Awareness,_Understanding,_And_Stewardship_Of_Freshwater_Ecosystems"><img src="/images/uploads/2012pimeeting/212.gif" width="446"></a>
+					  <div class="ImgCaption" style="width:446px;">
+					  <p>Viewing a 3-D visualization at the UC Davis Tahoe Environmental Research Center					  
+					  <a href="/projects/ic-000-000-000-089/3D_Visualization_Tools_For_Enhancing_Awareness,_Understanding,_And_Stewardship_Of_Freshwater_Ecosystems">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 5455px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-856/Broad_Implementation_-_COASSTNET:_Scaling_Up_COASSTal_Citizen_Science"><img src="/images/uploads/2012pimeeting/211.gif" width="446"></a>
+					  <div class="ImgCaption" style="width:446px;">
+					  <p>Lucretia Fairchild measures a Northern Fulmar bill on a hilly day on Cape Glazenap beach in the Bering Sea, Alaska.  Photo: A. Bohl					  
+					  <a href="/projects/ic-000-000-001-856/Broad_Implementation_-_COASSTNET:_Scaling_Up_COASSTal_Citizen_Science">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 5455px; left: 472px;">
+					  <a href="/projects/ic-000-000-000-084/The_Community_Collaborative_Rain,_Hail_and_Snow_(CoCoRaHS)_Network:_Enhancements_to_increase_participation_for_tens_of_thousands_in_an_important_nationwide_climate-literacy_project"><img src="/images/uploads/2012pimeeting/210.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>This graphic is the cover page of newly developed CoCoRaHS training resources.  The Community Collaborative Rain, Hail and Snow Network is beginning evapotranspiration  monitoring and hydrologic cycle/water balance education.					  
+					  <a href="/projects/ic-000-000-000-084/The_Community_Collaborative_Rain,_Hail_and_Snow_(CoCoRaHS)_Network:_Enhancements_to_increase_participation_for_tens_of_thousands_in_an_important_nationwide_climate-literacy_project">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 5766px; left: 472px;">
+					  <a href="/projects/ic-000-000-000-083/ScienceMakers:_African_Americans_and_Scientific_Innovation"><img src="/images/uploads/2012pimeeting/209.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>ScienceMakers Woodrow Whitlow, Jr.; Ralph Etienne-Cummings; Joycelyn Harrison; John Hall; and Ayanna Howard at the Fernbank Science Center during one of ScienceMakers' ten public program.					  
+					  <a href="/projects/ic-000-000-000-083/ScienceMakers:_African_Americans_and_Scientific_Innovation">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 5867px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-828/Math_on_a_Sphere:_An_Interactive_Exploration_of_3D_Surfaces_for_Public_Audiences"><img src="/images/uploads/2012pimeeting/207.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Cyberlearning speakers give TED-like talks at the first Cyberlearning Research Summit.					  
+					  <a href="/projects/ic-000-000-001-828/Math_on_a_Sphere:_An_Interactive_Exploration_of_3D_Surfaces_for_Public_Audiences">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 5867px; left: 236px;">
+					  <a href="/projects/ic-000-000-000-113/Scientists_for_Tomorrow"><img src="/images/uploads/2012pimeeting/206.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Program participants showcase the frames of their hybrid carts.					  
+					  <a href="/projects/ic-000-000-000-113/Scientists_for_Tomorrow">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 6044px; left: 472px;">
+					  <a href="/projects/ic-000-000-001-801/Interconnections:_Revisiting_the_Future"><img src="/images/uploads/2012pimeeting/198.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>View inside New York State Pavilion.					  
+					  <a href="/projects/ic-000-000-001-801/Interconnections:_Revisiting_the_Future">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 6117px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-785/Brighter_Futures:_Public_Deliberation_About_the_Science_Of_Early_Childhood_Development"><img src="/images/uploads/2012pimeeting/197.gif" width="446"></a>
+					  <div class="ImgCaption" style="width:446px;">
+					  <p>The first five years of life are a time of amazing change. Experiences, especially during infancy and early childhood, form a base for later development. Families learn together about research on early childhood development.					  
+					  <a href="/projects/ic-000-000-001-785/Brighter_Futures:_Public_Deliberation_About_the_Science_Of_Early_Childhood_Development">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 6369px; left: 472px;">
+					  <a href="/projects/ic-000-000-001-806/Collaborative_Research_on_Out-of-School-Time_Science_Programs_for_Youth:_Qualitative_Research_and_Longitudinal_Survey_Design"><img src="/images/uploads/2012pimeeting/196.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Contribute YOUR program to our nationwide research study of out-of-school-time science, engineering &amp; technology programs for middle and high school-aged youth.					  
+					  <a href="/projects/ic-000-000-001-806/Collaborative_Research_on_Out-of-School-Time_Science_Programs_for_Youth:_Qualitative_Research_and_Longitudinal_Survey_Design">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 6640px; left: 472px;">
+					  <a href="/projects/ic-000-000-001-813/Engaging_Latino_Audiences_in_Informal_Science_Education"><img src="/images/uploads/2012pimeeting/194.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>RR2P Homepage					  
+					  <a href="/projects/ic-000-000-001-813/Engaging_Latino_Audiences_in_Informal_Science_Education">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 6877px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-773/TV411_What's_Cooking?_Serving_Up_Math_and_Science"><img src="/images/uploads/2012pimeeting/193.gif" width="446"></a>
+					  <div class="ImgCaption" style="width:446px;">
+					  <p>TV411 What's Cooking? Chef Jamika Pessoa cooks up delicious recipes with a pinch of science and a dash of math					  
+					  <a href="/projects/ic-000-000-001-773/TV411_What's_Cooking?_Serving_Up_Math_and_Science">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 6834px; left: 472px;">
+					  <a href="/projects/ic-000-000-001-845/Generations_of_Knowledge:_Traditional_Ecological_Knowledge_and_Environmental_Science"><img src="/images/uploads/2012pimeeting/192.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Co-PI David Begay and advisor Dennis Martinez at the Generations of Knowledge advisory group meeting					  
+					  <a href="/projects/ic-000-000-001-845/Generations_of_Knowledge:_Traditional_Ecological_Knowledge_and_Environmental_Science">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 7190px; left: 0px;">
+					  <a href="/projects/ic-000-000-000-073/Valles_Caldera,_A_Grand_Land_Experiment:_Communicating_Climate_Change_Research_to_Public_Audiences"><img src="/images/uploads/2012pimeeting/191.gif" width="446"></a>
+					  <div class="ImgCaption" style="width:446px;">
+					  <p>Film crew shooting the Valles Caldera documentary, focusing on communicating climate change research results to the public					  
+					  <a href="/projects/ic-000-000-000-073/Valles_Caldera,_A_Grand_Land_Experiment:_Communicating_Climate_Change_Research_to_Public_Audiences">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 7052px; left: 472px;">
+					  <a href="/projects/ic-000-000-007-713/CRPA:_Communicating_Avatars:_Artificial_Intelligence_+_Computer_Graphics_=_Innovative_Science"><img src="/images/uploads/2012pimeeting/190.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Initial version of avatar to be used in Orlando Science Center exhibit					  
+					  <a href="/projects/ic-000-000-007-713/CRPA:_Communicating_Avatars:_Artificial_Intelligence_+_Computer_Graphics_=_Innovative_Science">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 7261px; left: 472px;">
+					  <a href="/projects/ic-000-000-001-762/Workshop_to_Explore_Engaging_Broader_Publics_in_Conversations_About_Assessment_of_the_Societal_Implications_of_New_and_Emerging_Directions_in_Science_and_Technology"><img src="/images/uploads/2012pimeeting/189.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>World Wide Views on Biodiversity will is a public consultation event that will take place on September 15, 2012, and include citizens around the world.  US partners will develop outreach activities that will broaden participation.					  
+					  <a href="/projects/ic-000-000-001-762/Workshop_to_Explore_Engaging_Broader_Publics_in_Conversations_About_Assessment_of_the_Societal_Implications_of_New_and_Emerging_Directions_in_Science_and_Technology">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 7601px; left: 0px;">
+					  <a href="/projects/ic-000-000-000-112/Full-Scale_Development:_Science_STARS-Nurturing_Urban_Girls'_Identities_Through_Inquiry-Based_Science"><img src="/images/uploads/2012pimeeting/187.gif" width="446"></a>
+					  <div class="ImgCaption" style="width:446px;">
+					  <p>Science STARS girls investigate the effectiveness of different hand-washing techniques.					  
+					  <a href="/projects/ic-000-000-000-112/Full-Scale_Development:_Science_STARS-Nurturing_Urban_Girls'_Identities_Through_Inquiry-Based_Science">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 7579px; left: 472px;">
+					  <a href="/projects/ic-000-000-001-771/Dimensions_of_Public_Engagement_with_Science"><img src="/images/uploads/2012pimeeting/186.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>This project collected 201 summaries of art &amp; theater, citizen science, exhibits, festivals, inquiry activities, media, meet-the-scientist, on-site research, reference materials, take-action, and science cafes and forums like the one shown here.					  
+					  <a href="/projects/ic-000-000-001-771/Dimensions_of_Public_Engagement_with_Science">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 7946px; left: 472px;">
+					  <a href="/projects/ic-000-000-001-788/Provocative_Questions:_Supporting_Effective_Dialogue_about_Societal_Issues_Informed_by_Human_Biology_in_a_Changing_World"><img src="/images/uploads/2012pimeeting/185.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>This is the opening screen of an activity in which two or more people explore and discuss personal experiences, scientific evidence, and societal values that influence their thinking about a socio-scientific question.					  
+					  <a href="/projects/ic-000-000-001-788/Provocative_Questions:_Supporting_Effective_Dialogue_about_Societal_Issues_Informed_by_Human_Biology_in_a_Changing_World">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 8052px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-832/Broad_Implementation:_Creating_Communities_Of_Learners_For_Informal_Cognitive_Science_Education"><img src="/images/uploads/2012pimeeting/182.gif" width="446"></a>
+					  <div class="ImgCaption" style="width:446px;">
+					  <p>A Living Laboratory collaborator conducts a research study with a young child in the Museum of Science Discovery Center.					  
+					  <a href="/projects/ic-000-000-001-832/Broad_Implementation:_Creating_Communities_Of_Learners_For_Informal_Cognitive_Science_Education">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 8226px; left: 472px;">
+					  <a href="/projects/ic-000-000-001-747/Nanoscale_Informal_Science_Education_Network"><img src="/images/uploads/2012pimeeting/181.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>NanoDays kits went to 225 sites in 2012 supporting partnerships to engage the public in learning about nanotechnology.					  
+					  <a href="/projects/ic-000-000-001-747/Nanoscale_Informal_Science_Education_Network">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 8622px; left: 472px;">
+					  <a href="/projects/ic-000-000-000-632/Finding_NEO:_asteroids,_lightcurves,_and_amateur_astronomers"><img src="/images/uploads/2012pimeeting/179.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>The Finding NEO small exhibit at the Fiske Planetarium in Boulder, Colorado.					  
+					  <a href="/projects/ic-000-000-000-632/Finding_NEO:_asteroids,_lightcurves,_and_amateur_astronomers">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 8733px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-764/Mass_Extinction:_A_Curated_Game"><img src="/images/uploads/2012pimeeting/177.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>This graphic summarized the game at its conclusions.  Similar graphics were included weekly so that new and returning players could keep up with events as they unfolded in the game.					  
+					  <a href="/projects/ic-000-000-001-764/Mass_Extinction:_A_Curated_Game">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 8733px; left: 236px;">
+					  <a href="/projects/ic-000-000-001-740/Lupe's_Story"><img src="/images/uploads/2012pimeeting/174.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>At Children's Discovery Museum of San Jose, a young visitor studies a juvenile mammoth replica, recreated based on fossils discovered at the nearby river.					  
+					  <a href="/projects/ic-000-000-001-740/Lupe's_Story">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 8854px; left: 472px;">
+					  <a href="/projects/ic-000-000-001-779/California_Environmental_Legacy_Project"><img src="/images/uploads/2012pimeeting/173.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>					  
+					  <a href="/projects/ic-000-000-001-779/California_Environmental_Legacy_Project">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 9006px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-843/To_Think,_to_Write,_to_Publish:_Forging_a_Working_Bond_between_Next_Generation_Science_Communicators_and_the_Next_Generation_of_Science_and_Technology_Policy_Leaders"><img src="/images/uploads/2012pimeeting/171.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>					  
+					  <a href="/projects/ic-000-000-001-843/To_Think,_to_Write,_to_Publish:_Forging_a_Working_Bond_between_Next_Generation_Science_Communicators_and_the_Next_Generation_of_Science_and_Technology_Policy_Leaders">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 9272px; left: 236px;">
+					  <a href="/projects/ic-000-000-001-816/BRIDGES:_Build,_Research,_Invent,_Design,_Grow_&_Explore_through_Science"><img src="/images/uploads/2012pimeeting/170.gif" width="446"></a>
+					  <div class="ImgCaption" style="width:446px;">
+					  <p>Parkside Community Center - New York City Housing Authority					  
+					  <a href="/projects/ic-000-000-001-816/BRIDGES:_Build,_Research,_Invent,_Design,_Grow_&_Explore_through_Science">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 9317px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-793/Digital_Immersive_Screen_Colloquium_for_Unified_Standards_and_Specifications_(DISCUSS)"><img src="/images/uploads/2012pimeeting/169.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>The DISCUSS Colloquium brought together 21 Science Museum Leaders, Technical Experts and Colloquium Participants from June 14-16, 2010 in Marblehead, MA to establish the 1.0 version of open platform, shared Digital Immersive Giant Screen Specifications...					  
+					  <a href="/projects/ic-000-000-001-793/Digital_Immersive_Screen_Colloquium_for_Unified_Standards_and_Specifications_(DISCUSS)">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 9642px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-846/Human_+"><img src="/images/uploads/2012pimeeting/168.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>In Human + we explore how technology, defined broadly, is having an impact on human abilities.  Bill Shannon is a dancer who uses crutches that he designed and a skateboard as part of his art.  He developed this in response to a degenerative hip diseas...					  
+					  <a href="/projects/ic-000-000-001-846/Human_+">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 9669px; left: 236px;">
+					  <a href="/projects/ic-000-000-001-794/The_Nexus_of_Energy,_Water,_and_Climate:_From_Understanding_to_Action"><img src="/images/uploads/2012pimeeting/162.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>She Won the Game!					  
+					  <a href="/projects/ic-000-000-001-794/The_Nexus_of_Energy,_Water,_and_Climate:_From_Understanding_to_Action">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 10012px; left: 236px;">
+					  <a href=/projects/ic-000-000-001-742/A_Youth-Directed_Cafe_Scientifique"><img src="/images/uploads/2012pimeeting/161.gif" width="446"></a>
+					  <div class="ImgCaption" style="width:446px;">
+					  <p>Participants at a Teen Cafe Scientifique					  
+					  <a href="/projects/ic-000-000-001-742/A_Youth-Directed_Cafe_Scientifique">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 10067px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-743/Responsive_Virtual_Human_Museum_Guides"><img src="/images/uploads/2012pimeeting/160.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Please meet Ada and Grace.					  
+					  <a href="/projects/ic-000-000-001-743/Responsive_Virtual_Human_Museum_Guides">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 10356px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-807/Gigapixel_Cyberinfrastructure_for_Participatory_Science_Learning"><img src="/images/uploads/2012pimeeting/159.gif" width="446"></a>
+					  <div class="ImgCaption" style="width:446px;">
+					  <p>Panning for Science					  
+					  <a href="/projects/ic-000-000-001-807/Gigapixel_Cyberinfrastructure_for_Participatory_Science_Learning">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 10632px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-780/Girls_Energy_Conservation_Corps"><img src="/images/uploads/2012pimeeting/157.gif" width="446"></a>
+					  <div class="ImgCaption" style="width:446px;">
+					  <p>					  
+					  <a href="/projects/ic-000-000-001-780/Girls_Energy_Conservation_Corps">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 10356px; left: 472px;">
+					  <a href="/projects/ic-000-000-001-844/DEVISE:_Developing,_Validating,_and_Implementing_Situated_Evaluation_Instruments"><img src="/images/uploads/2012pimeeting/155.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Wordle representation of DEVISE, excerpted from notes from the first Advisory Board Meeting.					  
+					  <a href="/projects/ic-000-000-001-844/DEVISE:_Developing,_Validating,_and_Implementing_Situated_Evaluation_Instruments">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 10930px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-751/The_YardMap_Network:_Social_Networking_for_Community_Science"><img src="/images/uploads/2012pimeeting/151.gif" width="446"></a>
+					  <div class="ImgCaption" style="width:446px;">
+					  <p>YardMap infographic showing the average landscaping in a typical American yard.					  
+					  <a href="/projects/ic-000-000-001-751/The_YardMap_Network:_Social_Networking_for_Community_Science">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 10570px; left: 472px;">
+					  <a href="/projects/ic-000-000-001-782/Statistics_for_Action"><img src="/images/uploads/2012pimeeting/150.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>Math Education Meets Environmental Organizing					  
+					  <a href="/projects/ic-000-000-001-782/Statistics_for_Action">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 10876px; left: 472px;">
+					  <a href="/projects/ic-000-000-007-590/Carbon_Smarts_Conference:_Learning_Climate_Change_Science_Anywhere_Anytime"><img src="/images/uploads/2012pimeeting/149.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>The Carbon Smarts Conference brought individuals and institutions from diverse domains together to explore the challenges of climate change communication to a general audience.					  
+					  <a href="/projects/ic-000-000-007-590/Carbon_Smarts_Conference:_Learning_Climate_Change_Science_Anywhere_Anytime">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 11221px; left: 472px;">
+					  <a href="/projects/ic-000-000-000-067/Future_Earth_Initiative"><img src="/images/uploads/2012pimeeting/148.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>					  
+					  <a href="/projects/ic-000-000-000-067/Future_Earth_Initiative">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 11281px; left: 0px;">
+					  <a href="/projects/ic-000-000-007-573/Two_Eyes,_3D"><img src="/images/uploads/2012pimeeting/147.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>					  
+					  <a href="/projects/ic-000-000-007-573/Two_Eyes,_3D">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 11281px; left: 236px;">
+					  <a href="/projects/ic-000-000-001-752/Saving_Species:_Socially-Networked_Exhibits_for_Science_Inquiry_and_Public_Action"><img src="/images/uploads/2012pimeeting/146.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>We are building iSaveSpecies family research stations at zoos nationwide that engage large public audiences in science and environmental stewardship.					  
+					  <a href="/projects/ic-000-000-001-752/Saving_Species:_Socially-Networked_Exhibits_for_Science_Inquiry_and_Public_Action">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 11525px; left: 236px;">
+					  <a href="/projects/ic-000-000-001-007/Wild_Research:_A_Whole-Zoo_Exhibit_and_Inquiry_Program"><img src="/images/uploads/2012pimeeting/145.gif" width="446"></a>
+					  <div class="ImgCaption" style="width:446px;">
+					  <p>Wild Research includes a range of tech and non-tech elements to create communities of inquiry on zoo grounds.					  
+					  <a href="/projects/ic-000-000-001-007/Wild_Research:_A_Whole-Zoo_Exhibit_and_Inquiry_Program">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 11884px; left: 0px;">
+					  <a href="http://www.informalscience.org/projects/ic-000-000-007-714/Geoscience_Careers_for_Kids_and_Adults"><img src="/images/uploads/2012pimeeting/143.gif" width="446"></a>
+					  <div class="ImgCaption" style="width:446px;">
+					  <p>Los Angeles Unified School District Elementary Schools: Students at 5 different locations throughout the Los Angeles area had plenty of fun doing Kids' Science Challenge activities!					  
+					  <a href="http://www.informalscience.org/projects/ic-000-000-007-714/Geoscience_Careers_for_Kids_and_Adults">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 11884px; left: 472px;">
+					  <a href="/projects/ic-000-000-001-852/Math_Core_for_Museums"><img src="/images/uploads/2012pimeeting/141.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>					  
+					  <a href="/projects/ic-000-000-001-852/Math_Core_for_Museums">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 12258px; left: 0px;">
+					  <a href="/projects/ic-000-000-001-808/Open_Exhibits"><img src="/images/uploads/2012pimeeting/139.gif" width="446"></a>
+					  <div class="ImgCaption" style="width:446px;">
+					  <p>Visitors at the Maxwell Museum of Anthropology view items from the museum collection using Open Exhibits software running on a multitouch table and on iphones, ipads, and Android devices.					  
+					  <a href="/projects/ic-000-000-001-808/Open_Exhibits">View project description</a></p></div>
+					</div>
+							<div class="masonryItem masonry-brick" style="position: absolute; top: 12247px; left: 472px;">
+					  <a href="/projects/ic-000-000-001-766/Fusion_Science_Theater_National_Training_and_Dissemination_Program"><img src="/images/uploads/2012pimeeting/138.gif" width="210"></a>
+					  <div class="ImgCaption" style="width:210px;">
+					  <p>					  
+					  <a href="/projects/ic-000-000-001-766/Fusion_Science_Theater_National_Training_and_Dissemination_Program">View project description</a></p></div>
+					</div>
+		  			
+              </div>
+              
+
+              <div style="clear:both;"></div>   
+                         
+            </div>      
+
+
+     
+                </div>{!-- end .internalFullBlock --}        
+              </div>{!-- end .externalFullBlock --}        
+            </div>{!-- end .fullContentRow --}
+          {/if}
+        
+        </div><!-- end .content .singleColumn .floatLeft -->
+        
+      {/exp:channel:entries}  
+
+
+    </div><!-- end .content .singleColumn -->
+
+
+    <div class="clearBoth">&nbsp;</div>
+
+<!-- dynamic content end -->
+
+
+
+
+
+<!-- and here-->
+		
+	<div id="externalSocialMediaSharingBlock">
+		{snip_scroll_to_top}
+		{snip_social_media_sharing}
+	</div>
+
+<div class="clearBoth">&nbsp;</div>
+
+</div>{!-- end #mainContentArea --}
+
+
+
+
+
+{snip_global_footer}{!-- include global_footer snippet --}
+
+
+
+</div>{!-- end #externalPageWrapper --}
+
+</body>
+</html>

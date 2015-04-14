@@ -1,0 +1,402 @@
+<?php
+
+require_once('/var/www/ee/get_data.php');
+require_once('/var/www/ee/ncs_tools/parse_single_result.php');
+require_once('/var/www/ee/ncs_tools/sticky_html_writer.php');
+
+$query = "SELECT sticky_resources.type, sticky_resources.ncs_id, ncs_project.main_image 
+FROM sticky_resources 
+LEFT JOIN ncs_project 
+ON sticky_resources.ncs_id=ncs_project.ncs_id 
+WHERE type LIKE 'outreach%' 
+ORDER BY position";
+
+$results = $this->EE->db->query($query);
+
+$ids = array();
+$db_results = array();
+foreach($results->result_array() as $row){
+	$ids[] = $row["ncs_id"];
+	if(!isset($db_results[$row["type"]])){
+		$db_results[$row["type"]] = array();
+	}
+	$db_results[$row["type"]][] = $row;
+}
+
+$ids_string = implode("+OR+", $ids);
+
+$recent_url = API_URL."search/json?qq=/key//record/administrative/recordID:(".$ids_string.")&n=200";
+
+$ncs_results = array();
+
+$recent_results = json_decode(get_data($recent_url),true);
+if($recent_results != "" && isset($recent_results['results'])){
+	foreach($recent_results['results'] as $single_result){
+		
+		$single_record = $single_result['record'];
+		$parsed_record = parse_single_result($single_record);
+		$single_id = $parsed_record['ncs_id'];
+
+		$ncs_results[$single_id] = array('title' => $parsed_record['title'], 'description' => $parsed_record['short_description'], 'record_url' => $parsed_record['record_url']);
+	}
+}
+
+?>
+
+{snip_browser_sniffer}<!DOCTYPE html><!-- ### template - global.group/1column_static_pages.html ### -->
+
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>>
+<head>
+
+<title>{structure:page:title} : {site_name}</title>
+
+{snip_global_default_meta_ogp_data}
+
+{snip_page_meta_ogp}
+
+
+
+<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" /><!-- include the global_styles css template -->
+<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" />{!-- include the global_styles css template --}
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript" src="/js/browse.js"></script>
+<script type="text/javascript" src="/js/show.js"></script>
+
+
+
+{snip_global_header_links}
+
+{snip_global_header_meta}
+
+</head>
+
+<body id="{structure:top:slug}" class="{structure:parent:slug} {structure:page:slug}  static">{!-- We grab the page top-level slug as id and parent aand page slugs as super-added classes --}
+
+<a name="top"></a>
+
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding --}
+
+  <div id="externalMastheadWrap">{!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding --}
+    
+    <div id="internalMastheadWrap">{!-- begin #internalMastheadWrap - fixed width, maybe fixed height too --}
+          
+      {snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+      
+      {snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+      
+      {snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+        
+    </div>{!-- end .internalMastheadWrap - fixed width, fixed height --}
+    
+  </div>{!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding --}
+    
+  <div id="mainContentArea">{!-- begin .mastheadMainContent - fixed width, fixed height, centered --}
+  
+{!-- begin broader impacts template --}
+<link rel="stylesheet" href="{stylesheet='broaderimpacts/broaderimpacts.css'}" type="text/css" />{!-- include the BI css template --}
+<section><div id="sidebar">
+				<div class="related-links">
+					<h2>RELATED WEBSITES</h2>
+					<a href="http://popnet.pacificsciencecenter.org" target="blank"><img src="/images/broaderimpacts/portal.png"></a>
+					<a href="http://www.aaas.org/pes/" target="blank"><img src="/images/broaderimpacts/aaas.png"></a>
+					<a href="http://science.kqed.org/quest/education/" target="blank"><img src="/images/broaderimpacts/quest.png"></a>
+					<a href="http://www.csid.unt.edu/topics/NSF-broader-impacts-criterion.html" target="blank"><img src="/images/broaderimpacts/csid.png"></a>
+					<a href="http://www.nisenet.org/search/product_category/for-scientists-29" target="blank"><img src="/images/broaderimpacts/nise.png"></a>
+					<a href="http://coseenow.net/scientist-resources/broader-impact/" target="blank"><img src="/images/broaderimpacts/cosee.png"></a>
+					<a href="http://pearweb.org/atis" target="blank"><img src="/images/broaderimpacts/atis.png"></a>
+				</div>
+				<div class="selected-links">
+					<h2>SELECTED REFERENCES</h2>
+					<!-- <a href="http://www.tandfonline.com/doi/abs/10.1080/09500690902792385#.UzLaElezeUn" target="blank"><h5>Eyeballs in the Fridge</h5></a> -->
+					<a href="http://informalscience.org/research/wiki/Public-Engagement" target="blank"><h5>Public Engagement</h5></a>
+					<a href="http://informalscience.org/research/ic-000-000-008-653/The_95_Percent_Solution" target="blank"><h5>The 95 Percent Solution: School Is Not Where Most Americans Learn Most of Their Science</h5></a>
+					<a href="http://informalscience.org/research/ic-000-000-001-937/Public-Participation-in-Scientific-Research" target="blank"><h5>Public Participation in Scientific Research</h5></a>
+					<a href="http://informalscience.org/research/ic-000-000-007-550/Broader_Impacts_2.0:_Frequently_Asked_Questions_About_Revisions_to_NSF_Broader_Impacts_Criterion" target="blank"><h5>Broader Impacts 2.0: Frequently Asked Questions about Revisions to NSF's Broader Impacts Criterion</h5></a>
+					<a href="http://www.nap.edu/catalog.php?record_id=12614" target="blank"><h5>Surrounded by Science</h5></a>
+					<a href="http://courses.biology.utah.edu/gradprog/7964.1_fall2013/Week_15/Nadkarni_Proof%201.pdf" target="blank"><h5>How broad are our broader impacts? An analysis of the National Science Foundation's Ecosystems Studies Program and the Broader Impacts requirement</h5></a>
+					<a href="http://www.aza.org/uploadedFiles/Education/why_zoos_matter.pdf" target="blank"><h5>Why Zoos and Aquariums Matter: Assessing the Impact of a Visit to a Zoo or Aquarium</h5></a>
+					<a href="http://informalscience.org/research/ic-000-000-008-530/Broadening_and_Deepening_the_Impact_:_A_Theoretical_Framework_for_Partnerships_Between_Science_Museums_and_STEM_Research_Centers" target="blank"><h5>Broadening and Deepening the Impact: A Theoretical Framework for Partnerships between Science Museums and STEM Research Centers</h5></a>
+				</div>
+			</div>
+
+			<div id="main">
+				 <div class="top">
+					<h1>OUTREACH FOR SCIENTISTS</h1>
+					<img src="/images/broaderimpacts/undeline.gif">
+					<p>We call this page "Outreach for Scientists" because researchers frequently want to engage audiences beyond their colleagues in the science that informs the questions they are investigating as well as its relevance and importance for society. Professionally designed informal science, technology, engineering and math (STEM) education experiences have become an important part of the science learning and communication landscape and offer creative, dynamic platforms for exploring disciplinary content and communicating the broader impact of current research to a diversity of people of all ages. The resources and links on this page have been chosen to provide strategies and exemplars from a variety of informal STEM education settings.</p>
+				</div> 
+
+				<div class="browse">
+					<h1>BROWSE RESOURCES</h1>
+					<img src="/images/broaderimpacts/undeline.gif">
+					<p>Select a Science Discipline:</p>
+					<article>
+					<a href="#div1" class="browse-icons icon1"></a>
+					<a href="#div2" class="browse-icons icon2"></a>
+					<a href="#div3" class="browse-icons icon3"></a>
+					<a href="#div4" class="browse-icons icon4"></a>
+					<a href="#div5" class="browse-icons icon5" style="padding-right: 0px; border-right: none;"></a>
+					</article>
+					
+					<div id="div1" class="browse-content">
+						<p>Choose a Learning Environment:</p>
+    					<p><a href="#te-result1" class="link">Media & Cyberlearning</a> | <a href="#te-result2" class="link">Public Programs</a> | <a href="#te-result3" class="link">Exhibits</a> | <a href="#te-result4" class="link">Professional Development</a></p>
+					</div>
+					<div id="div2" class="browse-content">
+						<p>Choose a Learning Environment:</p>
+    					<p><a href="#leh-result1" class="link">Media & Cyberlearning</a> | <a href="#leh-result2" class="link">Public Programs</a> | <a href="#leh-result3" class="link">Exhibits</a> | <a href="#leh-result4" class="link">Professional Development</a></p>
+					</div>
+					<div id="div3" class="browse-content">
+						<p>Choose a Learning Environment:</p>
+    					<p><a href="#cpm-result1" class="link">Media & Cyberlearning</a> | <a href="#cpm-result2" class="link">Public Programs</a> | <a href="#cpm-result3" class="link">Exhibits</a> | <a href="#cpm-result4" class="link">Professional Development</a></p>
+					</div>
+					<div id="div4" class="browse-content">
+						<p>Choose a Learning Environment:</p>
+    					<p><a href="#esc-result1" class="link">Media & Cyberlearning</a> | <a href="#esc-result2" class="link">Public Programs</a> | <a href="#esc-result3" class="link">Exhibits</a> | <a href="#esc-result4" class="link">Professional Development</a></p>
+					</div>
+					<div id="div5" class="browse-content">
+						<p>Choose a Learning Environment:</p>
+    					<p><a href="#m-result1" class="link">Media & Cyberlearning</a> | <a href="#m-result2" class="link">Public Programs</a> | <a href="#m-result3" class="link">Exhibits</a> | <a href="#m-result4" class="link">Professional Development</a></p>
+					</div>
+
+					<!--Technology, Engineering-->
+
+					<div id="te-result1" class="result">
+						<?php $check_string = "outreach_technology-engineering_media-cyberlearning"; ?>
+						<?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+						<a href="http://informalscience.org/search/informal-commons?search=Engineering%20OR%20technology&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3DEngineering%2BOR%2Btechnology%26audience%3DScientists%26projectResearchReferenceScope%3DMedia%2Band%2BTechnology#topSearch target="blank target="blank"><button>Show More Results</button></a>
+					</div>
+
+					<div id="te-result2" class="result">
+						<?php $check_string = "outreach_technology-engineering_public-programs"; ?>
+						<?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+						<a href="http://informalscience.org/search/informal-commons?search=Engineering%20OR%20technology%20OR%20computing&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3DEngineering%2BOR%2Btechnology%2BOR%2Bcomputing%26audience%3DScientists%26projectResearchReferenceScope%3DPublic%2BEducational%2BPrograms#topSearch target="blank target="blank"><button>Show More Results</button></a>
+					</div>
+
+					<div id="te-result3" class="result">
+						<?php $check_string = "outreach_technology-engineering_exhibits"; ?>
+						<?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+						<a href="http://informalscience.org/search/informal-commons?search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3DEngineering%2BOR%2Btechnology%2BOR%2Bcomputing%26audience%3DScientists%26projectResearchReferenceScope%3DExhibitions#topSearch target="blank target="blank"><button>Show More Results</button></a>
+					</div>
+
+					<div id="te-result4" class="result">
+						<?php $check_string = "outreach_technology-engineering_professional-development"; ?>
+						<?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+						<a href="http://informalscience.org/search/informal-commons?search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3DEngineering%2BOR%2Btechnology%2BOR%2Bcomputing%26audience%3DScientists%26projectResearchReferenceScope%3DProfessional%2BDevelopment%252C%2BConferences%252C%2Band%2BNetworks#topSearch target="blank target="blank"><button>Show More Results</button></a>
+					</div>
+
+					<!--Life, Ecology, Health-->
+
+					<div id="leh-result1" class="result">
+						<?php $check_string = "outreach_life-ecology-health_media-cyberlearning"; ?>
+						<?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+						<a href="http://informalscience.org/search/informal-commons?search=life%20science%20OR%20health%20OR%20ecology&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3Dlife%2Bscience%2BOR%2Bhealth%2BOR%2Becology%26audience%3DScientists%26projectResearchReferenceScope%3DMedia%2Band%2BTechnology#topSearch target="blank target="blank"><button>Show More Results</button></a>
+					</div>
+
+					<div id="leh-result2" class="result">
+						<?php $check_string = "outreach_life-ecology-health_public-programs"; ?>
+						<?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+						<a href="http://informalscience.org/search/informal-commons?search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3Dlife%2Bscience%2BOR%2Bhealth%2BOR%2Becology%26audience%3DScientists%26projectResearchReferenceScope%3DPublic%2BEducational%2BPrograms#topSearch target="blank target="blank"><button>Show More Results</button></a>
+					</div>
+
+					<div id="leh-result3" class="result">
+						<?php $check_string = "outreach_life-ecology-health_exhibits"; ?>
+						<?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+						<a href="http://informalscience.org/search/informal-commons?search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3Dlife%2Bscience%2BOR%2Bhealth%2BOR%2Becology%26audience%3DScientists%26projectResearchReferenceScope%3DExhibitions#topSearch target="blank target="blank"><button>Show More Results</button></a>
+					</div>
+
+					<div id="leh-result4" class="result">
+						<?php $check_string = "outreach_life-ecology-health_professional-development"; ?>
+						<?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+						<a href="http://informalscience.org/search/informal-commons?search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3Dlife%2Bscience%2BOR%2Bhealth%2BOR%2Becology%26audience%3DScientists%26projectResearchReferenceScope%3DProfessional%2BDevelopment%252C%2BConferences%252C%2Band%2BNetworks#topSearch target="blank target="blank"><button>Show More Results</button></a>
+					</div>
+
+					<!--Chemical, Physical, Material-->
+
+					<div id="cpm-result1" class="result">
+						<?php $check_string = "outreach_chemical-physical-material_media-cyberlearning"; ?>
+						<?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+						<a href="http://informalscience.org/search/informal-commons?search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3Dchemistry%2BOR%2Bphysics%26audience%3DScientists%26projectResearchReferenceScope%3DExhibitions#topSearch target="blank target="blank"><button>Show More Results</button></a>
+					</div>
+
+					<div id="cpm-result2" class="result">
+						<?php $check_string = "outreach_chemical-physical-material_public-programs"; ?>
+						<?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+						<a href="http://informalscience.org/search/informal-commons?search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3Dchemistry%2BOR%2Bphysics%26audience%3DScientists%26projectResearchReferenceScope%3DPublic%2BEducational%2BPrograms#topSearch target="blank target="blank"><button>Show More Results</button></a>
+					</div>
+
+					<div id="cpm-result3" class="result">
+						<?php $check_string = "outreach_chemical-physical-material_exhibits"; ?>
+						<?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+						<a href="http://informalscience.org/search/informal-commons?search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3Dchemistry%2BOR%2Bphysics%26audience%3DScientists%26projectResearchReferenceScope%3DExhibitions#topSearch target="blank target="blank"><button>Show More Results</button></a>
+					</div>
+
+					<div id="cpm-result4" class="result">
+						<?php $check_string = "outreach_chemical-physical-material_professional-development"; ?>
+						<?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+						<a href="http://informalscience.org/search/informal-commons?search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3Dchemistry%2BOR%2Bphysics%26audience%3DScientists%26projectResearchReferenceScope%3DProfessional%2BDevelopment%252C%2BConferences%252C%2Band%2BNetworks#topSearch target="blank target="blank"><button>Show More Results</button></a>
+					</div>
+
+					<!--Earth, Space, Climate-->
+
+					<div id="esc-result1" class="result">
+						<?php $check_string = "outreach_earth-space-climate_media-cyberlearning"; ?>
+						<?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+						<a href="http://informalscience.org/search/informal-commons?search=earth%20OR%20space%20OR%20climate&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3Dearth%2BOR%2Bspace%2BOR%2Bclimate%26audience%3DScientists%26projectResearchReferenceScope%3DMedia%2Band%2BTechnology#topSearch target="blank target="blank"><button>Show More Results</button></a>
+					</div>
+
+					<div id="esc-result2" class="result">
+						<?php $check_string = "outreach_earth-space-climate_public-programs"; ?>
+						<?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+						<a href="http://informalscience.org/search/informal-commons?search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3Dearth%2BOR%2Bspace%2BOR%2Bclimate%26audience%3DScientists%26projectResearchReferenceScope%3DPublic%2BEducational%2BPrograms#topSearch target="blank target="blank"><button>Show More Results</button></a>
+					</div>
+
+					<div id="esc-result3" class="result">
+						<?php $check_string = "outreach_earth-space-climate_exhibits"; ?>
+						<?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+						<a href="http://informalscience.org/search/informal-commons?search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3Dearth%2BOR%2Bspace%2BOR%2Bclimate%26audience%3DScientists%26projectResearchReferenceScope%3DExhibitions#topSearch target="blank target="blank"><button>Show More Results</button></a>
+					</div>
+
+					<div id="esc-result4" class="result">
+						<?php $check_string = "outreach_earth-space-climate_professional-development"; ?>
+						<?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+						<a href="http://informalscience.org/search/informal-commons?search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3Dearth%2BOR%2Bspace%2BOR%2Bclimate%26audience%3DScientists%26projectResearchReferenceScope%3DProfessional%2BDevelopment%252C%2BConferences%252C%2Band%2BNetworks#topSearch target="blank target="blank"><button>Show More Results</button></a>
+					</div>
+
+					<!--Mathmatics-->
+
+					<div id="m-result1" class="result">
+						<?php $check_string = "outreach_mathematics_media-cyberlearning"; ?>
+						<?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+						<a href="http://informalscience.org/search/informal-commons?search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3DLearning%2Binstitutions%255C%253ACollege%252Funiversity%2Band%2BSTEM%2Bresearch%26content%3DMathematics%26projectResearchRefer target="blank target="blank"><button>Show More Results</button></a>
+					</div>
+
+					<div id="m-result2" class="result">
+						<?php $check_string = "outreach_mathematics_public-programs"; ?>
+						<?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+						<a href="http://informalscience.org/search/informal-commons?search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3DLearning%2Binstitutions%255C%253ACollege%252Funiversity%2Band%2BSTEM%2Bresearch%26content%3DMathematics%26projectResearchRefer target="blank target="blank"><button>Show More Results</button></a>
+					</div>
+
+					<div id="m-result3" class="result">
+						<?php $check_string = "outreach_mathematics_exhibits"; ?>
+						<?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+						<a href="http://informalscience.org/search/informal-commons?search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3DLearning%2Binstitutions%255C%253ACollege%252Funiversity%2Band%2BSTEM%2Bresearch%26content%3DMathematics%26projectResearchRefer target="blank target="blank"><button>Show More Results</button></a>
+					</div>
+
+					<div id="m-result4" class="result">
+						<?php $check_string = "outreach_mathematics_professional-development"; ?>
+						<?= sticky_writer($ncs_results, $db_results, $check_string) ?>
+						<a href="http://informalscience.org/search/informal-commons?search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3Fqq%3DLearning%2Binstitutions%255C%253ACollege%252Funiversity%2Band%2BSTEM%2Bresearch%26content%3DMathematics%26projectResearchRefer target="blank target="blank"><button>Show More Results</button></a>
+					</div>
+
+				</div>
+
+				<div class="resources">
+					<h1>EVALUATION & ASSESSMENT</h1>
+					<img src="/images/broaderimpacts/undeline.gif">
+					<p>What evidence indicates that an informal STEM education project is informed by best practices and has achieved its intended impacts? Evaluation, carefully designed and conducted in collaboration with project developers, has been integral to helping informal STEM professionals develop more effective projects via regular &rsquo;formative&lsquo; feedback and be accountable to their learning goals.</p>
+					<div class="resources-block1">
+						<a href="http://informalscience.org/evaluation/evaluation-resources/pi-guide"><img src="/images/broaderimpacts/piguide.png">
+						<h6>Principal Investigator's Guide: Managing Evaluation in Informal STEM Education Projects </h6>
+						<!--<p>This Guide is designed to help principal investigators and other leaders of informal STEM education projects integrate and manage evaluation into project design, development, and implementation.
+						</p> --> <p>Designed to help principal investigators and leaders of informal STEM education projects integrate and manage evaluation.</p></a>
+					</div>
+					<div class="resources-block2">
+						<a href="http://informalscience.org/evaluation/browse?type=evaluations&search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3FresourceType%3DEvaluation%2BReports%26audience%3DScientists#topSearch"><img src="/images/broaderimpacts/resources.png">
+						<h6>Evaluation Reports</h6>
+						<p>When results are disseminated widely, evaluations can provide critical information for helping project developers throughout the STEM education field improve their overall practice, as well as contribute to more informed, competitive proposals in the future.</p></a>
+					</div>
+					<div class="resources-block3">
+						<a href="http://informalscience.org/evaluation/browse?type=instruments&search=&search_url=http%3A%2F%2Fapi.informalscience.org%2Fsearch%2Fjson%3FresourceType%3DResearch%2Band%2BEvaluation%2BInstruments%26icRecordType%3DATIS#topSearch"><img src="/images/broaderimpacts/articles.png">
+						<h6>Assessment Tools</h6></a>
+						<p>Find tools to measure the performance of programs.</p>
+					</div>
+				</div>
+			<!--
+				<div class="ise">
+					<h1>WHY INFORMAL SCIENCE EDUCATION?</h1>
+					<img src="/images/broaderimpacts/undeline.gif">
+					<div class="ise-block">
+						<img src="/images/broaderimpacts/ise1.jpg">
+						<h5>Broaden Participation</h5>
+						<p>Informal STEM education projects support the development of a diverse STEM workforce.<BR><a href="#bp"><STRONG>Read More</STRONG></a></p>
+						<a href="#_" class="lightbox-bg" id="bp">
+  							<div class="lightbox-white">
+  								<h2><img src="/images/broaderimpacts/x.png"></h2>
+  								<h1>Broaden Participation</h1>
+  								<p>U.S. leadership in the global STEM enterprise requires including every sector of the population in order to build a diverse workforce capable of innovation and educating a general populace able to benefit from and engage with STEM. Informal STEM education projects have been successful in increasing the participation of groups, institutions, and geographic regions that currently are underrepresented in STEM research and education programs. There is more work to be done to provide opportunities for women, Hispanics, African Americans, Native Americans, Pacific Islanders, and persons with disabilities to participate and succeed in STEM.</p>
+  								<p>related resource 1 | related resource 2 | related resource 3</p>
+							</div>
+						</a>
+					</div>
+					<div class="ise-block2">
+						<img src="/images/broaderimpacts/ise2.jpg">
+						<h5>Grounded in Research</h5>
+						<p>Informal STEM education projects are grounded in research and an evidence base.<BR><a href="#gr"><STRONG>Read More</STRONG></a></p>
+						<a href="#_" class="lightbox-bg" id="gr">
+  							<div class="lightbox-white">
+  								<h2><img src="/images/broaderimpacts/x.png"></h2>
+  								<h1>Grounded in Research</h1>
+  								<p>There is a vibrant, expanding, and multidisciplinary global research community focused on informal STEM learning. A growing body of evidence indicates that informal STEM learning experiences cultivate audiences' interest in STEM subjects; enhances their identity as STEM learners; promotes their understanding of discipline content knowledge and the scientific process; and inspires young people to pursue future STEM careers.</p>
+  								<p>related resource 1 | related resource 2 | related resource 3</p>
+							</div>
+						</a>
+					</div>
+					<div class="ise-block">
+						<img src="/images/broaderimpacts/ise3.jpg">
+						<h5>Inspire STEM Workforce</h5>
+						<p>Informal STEM education environments expose learners to possible career paths and support.<BR><a href="#isw"><STRONG>Read More</STRONG></a></p>
+						<a href="#_" class="lightbox-bg" id="isw">
+  							<div class="lightbox-white">
+  								<h2><img src="/images/broaderimpacts/x.png"></h2>
+  								<h1>Inspire STEM Workforce</h1>
+  								<p>Informal STEM education environments expose learners to possible career paths and support development of science identities.</p>
+
+								<p>Key influences relative to workforce development occur as early as middle school, and may continue through technical training in community colleges or career preparation in undergraduate or graduate programs and then into lifelong, personalized learning as the competencies and knowledge needed for STEM careers complexify. Evidence-based understanding is necessary with respect to STEM career pathways and transitions; academic and non-academic STEM careers; emerging practices and changing contexts of STEM workforces; and the changing higher education climate and capacity for reforming STEM workforce development efforts; and workforce development projects) as research sites.</p>
+  								<p>related resource 1 | related resource 2 | related resource 3</p>
+							</div>
+						</a>
+					</div>
+					<div class="ise-block2">
+						<img src="/images/broaderimpacts/ise4.jpg">
+						<h5>Rigorously Evaluated</h5>
+						<p>Informal STEM education projects seek to answer knowledge generating questions.<BR><a href="#re"><STRONG>Read More</STRONG></a></p>
+						<a href="#_" class="lightbox-bg" id="re">
+  							<div class="lightbox-white">
+  								<h2><img src="/images/broaderimpacts/x.png"></h2>
+  								<h1>Rigorously Evaluated</h1>
+  								<p>"What is happening," "to what extent," "why," "how," "what works for whom," "under what circumstances?"</p>
+
+								<p>The term "evaluation" encompasses a broad range of activities and purposes. Evaluation takes many forms—front-end, formative, summative, external review—and each has specific purposes and benefits. Surrounded by Science, a National Research Council report focused on learning science in informal environments, defines evaluation as a set of approaches and techniques used to make judgments about the effectiveness or quality of a program, approach, or treatment; improve its effectiveness; and inform decisions about its design, development, and implementation (National Research Council 2010). Evaluation of an informal STEM education project generally provides information that can guide the development of a project, suggest how it might be improved, and at a project's completion evidence for achieving its intended goals and impacts.</p>
+								<p>related resource 1 | related resource 2 | related resource 3</p>
+							</div>
+						</a>
+					</div> -->
+				</div> 
+			</div></section>
+
+
+{!-- end begin broader impacts template --}
+
+    
+    <div class="clearBoth">&nbsp;</div>
+		
+      <div id="externalSocialMediaSharingBlock">
+        {snip_scroll_to_top}
+        {snip_social_media_sharing}
+      </div>
+    
+    <div class="clearBoth">&nbsp;</div>
+   
+  </div>{!-- end #mainContentArea --}
+  
+  {snip_global_footer}{!-- include global_footer snippet --}
+  
+  <!-- bring script -->
+  {snip_bring_js}
+  <!-- show/hide script -->
+  {snip_show_hide_script}
+
+</div>{!-- end #externalPageWrapper --}
+</body>
+</html>

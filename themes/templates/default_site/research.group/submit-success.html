@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Research/Reference Submit Success : {site_name}</title>
+  <link rel="stylesheet" href="{path='global/jquery.Jcrop.css'}" type="text/css" />
+  <link rel="stylesheet" href="{path='global/validationEngine.jquery.css'}" type="text/css" />
+  <link rel="stylesheet" href="{path='global/template.css'}" type="text/css" />
+  <link rel="stylesheet" href="{path='global/bootstrap.css'}" type="text/css" />
+  <link rel="stylesheet" href="{path='global/styles.css'}" type="text/css" />
+  <link rel="stylesheet" href="{path='global/global_styles'}" type="text/css" /><!-- include the global_styles css template -->
+
+{snip_global_header_links}
+
+{snip_global_header_meta}
+
+</head>
+
+<body>
+ 
+<!-- {exp:structure:breadcrumb here_as_title="yes" inc_here="yes"} --><!-- BREADCRUMBS ARE NOT USED ON HOME PAGE - just saving code-->
+
+<div id="externalPageWrapper"><!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+<div id="externalMastheadWrap"><!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+  
+<div id="internalMastheadWrap"><!-- begin #internalMastheadWrap - fixed width, maybe fixed height too -->
+      
+{snip_global_tool_bar}<!-- include global_tool_bar snippet -->
+
+{snip_global_logo_and_nav}<!-- include global_logo_and_nav snippet -->
+
+{snip_global_sub_nav}<!-- include global_sub_nav snippet -->
+<script type="text/javascript">
+// provide faux active states for primary and secondary nav elements without having to add pages into structure  
+  var navelement1 = document.getElementById('nav-sub-evaluation');
+    if(navelement1) {
+      navelement1.className += navelement1.className ? ' parent-active' : '';
+    }
+</script>
+    
+</div><!-- end .internalMastheadWrap - fixed width, fixed height -->
+  
+</div><!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+
+<div id="mainContentArea" style="margin-top: 20px;"><!-- begin .mastheadMainContent - fixed width, fixed height, centered -->
+
+  <div class="sectionHeading">
+    <h2>Thank You!</h2>
+  </div>
+
+  <div class="aboutDesc">
+    <p>Research/Reference has been submitted for review. An administrator has been notified. Please allow 48-72 hours for the evaluation to appear in search. For questions, please contact admin@informalscience.org</p>
+  </div>
+
+<div class="clearBoth">&nbsp;</div>
+<div id="externalSocialMediaSharingBlock">
+	{snip_scroll_to_top}
+	{!--{snip_social_media_sharing}--}
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+</div><!-- end #mainContentArea - fixed width, fixed height, centered -->
+
+{snip_global_footer}<!-- include global_footer snippet -->
+
+</div><!-- end #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+</body>
+</html>

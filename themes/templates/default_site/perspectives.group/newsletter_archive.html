@@ -1,0 +1,115 @@
+<!-- ### BEGIN NEWSLETTER ARCHIVE TEMPLATE EMBED ### -->
+
+<div class="content singleColumn">
+
+	<div class="fullContentRow">
+  
+  	{exp:channel:entries channel="ch_simple_page_content" limit="1" disable="pagination|member_data|categories" dynamic="yes"}
+  
+       {if add_a_page_content_header == "Yes"}{!-- Check to see if we have header title/content --}
+        <div class="content singleColumn">
+          <div class="fullContentRow top">
+            <div class="externalFullBlock">
+              <div class="internalFullBlock">
+                <div class="blockHead">
+                  <h1 class="specialHeader">{if alt_title_for_header != ""}{alt_title_for_header}{if:else}{title}{/if}</h1>
+                </div>{!-- end .blockHead --}
+                {if content_for_page_header != ""}{content_for_page_header}{/if}
+              </div>{!-- end .internalFullBlock --}
+            </div>{!-- end .externalFullBlock --}
+          </div>{!-- end .fullContentRow .top --}
+        </div>{!-- end .content .singleColumn --}
+      {/if}
+      
+    {/exp:channel:entries}
+    
+    {exp:channel:entries channel="ch_newsletter" limit="1" disable="pagination|member_data|categories" dynamic="no"}
+      
+      <div style="margin-bottom:20px;">
+        <a class="blueButtonCurrentNewsletter{if segment_3 == "archive"} inactive{if:else} active{/if}" href="{page_url}"><div class="icon">&nbsp;</div><span>Current Newsletter</span></a>
+        <a class="blueButtonPastNewsletters{if segment_3 == "archive"} active{if:else} inactive{/if}" href="/{segment_1}/{segment_2}/archive/"><div class="icon">&nbsp;</div><span>Past Newsletters</span></a>
+      </div>
+      
+    {/exp:channel:entries}
+
+    {exp:channel:entries channel="ch_{segment_2}" disable="custom_fields|categories|member_data" dynamic="no"}
+  
+      {if no_results}
+      
+      	<div class="content singleColumn">
+        	<div class="fullContentRow top">
+          	<div class="externalFullBlock">
+            	<div class="internalFullBlock">
+              	<div class="blockHead">
+                	<h1 class="specialHeader">Newsletter Archive</h1>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="staticPage innerLeft">
+
+          <div class="form_error clearMarginTop">There are no newsletter archives to be found. Please <a href="{path='contact'}">contact</a> the site administrator to request back issues.</div>
+          
+        </div><!-- .staticPage .innerLeft -->
+          
+      {/if}
+      
+      {date_heading display="yearly"}
+      		
+        <div class="blockHead">
+          <h1 class="specialHeader"><!-- {segment_2} Archive for  -->{entry_date format="%Y"}</h1>
+        </div>
+      
+        
+      <ul class="archive date_list newsletter">
+      {/date_heading}
+
+        
+        	<li><a href="{page_url}">{title}</a> <!-- - <span>{entry_date format="%l, %d%S at %g:%i%a"}</span> --></li>   <div class="clearBoth">&nbsp;</div>
+
+        
+     
+      
+      {date_footer display="yearly"}
+      
+      		</ul><div class="clearBoth">&nbsp;</div>
+      
+        
+      
+      {/date_footer} 
+      
+    {/exp:channel:entries} 
+      
+    {exp:channel:entries channel="ch_simple_page_content" limit="1" disable="pagination|member_data|categories" dynamic="yes"}
+      
+      {if simple_page_content != ""}
+        <div class="fullContentRow top">{!-- begin .fullContentRow --}      
+          <div class="externalFullBlock">{!-- begin .externalFullBlock --}        
+          	<div class="internalFullBlock">{!-- begin .internalFullBlock --}  
+              <div class="blockHead">
+                <h1 class="specialHeader">Legacy Newsletters (PDF files)</h1>
+              </div>{!-- end .blockHead --}
+              <div class="staticPage">
+              	{simple_page_content}
+                <div class="clearBoth">&nbsp;</div>
+              </div>    
+            </div>{!-- end .internalFullBlock --}        
+          </div>{!-- end .externalFullBlock --}        
+        </div>{!-- end .fullContentRow --}
+      {/if}
+      
+    {/exp:channel:entries}
+        
+  </div><!-- end .fullContentRow -->
+  
+</div><!-- end .content .singleColumn -->
+
+<div class="clearBoth">&nbsp;</div>
+<div id="externalSocialMediaSharingBlock">
+  {snip_scroll_to_top}
+  {!--{snip_social_media_sharing}--}
+</div>
+
+<!-- ### END NEWSLETTER ARCHIVE TEMPLATE EMBED ### -->

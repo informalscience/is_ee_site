@@ -1,0 +1,28 @@
+//.epbody { float:center; background-color: #FFFFFF; background-image:url('/images/uploads/back.png'); background-repeat:no-repeat; width:1002px; height:780px;}
+
+.epbody {float:center; background-color: #FFFFFF; height:100%; padding-right:40px;}
+
+//.epoutline { width:1002px;}
+
+.epoutline { width:100%;}
+
+.eptitle {color:#D36532;font-family: Arial; font-weight: normal; font-size: 1.1em;}
+.epdesc {color:#867086;font-family: Arial; font-weight: normal; font-size: .9em; }
+.epsearch {margin:0px auto; width:100%; padding-left: 0px; padding-top: 0px;}
+.epfooter {text-align:center; color:#FFFFFF;font-family: Arial; font-weight: normal; font-size: .9em; padding-top:11px; position:relative; margin:0;}
+a.epfooter:link {text-align:center; color:#FFFFFF;font-family: Arial; font-weight: normal; text-decoration:none; font-size: .9em;}
+a.epfooter:visited {text-align:center; color:#FFFFFF;font-family: Arial; font-weight: normal; text-decoration:none; font-size: .9em;}
+a.epfooter:hover {text-align:center; color:#FFFFFF;font-family: Arial; font-weight: normal; text-decoration:underline; font-size: .9em;}
+a.epfooter:active {text-align:center; color:#FFFFFF;font-family: Arial; font-weight: normal; text-decoration:none; font-size: .9em;}
+.label {color: #525252; font-family: Arial; font-weight: normal; font-size: 1.0em;}
+.wlink {color: #867086; font-family: Arial; font-weight: normal; font-size: .9em; line-height:21px;}
+a.wlink:link { color:#007099; text-decoration:none;}
+a.wlink:visited {color:#867086; text-decoration:none}
+a.wlink:hover {text-decoration:underline}
+a.wlink:active {text-decoration:none;}
+ul li { 
+list-style-type: bullets; 
+text-align:left;
+color: #FFF;
+padding-left:10px;
+}

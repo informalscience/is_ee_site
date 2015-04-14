@@ -1,0 +1,15 @@
+<tr>
+<td class="tableCellOne"><a href="{path:view_thread}">{title}</a></td>
+<td class="tableCellOne">{replies}</td>
+<td class="tableCellOne">{views}</td>
+
+<td class="tableCellOne">			
+			<?php
+				$profile_id = "";
+				$profile_string = '{path:member_profile}';
+				$profile_array = explode('/',$profile_string);
+				end($profile_array);
+				$profile_id = prev($profile_array);
+			?>
+			<a href="{path=users/profile}/<?= $profile_id ?>">{author}</a></td>
+</tr>

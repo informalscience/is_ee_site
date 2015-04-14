@@ -1,0 +1,254 @@
+<?php
+require_once('/var/www/ee/get_data.php');
+
+$this->EE =& get_instance();
+$my_id = $this->EE->session->userdata('member_id');
+
+$search_param = "";
+if(isset($_GET['search'])){
+  $search_param = $_GET['search'] ; 
+}
+
+// url on initial page visit
+$base_url = 'http://api.informalscience.org/search/json?';
+
+$the_search_url = '{site_url}search/informal-commons?';
+$no_search_url = $the_search_url;
+$the_search_url.= 'search='.$search_param.'&';
+$the_search_url = htmlspecialchars($the_search_url);
+
+// get search parameter from url
+if(isset($_GET['search_url'])){
+  $base_url = $_GET['search_url'];
+  if(!strpos($base_url,'?')){
+    $base_url.= '?';
+  }
+}
+
+if( strpos($base_url , "sort") === FALSE ){
+	$base_url.= '&' . 'sortDescendingBy=beginDate'; 
+}
+
+//Select the search type
+$searchType = '';
+//echo $base_url; http://api.informalscience.org/search/json?qq=&sortDescendingBy=beginDate
+$search_results = json_decode(get_data($base_url),true);
+
+require_once('/var/www/ee/ncs_tools/pagination.php');
+
+require_once('/var/www/ee/ncs_tools/parse_search_initial.php');
+
+require_once('/var/www/ee/ncs_tools/generate_facets.php');
+
+require_once('/var/www/ee/ncs_tools/parse_single_result.php');
+
+require_once('/var/www/ee/ncs_tools/add_yourself.php');
+
+//$search_results = json_decode(get_data($base_url),true);
+
+
+// create sorting html
+  $sorted_label = "";
+  $sorted_order = "";
+  if(isset($current_sorting['displayLabel'])){
+   $sorted_label = $current_sorting['displayLabel'];
+  }
+  if(isset($current_sorting['order'])){
+   $sorted_order = $current_sorting['order'];
+  }
+  $sorting_html = "";
+  
+  // Create a new panel for sort - aquintero
+  //$sorting_html.= "</div>";
+  
+  $sorting_html.= '<div class="resultsBar left divResultsBarParent" >';
+  $sorting_html.= '<div class="resultsBar left divResultsBarParentLeft">
+						<h3 class="columnTitle left">Refine Your Search</h3>
+					</div>
+					<div class="resultsBar left divResultsBarParentRight">
+						
+					';
+  $sorting_html.= '';
+  
+   //Display the pagination data aquintero
+  if($total_results > 0){ 
+    $sorting_html.= '<div class="displayResults" style="margin-right:20px">'.'Displaying results '.$record_start.' - '.$record_end.' of '.$total_results.'</div>';  
+  }
+  else{
+    $sorting_html.= '<div class="displayResults">No Results Found</div>';
+  }
+  
+  
+  
+  $sorting_html.= '<h3 class="columnTitle left sortByElement" >Sort By</h3>';
+  $sorting_html.= '<ul class="toggleSort" style="margin-top:18px">';
+  // if we click on a sort then we want that sort item to be active and if we click on it again it should go to unsorted results
+  if($sorted_label == "Title" && $sorted_order == "Ascending"){
+    $sorting_html.= '<a href="'.$the_search_url.'search_url='.rawurlencode($sorting['Title']['HREFsortDescendingBy']).'#topSearch"><li class="active">'.'Title A-Z'.'</li></a>';
+  }
+  else if($sorted_label == "Title" && $sorted_order == "Descending"){
+	 $sorting_html.= '<a href="'.$the_search_url.'search_url='.rawurlencode($sorting['Title']['HREFsortAscendingBy']).'#topSearch"><li class="active">'.'Title A-Z'.'</li></a>';
+  }
+  else{
+    $sorting_html.= '<a href="'.$the_search_url.'search_url='.rawurlencode($sorting['Title']['HREFsortAscendingBy']).'#topSearch"><li>'.'Title A-Z'.'</li></a>';  
+  }
+  
+  
+ if($sorted_label == "Begin Date" && $sorted_order == "Ascending"  ){
+    $sorting_html.= '<a href="'.$the_search_url.'search_url='.rawurlencode($sorting['Begin Date']['HREFsortDescendingBy']).'#topSearch"><li class="active">'.'Date Created'.'</li></a>';
+  }
+  else if($sorted_label == "Begin Date" && $sorted_order == "Descending" ){
+    $sorting_html.= '<a href="'.$the_search_url.'search_url='.rawurlencode($sorting['Begin Date']['HREFsortAscendingBy']).'#topSearch"><li class="active">'.'Date Created'.'</li></a>';
+  }
+  else {
+    $sorting_html.= '<a href="'.$the_search_url.'search_url='.rawurlencode($sorting['Begin Date']['HREFsortDescendingBy']).'#topSearch"><li>'.'Date Created'.'</li></a>';  
+  }
+  
+
+  $sorting_html.= '</ul>';
+  $sorting_html.= '</div>';
+  $sorting_html.= '</div>';
+
+// create facet html
+  $facet_html = "";
+  $facet_html.= '<div class="sidebar left">';
+  $facet_html.= $current_facets_html;
+  $facet_html.= $env_type_html;
+  $facet_html.= $resource_type_html;
+  $facet_html.= $audience_html;
+  $facet_html.= $content_html;
+  $facet_html.= $content_source_html;
+  $facet_html.= $funding_source_html;
+  $facet_html.= '</div>';
+
+// create results html
+  $results_html = "";
+  $results_html.= '<div id="twoThirdsContentColumn" class="content twoThirdsContentColumn projects floatRight">';
+
+  if($total_results > 0){
+    foreach($results as $single_result){
+      $single_record = $single_result['record'];
+      
+      $parsed_record = parse_single_result($single_record);
+
+      $add_yourself_html = "";
+      $add_yourself_html = generate_add_yourself_string($parsed_record);
+
+
+      // start creating single result html
+      $single_result_html = "";
+      $single_result_html.= '<div class="projectListingBrowse">';
+      $single_result_html.= '<div class="projectListingTitle">'.'<a href="'.$parsed_record['record_url'].'">'.$parsed_record['title'].'</a>'.'</div>';
+      $single_result_html.= '<div class="projectListingTitle parseNCSDataHeader">'.'<a href="{site_url}research/'.$parsed_record['ncs_id'].'">Parse NCS Data</a>'.'</div>';
+      $single_result_html.= '<div class="projectListingDesc">';
+	  
+	  // Display begin date and resource type afquintero 19-11-2014	  
+	  $single_result_html.= "<div style='width:100%;margin-top:15px'>";
+      $single_result_html.= "
+							   <div style='text-align:left;margin-left:20px;width:50%;display:inline'>
+									<b>Date</b>: ". $parsed_record['begin_date'] . " </div>  
+							   <div class='right' style='margin-right:20px'>
+										
+									<b>Resource Category</b>: ". str_replace(":"," | ",$parsed_record['resource_type'][ count($parsed_record['resource_type'])-1]) .
+									//"-->".
+									" </div> 
+								</div>";
+								
+      $single_result_html.= '<p class="pDescription">'.$parsed_record['short_description'].'</p>';
+	  
+	 
+	  
+	  //Added to show a record link
+	 //Display an external icon  only for external content
+	  if( strpos($parsed_record['record_url'], "informalscience.org") === FALSE ){
+		// Use external content icon
+		$single_result_html.= '<a href="'.$parsed_record['record_url'].'" class="right externalLink" >External Record Link</a>';
+	  }
+	  else{
+		//Added to show a record link
+		$single_result_html.= '<a href="'.$parsed_record['record_url'].'" class="right" >Record Link</a>';
+	  }
+
+      $single_result_html.= '</div>';
+      $single_result_html.= '</div>';
+
+      $results_html.= $single_result_html;
+      if($my_id) $results_html.= $add_yourself_html;
+ 
+    }
+  }
+  $results_html.= '</div>';
+
+
+  // create body html 
+  $search_html = "";
+  $search_html.= $sorting_html; 
+	
+  
+  $search_html.= $facet_html;
+  $search_html.= $results_html;
+  $search_html.= $pagination_html;
+
+?>
+<!DOCTYPE html><!-- ### TEMPLATE search/informal-commons ### -->
+{snip_browser_sniffer}
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>>
+
+<head>
+
+  {snip_global_default_meta_ogp_data}
+
+  {snip_page_meta_ogp}
+
+  <title>Search Informal Commons : {site_name}</title>
+  <link rel="stylesheet" href="{stylesheet='global/validationEngine.jquery.css'}" type="text/css" />
+  <link rel="stylesheet" href="{stylesheet='global/template.css'}" type="text/css" />
+  <link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" />
+  <link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" />
+  <link rel="stylesheet" href="{stylesheet='global/bootstrap.css'}" type="text/css" />
+  <link rel="stylesheet" href="{stylesheet='global/fancybox.css'}" type="text/css" />
+  
+  {snip_global_header_meta}
+  {snip_global_header_links}
+
+</head>
+
+<body style="background: white" class="searchResultsPage">
+ 
+<div id="externalPageWrapper"><!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+<div id="externalMastheadWrap"><!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+<div id="internalMastheadWrap"><!-- begin #internalMastheadWrap - fixed width, maybe fixed height too -->
+
+{snip_global_tool_bar}<!-- include global_tool_bar snippet -->
+{snip_global_logo_and_nav}<!-- include global_logo_and_nav snippet -->
+{!--{snip_global_sub_nav}--}<!-- include global_sub_nav snippet -->
+    
+</div><!-- end .internalMastheadWrap - fixed width, fixed height --> 
+</div><!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+  
+<div id="mainContentArea" style="margin-top: 20px;"><!-- begin .mastheadMainContent - fixed width, fixed height, centered -->
+
+<!-- begin snip_home_search -->
+{snip_home_search}
+<!-- end snip_home_search -->
+<?= $search_html ?>
+
+<div class="clearBoth">&nbsp;</div>   
+<div id="externalSocialMediaSharingBlock">
+  {snip_scroll_to_top}
+  {!--{snip_social_media_sharing}--}
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+</div><!-- end #mainContentArea - fixed width, fixed height, centered -->
+
+{snip_global_footer}<!-- include global_footer snippet -->
+
+</div><!-- end #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+{snip_bring_js}
+<?php require_once('/var/www/ee/ncs_tools/ncs_browse_js.php'); ?>
+
+</body>
+</html>

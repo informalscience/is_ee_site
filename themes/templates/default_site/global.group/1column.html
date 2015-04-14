@@ -1,0 +1,93 @@
+<!DOCTYPE html><!-- ### template - global.group/1column.html ### - used for newsletter section -->
+{snip_browser_sniffer}
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>>
+<head>
+
+<title>{site_name} : {structure:page:title}</title>{!-- native EE title would be {exp:channel:entries channel="ch_home"}{title}{/exp:channel:entries} --}
+
+<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" /><!-- include the global_styles css template -->
+<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" />{!-- include the global_styles css template --}
+
+{snip_global_header_links}
+
+{snip_global_header_meta}
+
+</head>
+
+<body id="{structure:top:slug}" class="{structure:parent:slug} {structure:page:slug}">{!-- We grab the page top-level slug as id and parent aand page slugs as super-added classes --}
+
+<a name="top"></a>
+
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding --}
+
+<div id="externalMastheadWrap">{!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding --}
+	
+<div id="internalMastheadWrap">{!-- begin #internalMastheadWrap - fixed width, maybe fixed height too --}
+			
+{snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+
+{snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+
+{snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+		
+</div>{!-- end .internalMastheadWrap - fixed width, fixed height --}
+	
+</div>{!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding --}
+	
+<div id="mainContentArea">{!-- begin .mastheadMainContent - fixed width, fixed height, centered --}
+
+{exp:switchee variable="{segment_1}" parse="inward"} {!-- {structure:page:title} --}
+
+	{case value="about-caise"}
+		{switchee variable="{segment_2}/{segment_3}" parse="inward"}
+			{case value="resources/"}
+				{embed="tool_pages/about_childpage" display="landing"}
+			{/case}
+			{case value="initiatives/"}
+				{embed="tool_pages/about_childpage" display="landing"}
+			{/case}
+			{case value="informal-commons/"}
+				{embed="tool_pages/about_childpage" display="landing"}
+			{/case}
+			{case value="investigators-staff-and-advisors/"}
+				{embed="tool_pages/about_childpage" display="landing"}
+			{/case}
+			{case value="''"}
+				{embed="tool_pages/about_caise" display="landing"}
+			{/case}
+			{case default="yes"}
+				{embed="tool_pages/about_caise" display="landing"}
+			{/case}
+		{/switchee}
+	{/case}
+	{case value="member-directory"}
+		{embed="tool_pages/member_directory" display="landing"}
+	{/case}
+	{case value="participate"}
+		{embed="tool_pages/participate" display="landing"}
+	{/case}
+	
+{/exp:switchee}
+
+<div class="clearBoth">&nbsp;</div>
+		
+	<div id="externalSocialMediaSharingBlock">
+		{snip_scroll_to_top}
+		{snip_social_media_sharing}
+	</div>
+
+<div class="clearBoth">&nbsp;</div>
+
+</div>{!-- end #mainContentArea --}
+
+{snip_global_footer}{!-- include global_footer snippet --}
+
+<!-- bring script -->
+{snip_bring_js}
+<!-- show/hide script -->
+{snip_show_hide_script}
+
+</div>{!-- end #externalPageWrapper --}
+
+</body>
+</html>

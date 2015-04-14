@@ -1,0 +1,21 @@
+<?php
+	$profile_id = "";
+	$profile_string = '{path:your_profile}';
+	$profile_array = explode('/',$profile_string);
+	end($profile_array);
+	$member_id = prev($profile_array);
+
+	require_once('/var/www/settings.php');
+	$db = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+
+	$server_array = explode("/", $_SERVER['REQUEST_URI']);
+	$forum_name = $server_array[4];
+
+	$results = $db->query("SELECT group_id FROM groups_forums WHERE forum_name='{$forum_name}' ");
+	$row = $results->fetch_array(MYSQLI_ASSOC);
+	$group_id = $row['group_id'];
+
+	echo "<input style='display:none;' id='forum_member_id' value='$member_id' />";
+	echo "<input style='display:none;' id='forum_group_id' value='$group_id' />";
+
+?>

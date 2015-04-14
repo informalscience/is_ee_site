@@ -1,0 +1,257 @@
+{snip_community_redirect}
+<body id="{structure:top:slug}" class="{structure:parent:slug} {structure:page:slug}">
+<a name="top"></a>
+
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper --}
+
+<div id="externalMastheadWrap">{!-- begin #externalMastheadWrap --}
+<div id="internalMastheadWrap">{!-- begin #internalMastheadWrap --}
+			
+{snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+{snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+{snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+
+<script type="text/javascript">
+// provide faux active states for primary and secondary nav elements without having to add pages into structure  
+	var navelement1 = document.getElementById('nav-sub-community');
+		if(navelement1) {
+			navelement1.className += navelement1.className ? ' parent-active' : '';
+		}
+	var navelement2 = document.getElementById('nav-sub-sub-member-directory');
+		if(navelement2) {
+			navelement2.className += navelement2.className ? ' parent-active' : '';
+		}
+var navelement3 = document.getElementById('tool-users');
+		if(navelement3) {
+			navelement3.className += navelement3.className ? ' active' : '';
+		}
+</script>
+		
+</div>{!-- end .internalMastheadWrap --}
+</div>{!-- end .externalMastheadWrap --}
+	
+<div id="mainContentArea">{!-- begin .mastheadMainContent --}
+
+<div class="content singleColumn">
+
+{exp:zoo_visitor:details}
+<div class="sectionHeading"><h2>{if member_firstname OR member_lastname}{visitor:member_firstname}'<?php $theName = "{visitor:member_firstname}"; $lastLetter = substr($theName, -1); if($lastLetter != 's') { echo "s"; } ?> Tools</h2></div>
+<div class="accountTools accountToolsFix">{snip_member_navigation}</div>
+{/exp:zoo_visitor:details}
+
+	<div class="fullContentRow top variation">
+		<div class="externalFullBlock">
+			<div class="internalFullBlock">
+				<div class="blockHead">
+					<h1 class="specialHeader">Edit Profile</h1>
+				</div>{!-- end .blockHead --}
+			</div>{!-- end .internalFullBlock --}
+		</div>{!-- end .externalFullBlock --}
+	</div>{!-- end .fullContentRow .top --}
+
+</div>{!-- end .content .singleColumn --}
+	
+{if logged_in AND segment_4 == "success"}
+
+	<?php
+	$zoo_visitor_id = '{zoo_visitor_id}';
+	require_once('/var/www/ee/update_score.php');
+	update_score($zoo_visitor_id)
+	?>
+	{redirect='community/users/profile'}
+
+{if:elseif logged_in}
+	
+	{exp:channel:entries entry_id="{zoo_visitor_id}" status="not closed" limit="1"}
+	{exp:zoo_visitor:update_form error_handling="inline" return="community/users/edit/success" preserve_checkboxes="no"}
+
+	{field_errors}<div class="form_error">{error}</div>{/field_errors}
+
+	<div class="projectFormField marginRight noTopM">
+		<label class="label left selectTop" for="member_firstname">{label:member_firstname}</label>
+		<input class="validate[required] projectFieldDrop left" type="text" name="member_firstname" id="member_firstname" value="{if member_firstname}{member_firstname}{/if}"/>
+	</div>
+
+	<div class="projectFormField noTopM">
+		<label for="member_lastname" class="label left selectTop">{label:member_lastname}</label>
+		<input class="validate[required] projectFieldDrop left" name="member_lastname" id="member_lastname" value="{if member_lastname}{member_lastname}{/if}"/>
+	</div>
+<div class="clear"></div>
+
+	<div class="projectFormField marginRight">
+		<label class="label left selectTop" for="member_title">{label:member_title}</label>
+		<input class="projectFieldDrop left" name="member_title" id="member_title" value="{if member_title}{member_title}{/if}"/>
+	</div>
+
+	<div class="projectFormField" style="width: 440px;">
+		<label for="member_city" class="label left">{label:member_city}</label>
+		<input class="projectFieldDrop left" name="member_city" id="member_city" value="{if member_city}{member_city}{/if}"/>
+	</div>
+
+	<div class="projectFormField marginRight" style="width: 450px; padding: 20px 0px 20px 10px;">
+		<label for="member_state" class="label left">{label:member_state}</label>
+		{field:member_state}
+	</div>
+
+	<div class="projectFormField country" style="width: 450px; padding: 20px 0px 20px 10px;">
+		<label for="member_country" class="label left">{label:member_country}</label>
+		{field:member_country}
+	</div>
+
+	
+	<div class="institutions projectFormField">
+		{member_institution}
+		<input type="hidden" name="member_institution[row_order][]" value="row_id_{row_id}" />
+		<div>
+			<label class="label left selectTop">Institution</label>
+			<input class="org_search fieldRemove submitAddAnother" type="text" name="member_institution[row_id_{row_id}][col_id_5]" value="{org_name}" />
+			<a href="#" class="removeAddLink">Remove</a>
+		</div>
+		{/member_institution}
+	</div>
+	<div class="clearBoth">&nbsp;</div>
+	<a href="#" id="addOrganization" class="addAnotherLink">Add Another Institution</a>
+	<div class="clearBoth">&nbsp;</div>
+
+	<div class="websites projectFormField">
+		{member_website}
+		<input type="hidden" name="member_website[row_order][]" value="row_id_{row_id}" class="fieldRemove submitAddAnother" />
+		<div>
+			<label class="label left selectTop">Website</label>
+			<input type="text" name="member_website[row_id_{row_id}][col_id_7]" value="{site}" class="fieldRemove submitAddAnother" />
+			<a href="#" class="removeAddLink">Remove</a>
+		</div>
+		{/member_website}
+	</div>
+	<div class="clearBoth">&nbsp;</div>
+	<a href="#" id="addSite" class="addAnotherLink">Add Another Website</a>
+	<div class="clearBoth">&nbsp;</div>
+
+
+	<div class="projectFormField">
+		<label class="label left selectTop" for="member_bio">{label:member_bio}</label>
+		<textarea name="member_bio" class="projectTextArea left" name="member_bio">{if member_bio}{member_bio}{/if}</textarea>
+	</div>
+
+	<div class="projectFormField">
+		<label class="label left selectTop" for="member_experience">{label:member_experience}</label>
+		<textarea name="member_experience" class="projectTextArea left" name="member_experience">{if member_experience}{member_experience}{/if}</textarea>
+	</div>
+
+	<div class="clear"></div>
+	
+	<div class="left">
+		<input type="hidden" name="title" value="{username}">
+		<input name="edit_user" type="submit" value="Submit" class="blueButtonPlain marginTop">
+	</div>
+
+	{/exp:zoo_visitor:update_form}
+	{/exp:channel:entries}
+
+	<?php
+
+	require_once('/var/www/settings.php');
+	$db = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+
+	// grab organization list and convert to javascript array for bootstrap typeahead functionality
+	$query = $db->query("SELECT name FROM organizations");
+	$orgs = array();
+	while($row = $query->fetch_array(MYSQLI_ASSOC)){
+			$orgs[] = $row['name'];
+	}
+	$js_orgs = json_encode($orgs);
+
+	?>
+	{snip_bring_js_nojquery}
+	<script>
+	$(document).ready(function(){
+		$('#zoo_visitor_form').validationEngine();
+
+		// predictive search for organization fields - using bootstrap typeahead functionality
+		var subjects = <?php echo $js_orgs; ?>;
+		$(document).on('focus','.org_search',function(){
+			$(this).typeahead({source: subjects, items:6});
+		});
+
+		// remove links
+		$(document).on('click','.removeAddLink',function(){
+			$(this).parent().remove();
+			return false;
+		});
+
+		// add initial institution input field
+		if($('.institutions div').length == 0){
+			$('.institutions').append('\
+			<div class="newOrgs">\
+				<label class="label left selectTop">Institution</label>\
+				<input type="hidden" name="member_institution[row_order][]" value="row_new_0" />\
+				<input class="org_search fieldRemove submitAddAnother" type="text" name="member_institution[row_new_0][col_id_5]" />\
+				<a href="#" class="removeAddLink">Remove</a>\
+			</div>');
+		}
+
+		// add initial website input field
+		if($('.websites div').length == 0){
+			$('.websites').append('\
+			<div class="newSite">\
+				<label class="label left selectTop">Website</label>\
+				<input type="hidden" name="member_website[row_order][]" value="row_new_0" />\
+				<input type="text" class="fieldRemove submitAddAnother" name="member_website[row_new_0][col_id_7]" />\
+				<a href="#" class="removeAddLink">Remove</a>\
+			</div>');
+		}
+
+		// add additional organization fields
+		$('#addOrganization').on('click',function(){
+			var toAdd = $(".institutions");
+			var size =  $(".institutions div.newOrgs").length;
+			toAdd.append('\
+				<div class="newOrgs">\
+					<label class="label left selectTop">Institution</label>\
+					<input type="hidden" name="member_institution[row_order][]" value="row_new_'+size+'" />\
+					<input class="org_search fieldRemove submitAddAnother" type="text" name="member_institution[row_new_'+size+'][col_id_5]" />\
+					<a href="#" class="removeAddLink">Remove</a>\
+				</div>'
+			);
+			return false;
+		});
+
+		// add additional site fields
+		$('#addSite').on('click',function(){
+			var toAdd = $(".websites");
+			var size =  $(".websites div.newSite").length;
+			toAdd.append('\
+				<div class="newSite">\
+					<label class="label left selectTop">Website</label>\
+					<input type="hidden" name="member_website[row_order][]" value="row_new_'+size+'" />\
+					<input type="text" class="fieldRemove submitAddAnother" name="member_website[row_new_'+size+'][col_id_7]" />\
+					<a href="#" class="removeAddLink">Remove</a>\
+				</div>'
+			);
+			return false;
+		});
+		
+	});
+	</script>
+	<!-- END JAVASCRIPT -->
+
+{if:else}
+	{snip_not_logged_in}
+{/if}
+
+<div class="clearBoth">&nbsp;</div>
+		
+  <div id="externalSocialMediaSharingBlock">
+    {snip_scroll_to_top}
+    {!-- snip_social_media_sharing --}
+  </div>
+
+<div class="clearBoth">&nbsp;</div>
+
+</div>{!-- end #mainContentArea --}
+
+{snip_global_footer}{!-- include global_footer snippet --}
+
+</div>{!-- end #externalPageWrapper --}
+
+</body>

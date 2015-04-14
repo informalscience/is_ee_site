@@ -1,0 +1,241 @@
+{snip_community_redirect}
+<!-- begin embed calendar/add-event.html into community/calendar.html template -->
+<style>
+.fullContentRow.top.variation { margin-bottom:0; }
+.projectFormField.newSelect { width:440px; min-height:37px; }
+.newSelect select { width:250px; height:39px; margin-top:7px; }/* shunt this into stylesheet after development is complete */
+.projectFieldDrop2 { border:1px solid #cecece; width:228px; color:#707070; font-size:14px; padding:7px 10px; }
+.projectFormField { padding:7px 10px; }
+</style>
+
+<body>
+
+<div id="externalPageWrapper"><!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+<div id="externalMastheadWrap"><!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+<div id="internalMastheadWrap"><!-- begin #internalMastheadWrap - fixed width, maybe fixed height too -->
+
+{snip_global_tool_bar}<!-- include global_tool_bar snippet -->
+{snip_global_logo_and_nav}<!-- include global_logo_and_nav snippet -->
+{snip_global_sub_nav}<!-- include global_sub_nav snippet -->
+
+<script type="text/javascript">
+// provide faux active states for primary and secondary nav elements without having to add pages into structure  
+	var navelement1 = document.getElementById('nav-sub-community');
+		if(navelement1) {
+			navelement1.className += navelement1.className ? ' parent-active' : '';
+		}
+	var navelement2 = document.getElementById('nav-sub-sub-calendar');
+		if(navelement2) {
+			navelement2.className += navelement2.className ? ' parent-active' : '';
+		}
+</script>
+        
+</div><!-- end .internalMastheadWrap - fixed width, fixed height -->
+</div><!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+  
+<div id="mainContentArea"><!-- begin .mastheadMainContent - fixed width, fixed height, centered -->
+
+{if logged_in AND segment_4 == "success"}
+<div class="form_success"><span>Success!</span> Event has been sent to the admin for review.</div>
+{if:elseif logged_in}
+
+<div class="content singleColumn">
+  <div class="fullContentRow top variation">
+    <div class="externalFullBlock">
+      <div class="internalFullBlock">
+        <div class="blockHead">
+          <h1 class="specialHeader">Add Event</h1>
+        </div>{!-- end .blockHead --}
+      </div>{!-- end .internalFullBlock --}
+    </div>{!-- end .externalFullBlock --}
+  </div>{!-- end .fullContentRow .top --}
+</div>{!-- end .content .singleColumn --}
+
+	{exp:channel:form channel="ch_calendar" return="community/calendar/add-event/success" error_handling="inline"}
+
+	<!-- EVENT NAME FIELD -->
+	<div class="projectFormField">
+		<label class="label left selectTop" for="title">Event Name</label>
+		<input class="validate[required] projectFieldFull left" id="title" name="title" type="text" value="{title}" />
+		{error:title}
+	</div>
+  <!-- END EVENT NAME FIELD -->
+
+	<!-- EVENT CATEGORY FIELD -->
+	<div class="projectFormField marginRight newSelect" style="width:440px;min-height:37px;">
+		<label class="label left selectTop" for="event_category">Event Category</label>
+		{field:event_category}
+		{error:event_category}
+	</div>
+  <!-- END EVENT CATEGORY FIELD -->
+
+	<!-- INSTIUTION FIELD -->
+	<div class="projectFormField">
+		<label class="label left selectTop" for="institution">Institution</label>
+		<input class="validate[required,minSize[2]] projectFieldDrop2 left predictiveOrganization" type="text" id="institution" name="institution" value="{institution}" />
+     			 
+		{error:institution}
+	</div>
+  <!-- END INSTIUTION FIELD -->
+ 
+	<!-- HOST FIELD -->
+	<div class="projectFormField marginRight">
+		<label class="label left selectTop" for="host">Host</label>
+		<input class="validate[required] projectFieldDrop2 left" type="text" id="host" name="host" value="{host}" />
+		{error:host}
+	</div>
+  <!-- END HOST FIELD -->
+
+	<!-- IMAGE FIELD -->
+	<div class="projectFormField" style="width:440px;min-height:37px;">
+		<label class="label left selectTop" for="image">Image</label><!-- Add message about choosing a square image as it will be constrained to be a square. - Maybe make it a tooltip -->
+		{field:image}
+	</div>
+  <!-- END IMAGE FIELD -->
+
+	<!-- ADDRESS 1 FIELD -->
+	<div class="projectFormField marginRight">
+		<label class="label left selectTop" for="address_1">Address 1</label>
+		<input class="projectFieldDrop2 left" id="address_1" name="address_1" value="{address_1}" />
+		{error:address_1}
+	</div>
+  <!-- END ADDRESS 1 FIELD -->
+
+	<!-- ADDRESS 2 FIELD -->
+	<div class="projectFormField">
+		<label class="label left selectTop" for="address_2">Address 2</label>
+		<input class="projectFieldDrop2 left" id="address_2" name="address_2" value="{address_2}" />
+		{error:address_2}
+	</div>
+  <!-- END ADDRESS 1 FIELD -->
+
+	<!-- CITY FIELD -->
+	<div class="projectFormField marginRight">
+		<label class="label left selectTop" for="city">City</label>
+		<input class="validate[required] projectFieldDrop2 left" id="city" name="city" value="{city}" />
+		{error:city}
+	</div>
+  <!-- END CITY FIELD -->
+
+	<!-- STATE/PROVINCE FIELD -->
+	<div class="projectFormField newSelect">
+		<label class="label left selectTop" for="state_province">State/Province</label>
+		{field:state_province}
+		{error:state_province}
+	</div>
+
+	<!-- ZIP FIELD -->
+	<div class="projectFormField marginRight">
+		<label class="label left selectTop" for="zip_code">Zip</label>
+		<input class="projectFieldDrop2 left" id="zip_code" name="zip_code" value="{zip_code}" />
+	</div>
+  <!-- END ZIP FIELD -->
+
+	<!-- COUNTRY FIELD -->
+	<div class="projectFormField newSelect">
+		<label class="label left selectTop" for="country">Country</label>
+		{field:country}
+		{error:country}
+	</div>  
+  <!-- END COUNTRY FIELD -->
+
+	<!-- START DATE FIELD -->
+	<div class="projectFormField marginRight">
+		<label class="label left selectTop" for="entry_date">Start Date</label>
+		<input class="dateValue validate[required] projectFieldDrop2 left" type="text" name="entry_date" value="{entry_date}" maxlength="23" size="25">
+	</div>
+  <!-- END START DATE FIELD -->
+
+	<!-- END DATE FIELD -->
+	<div class="projectFormField">
+		<label class="label left selectTop" for="expiration_date">End Date</label>
+		<input class="dateValue validate[required] projectFieldDrop2 left" type="text" name="expiration_date" value="{expiration_date}" maxlength="23" size="25">
+	</div>
+	<!-- END END DATE FIELD -->
+
+	<!-- EVENT LINK FIELD -->
+	<div class="projectFormField">
+		<label class="label left selectTop" for="event_link">Event Link</label>
+		<input class="projectFieldFull left validate[custom[url]]" id="event_link" name="event_link" value="{event_link}" />
+		{error:event_link}
+	</div>
+	<!-- END EVENT LINK FIELD -->
+
+	<!-- DESCRIPTION FIELD -->
+	<div class="projectFormField">
+		<label class="label left" for="event_description">Description</label>
+		<textarea class="validate[required,minSize[20]] projectTextArea left" col="" rows="" id="event_description" name="event_description">{event_description}</textarea>
+		{error:event_description}
+	</div>
+	<!-- END DESCRIPTION FIELD -->
+
+	<!-- HIDDEN FORM FIELD -->
+	<input type="hidden" id="searchable" name="searchable_title" />
+	
+	<!-- SUBMIT BUTTON -->
+	<div class="clear">&nbsp;</div>
+  
+	<div class="left" style="margin-bottom:30px;">
+		<input type="submit" value="Submit Event" class="blueButtonPlain"/>
+	</div>
+  
+	<div class="clearBoth">&nbsp;</div>
+	<!-- END SUBMIT BUTTON -->
+
+	{/exp:channel:form}
+
+	<?php
+
+    require_once('/var/www/settings.php');
+    $db = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+  
+    // grab organization list and convert to javascript array for bootstrap typeahead functionality
+    $query = $db->query("SELECT name FROM organizations");
+    $orgs = array();
+    while($row = $query->fetch_array(MYSQLI_ASSOC)){
+        $orgs[] = $row['name'];
+    }
+    $js_orgs = json_encode($orgs);
+
+	?>
+	{snip_bring_js_nojquery}
+	<script>
+		$(document).ready(function(){
+			// add validation
+			$('select[name=event_category]').addClass('validate[required]');
+			$('select[name=state_province]').addClass('validate[required]');
+			$('select[name=country]').addClass('validate[required]');
+
+			// validate form
+			$('#publishForm').validationEngine();
+
+			$('#publishForm').submit(function(){
+				$('#searchable').val($('#title').val());
+			});
+
+			$('select[name=event_category] option[value="Funding"]').remove();
+
+			// predictive search for organization fields - using bootstrap typeahead functionality
+	  	var subjects = <?php echo $js_orgs; ?>;
+	  	$('#institution').typeahead({source: subjects, items:6});
+	});
+	</script>
+
+{if:else}
+	{snip_not_logged_in}
+{/if}
+
+<div id="externalSocialMediaSharingBlock">
+	{snip_scroll_to_top}
+</div>
+
+<div class="clearBoth">&nbsp;</div> 
+</div><!-- end #mainContentArea - fixed width, fixed height, centered -->
+
+{snip_global_footer}<!-- include global_footer snippet -->
+
+</div><!-- end #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+</body>
+<!-- end embed calendar/add-event.html into community/calendar.html template

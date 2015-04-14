@@ -1,0 +1,280 @@
+{snip_community_redirect}
+<!-- begin embed groups/documents -->
+{snip_group_found}
+<?php
+
+// do we have enough permission to view/edit group? comment/uncomment code depending on privilege level (super-admin, group-admin, group-member, logged-in, anyone)
+  $group_access = false;
+  $is_admin = false;
+  $is_member = false;
+  $is_pending_member = false;
+  $is_logged_in = false;
+
+  // are we a super admin?
+  if($this->EE->session->userdata['group_id'] == 1){
+    $group_access = true;
+    $is_admin = true;
+  }
+
+  $member_id = $my_id;
+
+  // get all group member data - this will be used to see if user is a group admin, group member, or group pending member
+  $all_members = array();
+  $admin_members = array();
+  $current_members = array();
+  $pending_members = array();
+  $all_members_query = 
+  "SELECT groups_members.member_id, groups_members.status, groups_members.is_admin, exp_members.screen_name 
+  FROM groups_members
+  LEFT JOIN exp_members 
+  ON groups_members.member_id=exp_members.member_id 
+  WHERE groups_members.group_id = '{$group_id}'";
+
+  $members_results = $this->EE->db->query($all_members_query);
+  if($members_results->num_rows()){
+    foreach($members_results->result_array() as $row){
+      $all_members[] = $row;
+      
+      if($row['is_admin'] == 1){
+        $admin_members[] = $row;
+        $current_members[] = $row;
+
+        // are we the group admin?
+        if($row['member_id'] == $my_id){
+          $group_access = true;
+          $is_admin = true;
+        }
+
+      }
+      else if($row['status'] == 1){
+        $current_members[] = $row;
+
+        // are we a member?
+        if($row['member_id'] == $my_id){
+          $group_access = true;
+          $is_member = true;
+        }
+      }
+      else if($row['status'] == 0){
+        $pending_members[] = $row;
+
+        // are we a pending member?
+        if($row['member_id'] == $my_id){
+          // $group_access = true;
+          $is_pending_member = true;
+        }
+      }
+
+    }
+  }             
+
+  // are we logged in?
+  if($my_id != "" && $my_id != 0){
+    // $group_access = true;
+    $is_logged_in = true;
+  }
+  // do we just not care who views this page?
+  // $group_access = true;
+
+// is this a public group?
+$is_public = false;
+if($group_data['is_public'] == 1){
+  $is_public = true;
+  header('Location: '.$site_url.'community/groups/details/?id='.$group_id);
+  exit();
+}
+
+// if we don't have the proper permissions...redirect them to the no-access page
+if(!$group_access){
+  if(!$is_logged_in){
+    header('Location: '.$site_url.'community/groups/no-access/login');
+  }
+  else if(!$is_admin){
+    header('Location: '.$site_url.'community/groups/no-access/admin');
+  }
+  else{
+    header('Location: '.$site_url.'community/groups/no-access');  
+  }
+  exit();
+}
+
+?>
+{snip_group_heading}
+<?php
+
+if($_POST){
+  $thread_sub = false;
+  $reply_sub = false;
+  if(isset($_POST['thread'])) $thread_sub = true;
+  if(isset($_POST['reply'])) $reply_sub = true;
+
+  $thread_update_query = "DELETE FROM groups_forum_subscriptions_threads WHERE group_id='{$group_id}' AND member_id='{$member_id}'";
+  $reply_update_query = "DELETE FROM groups_forum_subscriptions_replies WHERE group_id='{$group_id}' AND member_id='{$member_id}'";
+  $this->EE->db->query($thread_update_query);
+  $this->EE->db->query($reply_update_query);
+
+  if($thread_sub){
+    $thread_update_query = "INSERT INTO groups_forum_subscriptions_threads (group_id, member_id) VALUES ('{$group_id}','{$member_id}') ";
+  }
+  if($reply_sub){
+    $reply_update_query = "INSERT INTO groups_forum_subscriptions_replies (group_id, member_id) VALUES ('{$group_id}','{$member_id}') ";
+  }
+
+  // $this->EE->db->query("INSERT INTO groups_forum_subscriptions_threads (group_id, member_id) VALUES ('{$group_id}','{$member_id}') ");
+  // $this->EE->db->query("INSERT INTO groups_forum_subscriptions_replies (group_id, member_id) VALUES ('{$group_id}','{$member_id}') ");
+
+  if( $this->EE->db->query($thread_update_query) AND $this->EE->db->query($reply_update_query) ){
+    $form_status = true;
+  }
+  else{
+    $form_status = false;
+  }
+}
+
+// are we subscribed to new thread?
+$thread_subscription = false;
+$thread_query = "SELECT * FROM groups_forum_subscriptions_threads WHERE group_id='{$group_id}' AND member_id='{$member_id}'";
+$thread_results = $this->EE->db->query($thread_query);
+if($thread_results->num_rows() > 0){
+  $thread_subscription = true;
+}
+
+// are we subscribed to replies?
+$reply_subscription = false;
+$reply_query = "SELECT * FROM groups_forum_subscriptions_replies WHERE group_id='{$group_id}' AND member_id='{$member_id}'";
+$reply_results = $this->EE->db->query($reply_query);
+if($reply_results->num_rows() > 0){
+  $reply_subscription = true;
+}
+
+?>
+<body>
+
+<a name="top"></a>
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper --}
+
+<div id="externalMastheadWrap">{!-- begin #externalMastheadWrap --}
+<div id="internalMastheadWrap">{!-- begin #internalMastheadWrap --}
+      
+{snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+{snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+{snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+
+<script type="text/javascript">
+// provide faux active states for primary and secondary nav elements without having to add pages into structure  
+  var navelement1 = document.getElementById('nav-sub-community');
+    if(navelement1) {
+      navelement1.className += navelement1.className ? ' parent-active' : '';
+    }
+  var navelement2 = document.getElementById('nav-sub-groups');
+    if(navelement2) {
+      navelement2.className += navelement2.className ? ' parent-active' : '';
+    }
+</script>
+    
+</div>{!-- end .internalMastheadWrap --}
+</div>{!-- end .externalMastheadWrap --}
+  
+<div id="mainContentArea">{!-- begin .mastheadMainContent --}
+
+
+<?= $group_top_box ?>
+<?= $group_tools ?>
+<div class="fullContentRow">
+  <div class="externalFullBlock">
+    <div class="internalFullBlock" style="position:relative;">
+      <div class="blockHead">
+        <h1 class="specialHeader">Manage Forum Subscriptions</h1>
+      </div>
+    </div>
+  </div>
+  <div class="grayBG marginTop left">
+    <div class="left">
+      <div class="current_docs">
+        <div class="left" style="margin-right: 20px;">
+          <p>
+          <?php if(isset($form_status)): ?>
+            <?php if($form_status): ?>
+              <div class="form_success bottomMargin">Subscriptions updated successfully</div>
+            <?php else: ?>
+              <div class="form_error bottomMargin">Error updating forum subscriptions</div>
+            <?php endif; ?>
+          <?php endif; ?>
+          </p>
+          <p>Please select how you want to be subscribed to this groups forum.</p>
+          <form action="" method="post">
+            <input type="hidden" name="XID" value="{XID_HASH}" /> 
+            <div>
+              <input id="thread" type="checkbox" name="thread" <?= ($thread_subscription) ? 'checked' : '' ?> />
+              <label for="thread">Be notified by email when anyone add a new thread to the forum.</label>
+            </div>
+            <div>
+              <input id="reply" type="checkbox" name="reply" <?= ($reply_subscription) ? 'checked' : '' ?> />
+              <label for="reply">Be notified by email when anyone posts a reply to any thread.</label>
+            </div>
+            <input type="submit" value="Submit Changes" class="blueButtonPlain marginTop" name="submit_form" />
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="target_approval_status" style="width:400px;height:125px;display:none;"></div>
+<a id="hidden_link" href="#target_approval_status" class="fancybox" style="display:none;">Click Me</a>
+
+<div class="clearBoth">&nbsp;</div>
+<div id="externalSocialMediaSharingBlock">
+  {snip_scroll_to_top}
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+</div>{!-- end #mainContentArea --}
+
+{snip_global_footer}{!-- include global_footer snippet --}
+
+</div>{!-- end #externalPageWrapper --}
+
+<!-- START JAVASCRIPT -->
+{snip_bring_js}
+<script type="text/javascript">
+$(document).ready(function() {
+  $(".fancybox").fancybox();
+
+  // add documents
+  $('#add_new_document').validationEngine();
+  var form_options = {
+    target: '#target_approval_status',
+    url: '{path="groups/process_documents.php"}',
+    clearForm: true
+  }
+  $('#add_new_document').ajaxForm(form_options);
+
+  // remove documents
+  $(document).on('click','.remove_doc',function(){
+    if(confirm("Are you sure you want to delete this document?")){
+      var messageBox = $('#target_approval_status');
+      var idString = $(this).attr('id');
+      var secretString = $(this).siblings('.document_secret').val();
+      var dataString = 'action=delete&id='+idString+'&secret='+secretString;
+      $.ajax({
+        url: '{path="groups/process_documents.php"}',
+        type: "GET",
+        data: dataString,
+        success: function(response){
+          (messageBox).html(response);  
+        },
+        error: function(response){
+          (messageBox).html(response);
+        }
+      });
+      $('#hidden_link').fancybox().trigger('click');
+      return false;
+    }
+  });
+  
+});
+</script>
+<!-- END JAVASCRIPT -->
+
+</body>
+<!-- end embed groups/subscriptions -->

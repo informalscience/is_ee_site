@@ -1,0 +1,287 @@
+<?php
+
+$this->EE =& get_instance();
+
+$my_id = $this->EE->session->userdata('member_id');
+$site_url = $this->EE->config->config['site_url'];
+
+// parse GET data and generate query
+$the_pristine_url = '{site_url}search/perspectives?s=on';
+$the_current_url = $the_pristine_url;
+
+$blog_query = 
+"SELECT exp_channel_data.channel_id, title, url_title, field_id_17, field_id_18, field_id_20 FROM exp_channel_data 
+LEFT JOIN exp_channel_titles ON exp_channel_data.entry_id=exp_channel_titles.entry_id
+WHERE exp_channel_titles.status='open' AND (exp_channel_data.channel_id=13 OR exp_channel_data.channel_id=15)";
+
+
+$search_field = "";
+if(isset($_GET['search'])){
+	$search_field = $_GET['search'];
+	$the_current_url.= '&search='.$search_field;
+
+	$my_search = $this->EE->db->escape_str(urldecode($search_field));
+	$additional_query = sprintf(" AND (title LIKE '%%%s%%' OR field_id_17 LIKE '%%%s%%' OR field_id_18 LIKE '%%%s%%')", $my_search,$my_search,$my_search);
+	$blog_query.= $additional_query;
+}
+
+// sorting logic
+$sort_name_link = '<li><a href="'.$the_current_url.'&sort=name">Title A-Z</a></li>';
+$sort_date_link = '<li><a href="'.$the_current_url.'&sort=date">Date Created (Oldest First)</a></li>';
+if(isset($_GET['sort'])){
+	$sort_field = $_GET['sort'];
+	if($sort_field == 'name'){
+		$additional_query = " ORDER BY title";
+		$blog_query.= $additional_query;
+		$sort_name_link = '<li class="active"><a href="'.$the_current_url.'">Title A-Z</a></li>';
+		$the_current_url.= '&sort=name';
+	}
+	else if($sort_field == 'date'){
+		$additional_query = " ORDER BY entry_date";	
+		$blog_query.= $additional_query;
+		$sort_date_link = '<li class="active"><a href="'.$the_current_url.'">Date Created (Oldest First)</a></li>';
+		$the_current_url.= '&sort=date';
+	}
+}
+else{
+	$blog_query.= ' ORDER BY entry_date DESC';
+}
+
+// sorting html
+	$sorting_html = "";
+	$sorting_html.= '<ul class="toggleSort noTopM">';
+	$sorting_html.= $sort_name_link;
+	$sorting_html.= $sort_date_link;
+	$sorting_html.= '</ul>';
+
+$blog_found = true;
+
+$num_of_entries = $this->EE->db->query($blog_query)->num_rows();
+if(!$num_of_entries){
+	$blog_found = false;
+}
+
+$entries_per_page = 10; 
+$total_pages = ceil($num_of_entries/$entries_per_page);
+
+// get page number
+	if(!isset($_GET['page'])){
+		$current_page = 1;
+	}
+	else{
+		if($_GET['page'] < 1){
+			$current_page = 1;
+		}
+		elseif($_GET['page'] > $total_pages){
+			$current_page = $total_pages;
+		}
+		else{
+			$current_page = $_GET['page'];  
+		}
+	}
+
+// pagination results
+	$first_page = 1;
+	$last_page = $total_pages;
+	$second_page = min(2,$last_page);
+	$prev_page = max(1,$current_page-1);
+	$two_prev = max(1,$current_page-2);
+	$three_prev = max(1,$current_page-3);
+	$second_to_last = max(1,$last_page-1);
+	$next_page = min($last_page,$current_page+1);
+	$two_next = min($last_page,$current_page+2);
+	$three_next = min($last_page,$current_page+3);
+
+	$all_pages = array($current_page,$first_page,$second_page,$prev_page,$last_page,$second_to_last,$next_page,$two_prev,$three_prev,$two_next,$three_next);
+	$all_pages = array_filter(array_unique($all_pages));
+	sort($all_pages);
+	if($current_page > $second_page + 4){
+		$all_pages[2] = '...';
+	}
+	if($current_page < $second_to_last - 4){
+		$all_pages[count($all_pages)-3] = '...';
+	}
+
+// create pagination html
+	$pagination_html = "";
+	$pagination_html.= '<div class="pagination">';
+	if($total_pages > 0){
+		foreach($all_pages as $single_page){
+			if($current_page == $single_page || $single_page == '...'){
+				if($single_page == '...'){
+					$pagination_html.= '<span class="page">';
+				}
+				else{
+					$pagination_html.= '<span class="page active">'; 
+				}
+				$pagination_html.= $single_page;
+				$pagination_html.= '</span>';
+			}
+			else {
+				$pagination_html.= '<a class="page first" href="'.$the_current_url.'&page='.$single_page.'">';
+				$pagination_html.= $single_page;
+				$pagination_html.= '</a>';
+			}
+		}
+		// previous and next page buttons
+		$pagination_html.= '<div class="paginationToggle">';
+		if($current_page > 1){
+			$pagination_html.= '<a class="previousPage" href="'.$the_current_url.'&page='.($current_page-1).'">';
+			$pagination_html.= '<img src="/images/uploads/left.jpg" />';
+			$pagination_html.= '</a>';
+		}
+		if($current_page < $last_page){
+			$pagination_html.= '<a class="nextPage" href="'.$the_current_url.'&page='.($current_page+1).'">';
+			$pagination_html.= '<img src="/images/uploads/right.jpg" />';
+			$pagination_html.= '</a>';
+		}
+		$pagination_html.= '</div>';
+	}
+	$pagination_html.= '</div>';
+	if(!$blog_found) $pagination_html = "";
+
+// add page number to SQL query
+	$max = ' LIMIT '.($current_page-1)*$entries_per_page.','.$entries_per_page;
+	$blog_query.= ' '.$max;
+	
+$all_blogs = array();
+$blog_results = $this->EE->db->query($blog_query);
+$number_of_blog = $blog_results->num_rows();
+if($number_of_blog > 0){
+	foreach($blog_results->result_array() as $row){
+		$blog_title = "";
+		$blog_title = $row['title'];
+		$blog_description = "";
+		$blog_description = $row['field_id_17'];
+		$blog_img = "";
+		$blog_img = $row['field_id_20'];
+		$all_blogs[] = array('channel'=>$row['channel_id'],'url_title'=>$row['url_title'],'title'=>$blog_title,'description'=>$blog_description,'img'=>$blog_img);
+	}
+}
+
+$beg_count = ($current_page-1) * $entries_per_page + 1;
+$end_count = $beg_count + $number_of_blog-1;
+$blog_count_html = "";
+if($blog_found){
+	$blog_count_html.= '<p>Displaying posts '.$beg_count.' - '.$end_count.' of '.$num_of_entries.'</p>';
+}
+else{
+	$blog_count_html.= '<p>No posts found</p>';
+}
+
+$all_blog_html = "";
+foreach($all_blogs as $single_blog){
+	$single_blog_title = $single_blog['title'];
+	$single_blog_url_title = $single_blog['url_title'];
+	$single_blog_description = $single_blog['description'];
+	$original_single_blog_img = $single_blog['img'];
+	$single_blog_img = str_replace('filedir_1','',$original_single_blog_img);
+	$single_blog_img = str_replace('{}','',$single_blog_img);
+	$single_blog_img = '{site_url}images/uploads/'.$single_blog_img;
+	$single_blog_channel = $single_blog['channel'];
+
+	$single_href = '{site_url}perspectives/'.(($single_blog_channel == '13') ? 'news' : 'blog' ).'/'.$single_blog_url_title;
+	
+	$single_blog_html = "";
+	$single_blog_html.= '<div class="grayBG left bottomMargin">';
+	$single_blog_html.= '<div class="left">';
+	$single_blog_html.= '<img height="80" width="80" '.(($original_single_blog_img != '') ? ('src="'.$single_blog_img.'"') : 'title="asdfasdf" src="{site_url}images/uploads/list-no-image-default.png"' ).' />';
+	$single_blog_html.= '</div>';
+	$single_blog_html.= '<div class="calendarEntry searchEntry left">';
+	$single_blog_html.= '<a class="listingTitle left" href="'.$single_href.'">'.$single_blog_title.'</a>';
+	$single_blog_html.= '<br/>'.$single_blog_description;
+	$single_blog_html.= '<br /><a href="'.$single_href.'" class="userblueButton">View Post</a>';
+	$single_blog_html.= '</div>';
+	$single_blog_html.= '</div>';
+
+	$all_blog_html.= $single_blog_html;
+}
+
+?>
+<!DOCTYPE html><!-- ### TEMPLATE search/perspectives ### -->
+{snip_browser_sniffer}
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>>
+
+<head>
+  
+  <title>Search Perspectives : {site_name}</title>
+  <link rel="stylesheet" href="{stylesheet='global/validationEngine.jquery.css'}" type="text/css" />
+  <link rel="stylesheet" href="{stylesheet='global/template.css'}" type="text/css" />
+  <link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" />
+  <link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" />
+  <link rel="stylesheet" href="{stylesheet='global/bootstrap.css'}" type="text/css" />
+  <link rel="stylesheet" href="{stylesheet='global/fancybox.css'}" type="text/css" />
+  
+  {snip_global_header_meta}
+  {snip_global_header_links}
+
+</head>
+
+<body style="background: white" class="searchResultsPage">
+ 
+<div id="externalPageWrapper"><!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+<div id="externalMastheadWrap"><!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+<div id="internalMastheadWrap"><!-- begin #internalMastheadWrap - fixed width, maybe fixed height too -->
+
+{snip_global_tool_bar}<!-- include global_tool_bar snippet -->
+{snip_global_logo_and_nav}<!-- include global_logo_and_nav snippet -->
+{!--{snip_global_sub_nav}--}<!-- include global_sub_nav snippet -->
+    
+</div><!-- end .internalMastheadWrap - fixed width, fixed height --> 
+</div><!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+  
+<div id="mainContentArea" style="margin-top: 20px;"><!-- begin .mastheadMainContent - fixed width, fixed height, centered -->
+
+{snip_home_search}
+
+<div class="pageControlsBlockExt">
+	<div class="pageControlsBlockInt">
+		<div class="sectionHeading">
+			<h2>Sort Perspectives</h2>
+		</div>
+		<div class="sectionContent">
+			<div class="toggleTitle search">
+				Sort By:
+			</div>
+				<?= $sorting_html ?>
+		</div>
+	</div>
+</div>
+	
+	<?= $blog_count_html ?>
+	<?= $all_blog_html ?>
+	<?= $pagination_html ?>
+
+</div>
+<!-- end main content area -->
+
+<div class="clearBoth">&nbsp;</div>   
+<div id="externalSocialMediaSharingBlock">
+  {snip_scroll_to_top}
+  {!--{snip_social_media_sharing}--}
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+</div><!-- end #mainContentArea - fixed width, fixed height, centered -->
+
+{snip_global_footer}<!-- include global_footer snippet -->
+
+</div><!-- end #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+<!-- START JAVASCRIPT -->
+{snip_bring_js}
+<script>
+$(document).ready(function(){
+// show/hide sidebar items - modified from projects/browse
+$('.blockHead').on('click', function() {
+    $(this).parent().children('ul.memberFilterList').stop().toggle(200);
+    $(this).children().children('span').toggleClass('projectBrowseCollapse');
+    return false;
+  });
+})
+</script>
+<!-- END JAVASCRIPT -->
+
+</body>
+</html>

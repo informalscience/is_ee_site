@@ -1,0 +1,704 @@
+<?php
+
+require_once('/var/www/ee/get_data.php');
+require_once('/var/www/ee/ncs_tools/parse_single_result.php');
+
+$this->EE =& get_instance();
+
+// has access to member functions relating to project
+$my_id = $this->EE->session->userdata('member_id');
+$has_access = true;
+if(!$my_id){
+  $has_access = false;
+}
+
+$what_resource = "";
+$what_resource = $this->EE->uri->segment(2);
+$record_found = true;
+
+// is correct URL segment set?
+if($what_resource == ""){
+  $record_found = false;
+}
+
+if($record_found){
+  // hit the NCS url -- see if we get valid results
+  $base_url = API_URL.'record/'.$what_resource;
+  $record_results = json_decode(get_data($base_url),true);
+  if($record_results == ""){
+    $record_found = false;
+  }
+}
+
+// these results are parsed later - (go to second half of this file)
+
+?>
+<?php if(!$record_found && $what_resource != ""): ?>{redirect="404"}<? endif; ?>
+<!DOCTYPE html>
+{snip_browser_sniffer}
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>>
+
+<?php if($what_resource == ""): ?>
+
+<!-- **** START OF REGULAR RESOURCE INDEX PAGE **** -->
+<head>
+
+<title>Research : {site_name}</title>
+
+{snip_global_default_meta_ogp_data}
+
+{snip_page_meta_ogp}
+
+<link rel="stylesheet" href="{stylesheet='global/validationEngine.jquery.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/template.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" /><!-- include the global_styles css template -->
+<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" /><!-- include the global_styles css template -->
+<link rel="stylesheet" href="{stylesheet='global/carousel_bootstrap.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/bootstrap.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='pi_guide/jquery.fancybox.css'}" type="text/css" />
+
+{snip_global_header_links}
+
+{snip_global_header_meta}
+
+</head>
+
+<body>
+
+<div id="externalPageWrapper"><!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+  <div id="externalMastheadWrap"><!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding --> 
+    <div id="internalMastheadWrap"><!-- begin #internalMastheadWrap - fixed width, maybe fixed height too -->
+      {snip_global_tool_bar}<!-- include global_tool_bar snippet -->
+      {snip_global_logo_and_nav}<!-- include global_logo_and_nav snippet -->
+      {snip_global_sub_nav}<!-- include global_sub_nav snippet -->
+    </div><!-- end .internalMastheadWrap - fixed width, fixed height -->
+  </div><!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+  
+  <div id="mainContentArea"><!-- begin .mastheadMainContent - fixed width, fixed height, centered -->
+    <div style="width:980px; margin: 0 auto;">
+    
+      <div class="content singleColumn">
+            
+        {exp:channel:entries channel="ch_simple_page_content" limit="1" disable="pagination|member_data" dynamic="yes"}
+          
+          {if add_a_page_content_header == "Yes"}{!-- Check to see if we have header title/content --}
+            <div class="content singleColumn">
+              <div class="fullContentRow">
+                <div class="externalFullBlock">
+                  <div class="internalFullBlock">
+                    <div class="blockHead">
+                      <h1 class="specialHeader">{if alt_title_for_header != ""}{alt_title_for_header}{if:else}{title}{/if}</h1>
+                    </div>{!-- end .blockHead --}
+                    <div class="staticPage">
+                      {if content_for_page_header != ""}{content_for_page_header}{/if}
+                    </div>{!-- end .staticPage --}
+                  </div>{!-- end .internalFullBlock --}
+                </div>{!-- end .externalFullBlock --}
+              </div>{!-- end .fullContentRow .top --}
+            </div>{!-- end .content .singleColumn --}
+          {/if}
+          
+          <div class="content singleColumn floatLeft">
+          
+            {if simple_page_content != ""}{!-- Check to see if we have page body content --}
+              <div class="fullContentRow">{!-- begin .fullContentRow --}      
+                <div class="externalFullBlock">{!-- begin .externalFullBlock --}        
+                <div class="internalFullBlock">{!-- begin .internalFullBlock --}    
+                    <div class="staticPage">
+                      {simple_page_content}
+                    </div>{!-- end .staticPage --}
+                  </div>{!-- end .internalFullBlock --}
+                </div>{!-- end .externalFullBlock --}
+              </div>{!-- end .fullContentRow --}
+            {/if}
+            
+          </div><!-- end .content .singleColumn .floatLeft -->
+          
+        {/exp:channel:entries} 
+        
+      </div><!-- end .content .singleColumn -->
+      
+      <div class="content singleColumn">
+        <div class="fullContentRow top">
+          <div class="externalFullBlock">
+            <div class="internalFullBlock">
+              <div class="blockHead">
+                <h1 class="specialHeader">Recently Added</h1>
+              </div>{!-- end .blockHead --}
+              
+              <ul id="recently_added" class="projects">
+              <?php
+
+              $recent_url = API_URL."search/json?resourceType=Research+Products&sortDescendingBy=dateAdded&n=3";
+              $recent_results = json_decode(get_data($recent_url),true);
+              if($recent_results != "" && isset($recent_results['results'])){
+                $count = 0;
+                foreach($recent_results['results'] as $sv){
+                  $count++;
+                  $parsed_record = parse_single_result($sv['record']);
+                  
+                  echo '
+                      <li class="entry">
+                        <a class="itemTitle" href="'.$parsed_record['record_url'].'">'.$parsed_record['title'].'</a>
+                        <div class="organizationName">'.$parsed_record['organization_string'].'</div>
+                        <div class="authorDate">'.$parsed_record['shorter_description'].'</div>
+                      </li>';
+                }
+              }
+              $recent_url = API_URL."search/json?resourceType=Reference+Materials&sortDescendingBy=dateAdded&n=3";
+              $recent_results = json_decode(get_data($recent_url),true);
+              if($recent_results != "" && isset($recent_results['results'])){
+                $count = 0;
+                foreach($recent_results['results'] as $sv){
+                  $count++;
+                  $parsed_record = parse_single_result($sv['record']);
+                  
+                  echo '
+                      <li class="entry">
+                        <a class="itemTitle" href="'.$parsed_record['record_url'].'">'.$parsed_record['title'].'</a>
+                        <div class="organizationName">'.$parsed_record['organization_string'].'</div>
+                        <div class="authorDate">'.$parsed_record['shorter_description'].'</div>
+                      </li>';
+                }
+              }
+
+              ?>
+              </ul>
+              
+            </div>{!-- end .internalFullBlock --}
+          </div>{!-- end .externalFullBlock --}
+        </div>{!-- end .fullContentRow .top --}
+      </div>{!-- end .content .singleColumn --}
+    
+    </div>
+    
+<div class="clearBoth">&nbsp;</div>   
+<div id="externalSocialMediaSharingBlock">
+  {snip_scroll_to_top}
+  {snip_social_media_sharing}
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+</div><!-- end #mainContentArea - fixed width, fixed height, centered -->
+
+{snip_global_footer}<!-- include global_footer snippet -->
+
+</div><!-- end #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+</body>
+<!-- **** END OF REGULAR RESOURCE INDEX PAGE **** -->
+<?php else: ?>
+<?php
+
+// parse results
+if($record_found && isset($record_results['record'])){
+  $record = $record_results['record'];
+  $parsed_record = parse_single_result($record);
+
+  $record_ncs_id = $what_resource;
+
+  $record_people_string = "";
+  $record_add_yourself_string = "";
+
+  // increment view count for the resource
+    $db_record_title = $this->EE->db->escape_str($parsed_record['title']);
+    if($parsed_record['is_research']){
+      $does_resource_exist_results = $this->EE->db->query("SELECT * FROM ncs_research where ncs_id = '{$what_resource}' ");
+      if($does_resource_exist_results->num_rows < 1){
+        $increment_query = "INSERT INTO ncs_research (view_count, ncs_id, title) VALUES (1,'{$what_resource}','{$db_record_title}') ";
+      }
+      else{
+        $view_count = 0;
+        foreach($does_resource_exist_results->result_array() as $row){
+          if($row['view_count'] != "") $view_count = $row['view_count'];
+        }
+        $view_count++;
+        $increment_query = "UPDATE ncs_research SET view_count='{$view_count}' WHERE ncs_id = '{$what_resource}' ";
+      }
+      $this->EE->db->query($increment_query);
+    }
+    if($parsed_record['is_reference']){
+      $does_resource_exist_results = $this->EE->db->query("SELECT * FROM ncs_reference where ncs_id = '{$what_resource}' ");
+      if($does_resource_exist_results->num_rows < 1){
+        $increment_query = "INSERT INTO ncs_reference (view_count, ncs_id, title) VALUES (1,'{$what_resource}','{$db_record_title}') ";
+      }
+      else{
+        $view_count = 0;
+        foreach($does_resource_exist_results->result_array() as $row){
+          if($row['view_count'] != "") $view_count = $row['view_count'];
+        }
+        $view_count++;
+        $increment_query = "UPDATE ncs_reference SET view_count='{$view_count}' WHERE ncs_id = '{$what_resource}' ";
+      }
+      $this->EE->db->query($increment_query);
+    }
+  // end increment view count
+
+  // start contributors
+    if(count($parsed_record['contributors']) > 0){
+      foreach($parsed_record['contributors'] as $sv){
+        $tmp_people_string = '<div>';
+        if($sv['id'] != ""){
+          $tmp_id = $sv['id'];
+          // get picture for member if it exists
+          // 38 is the channel id for members, field 107 is the column for member profile pictures
+          $get_picture_query = 
+          "SELECT exp_members.member_id,exp_channel_data.field_id_107 FROM exp_members 
+          LEFT JOIN exp_channel_titles ON exp_members.member_id=exp_channel_titles.author_id 
+          LEFT JOIN exp_channel_data ON exp_channel_titles.entry_id=exp_channel_data.entry_id 
+          WHERE exp_members.member_id = '{$tmp_id}' AND exp_channel_titles.channel_id=38";
+          $picture_results = $this->EE->db->query($get_picture_query);
+          if($picture_results->num_rows() > 0){
+            foreach($picture_results->result_array() as $row){
+              $tmp_people_string.= '<div class="teamPhoto">';
+              $tmp_people_string.= '<img width="80" height="80" src="';
+              if($row['field_id_107'] != ""){
+                $tmp_people_string.= '{site_url}images/member_profile_pics/'.$row['field_id_107'];
+              }
+              else {
+                $tmp_people_string.= '{site_url}images/member_profile_pics/small/mystery-person-small.jpg';
+              }
+              $tmp_people_string.= '" />';
+              $tmp_people_string.= '</div>';
+            }
+          }
+          $tmp_people_string.= '<div class="rightProfileSide"><div class="teamName">'.'<a href="{site_url}community/users/profile/'.$tmp_id.'">'.$sv['firstname'].'<br />'.$sv['lastname'].'</a>'.'</div>';
+        }
+        else{ // if they don't have a CMS id, allow a user to associate themselves with this person
+          $tmp_people_string.= '<div class="teamPhoto"><img width="80" height="80" src="{site_url}images/member_profile_pics/small/mystery-person-small.jpg" /></div>';
+          $tmp_people_string.= '<div class="rightProfileSide"><div class="teamName">'.$sv['firstname'].'<br />'.$sv['lastname'].'</div>';
+          $record_add_yourself_string.= '<div>';
+          $record_add_yourself_string.= '<input type="radio" title="'.$sv['role'].'" name="name" value="'.$sv['name'].'"/>';
+          $record_add_yourself_string.= '<span>'.$sv['name'].'</span>';
+          $record_add_yourself_string.= '<input type="hidden" class="person_organization" value="'.$sv['org'].'" />';
+          $record_add_yourself_string.= '</div>';
+        }
+        $tmp_people_string.= '<div class="teamRole">'.$sv['role'].'</div>';
+        $tmp_people_string.= '</div></div>';
+        $record_people_string_array[] = $tmp_people_string;
+      }
+    }
+    // convert people into one large string
+    $record_people_string = implode('<div class="sidebarHR"></div>',$record_people_string_array);
+    $record_people_string.= '<div class="lastProfileSectionDiv"></div>';
+  // end contributors
+
+  // set status depending on if begin / end dates are set
+    if($parsed_record['begin_date'] == "" && $parsed_record['end_date'] == "") $record_status = 'Unknown';
+    if($parsed_record['end_date'] != "") $record_status = "Ended";
+    if($parsed_record['begin_date'] != "" && $parsed_record['end_date'] == "") $record_status = "Current";
+  // end set status
+
+  // Document Link
+    // get report data about the resource from DB
+    $record_reports = "";
+    $which_table = "";
+    if($parsed_record['is_research']) $which_table = 'ncs_research';
+    if($parsed_record['is_research']){
+      $resource_report_query = "SELECT report FROM ".$which_table." where ncs_id = '{$record_ncs_id}' ";
+      $resource_report_results = $this->EE->db->query($resource_report_query);
+      if($resource_report_results->num_rows() > 0){
+        foreach($resource_report_results->result_array() as $row){
+          if($row['report']){
+            $record_reports = $row['report'];
+          }
+        }
+      }
+    }
+    if($parsed_record['is_reference']) $which_table = 'ncs_reference';
+    if($parsed_record['is_reference']){
+      $resource_report_query = "SELECT report FROM ".$which_table." where ncs_id = '{$record_ncs_id}' ";
+      $resource_report_results = $this->EE->db->query($resource_report_query);
+      if($resource_report_results->num_rows() > 0){
+        foreach($resource_report_results->result_array() as $row){
+          if($row['report']){
+            $record_reports = $row['report'];
+          }
+        }
+      }
+    }
+
+    // check if we have access, check if ebsco found
+    $resource_document_link_html = "";
+    $link_exists = false;
+
+    if(count($parsed_record['ebsco']) > 0){
+      $link_exists = true;
+      for($i=0; $i<count($parsed_record['ebsco']); $i++){
+        if($has_access){
+	$resource_document_link_html.= '<a href="'.$parsed_record['ebsco'][$i]['url'].'">';
+        if($parsed_record['ebsco'][$i]['title'] != ""){
+          $resource_document_link_html.= $parsed_record['ebsco'][$i]['title'];
+        }
+        else{
+          $resource_document_link_html.= $parsed_record['ebsco'][$i]['url'];
+        }
+        $resource_document_link_html.= '</a>';
+	}
+	else $resource_document_link_html = 'Please log in to access.';
+      }
+    }
+    else if($parsed_record['related_url'] != ""){
+      $link_exists = true;
+      $resource_document_link_html.= '<a target="_blank" href="'.$parsed_record['related_url']['url'].'">'.$parsed_record['related_url']['title'].'</a>';
+    }
+    else if($record_reports != ""){
+      $link_exists = true;
+      $resource_document_link_html.= '<a target="_blank" href="/images/research/'.$record_reports.'">'.$record_reports.'</a>';  
+    }
+
+  // End Document Link
+}
+
+?>
+<!-- **** START OF RESOURCE DETAIL PAGE **** -->
+<head>
+
+<!-- begin title / meta / ogp -->
+
+<?php
+  $meta_title = ($parsed_record['title'] != "") ? $parsed_record['title'] : "Resource Title";
+  $meta_description = ($parsed_record['description'] != "") ? $parsed_record['description'] : "Resource Description";
+  $meta_description = str_replace('"', "'", $meta_description);
+?>
+
+<title><?= $meta_title ?>: Research: {site_name}</title>
+
+<meta name="keywords" content="{metaResearchDetailPage}" />
+<meta name="description" content="<?= $meta_description ?>" />
+
+<meta property="og:type" content="article" />
+<meta property="og:title" content="<?= $meta_title ?>" />
+<meta property="og:url" content="{site_url}{segment_1}/{segment_2}/{segment_3}" />
+<meta property="og:image" content="http://www.informalscience.org/images/branding_plus/default-meta-ogp-image.jpg" />
+<meta property="og:site_name" content="InformalScience" />
+<meta property="og:description" content="<?= $meta_description ?>" />
+
+<!-- end title / meta / ogp -->
+
+<link rel="stylesheet" href="{stylesheet='global/validationEngine.jquery.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/template.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" /><!-- include the global_styles css template -->
+<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" /><!-- include the global_styles css template -->
+<link rel="stylesheet" href="{stylesheet='global/carousel_bootstrap.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='global/bootstrap.css'}" type="text/css" />
+<link rel="stylesheet" href="{stylesheet='pi_guide/jquery.fancybox.css'}" type="text/css" />
+
+{snip_global_header_links}
+
+{snip_global_header_meta}
+
+</head>
+
+<body>
+ 
+<!-- {exp:structure:breadcrumb here_as_title="yes" inc_here="yes"} --><!-- BREADCRUMBS ARE NOT USED ON HOME PAGE - just saving code-->
+
+<div id="externalPageWrapper"><!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+<div id="externalMastheadWrap"><!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+  
+<div id="internalMastheadWrap"><!-- begin #internalMastheadWrap - fixed width, maybe fixed height too -->
+
+{snip_global_tool_bar}<!-- include global_tool_bar snippet -->
+
+{snip_global_logo_and_nav}<!-- include global_logo_and_nav snippet -->
+
+{snip_global_sub_nav}<!-- include global_sub_nav snippet -->
+<script type="text/javascript">
+// provide faux active states for primary and secondary nav elements without having to add pages into structure  
+  var navelement1 = document.getElementById('nav-sub-research');
+  if(navelement1) {
+    navelement1.className += navelement1.className ? ' parent-active' : '';
+  }
+</script>
+
+</div><!-- end .internalMastheadWrap - fixed width, fixed height -->
+
+</div><!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+
+<div id="mainContentArea" style="margin-top: 20px;"><!-- begin .mastheadMainContent - fixed width, fixed height, centered -->
+<div style="width:980px; margin: 0 auto;">
+
+<?php if($record_found): ?>
+
+  <!-- RESOURCE OPTIONS -->
+  <?php if($has_access): ?>
+    <div class="projectOptionsPanel">
+      <div class="sectionHeading"><h2>Resource Options</h2></div>
+      <div class="projectOptionsContainer">
+        <a id="add_yourself" href="#" class="toggleButton active">Add Yourself To Resource Team</a>
+          <div id="add_yourself_div" class="projectOptionsAddY">
+            <form id="form_add_yourself" method="post">
+              <input type="hidden" name="XID" value="{XID_HASH}" />
+              <div class="projectOptionsIntContainer" style="width: 840px;">
+                <p class="clearMarginTop">Is this your work? Follow these steps to connect your profile to this resource.</p>
+                <div class="addLeftCol">
+                  <h5>1. Choose Your Role:</h5>
+                  <ul class="addYourself">
+                    <li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Principal Investigator" />Principal Investigator</label></li>
+                    <li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Co-Principal Investigator" />Co-Principal Investigator</label></li>
+                    <li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Contributor" />Contributor</label></li>
+                    <li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Evaluator" />Evaluator</label></li>
+                    <li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Former Principal Investigator" />Former Principal Investigator</label></li>
+                    <li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Former Co-Principal Investigator" />Former Co-Principal Investigator</label></li>
+                    <li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Author" />Author</label></li>
+                    <li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Project Manager" />Project Manager</label></li>
+                    <li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Contact" />Contact</label></li>
+                    <li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Publisher" />Publisher</label></li>
+                    <li><label class="projectOptionsRadioBut"><input type="radio" class="validate[required] projectRadio" name="role" value="Editor" />Editor</label></li>
+                  </ul>
+                </div>
+                <h5>2: List Your Organization:</h5><br/><input autocomplete="off" class="evalOrgField validate[required]" type="text" name="organization" />
+                <div class="associateYourself">
+                  <div class="existing_names left">
+                    <h5>3. Connect Your Profile:</h5>
+                    <div class="projectConnectInfo">
+                      <p>For NSF funded resources, some team member names have been automatically added from FASTLNE abstracts. Select your name and press "ADD" to connect your user profile.</p>
+                      <p>If your name does not currently appear on this resource, when you press "ADD", your name will be connected as it appears on your profile. All changes are subject to approval before being displayed.</p>
+                    </div>
+                    <ul class="addYourself" style="width: 170px;"> 
+                      <?= $record_add_yourself_string ?>
+                    </ul>
+                  </div>
+                  <input type="hidden" readonly="readonly" name="current_ncs_id" value="<?= $record_ncs_id ?>'" />
+                  <input type="hidden" readonly="readonly" name="current_user" value="{screen_name}" />
+                  <input type="hidden" readonly="readonly" name="current_user_id" value="{member_id}" />
+                  <!-- SUBMITTER FIELDS -->
+                  {exp:zoo_visitor:details}
+                    <input readonly="readonly" type="hidden" name="submitter_firstname" value="{visitor:member_firstname}"/>
+                    <input readonly="readonly" type="hidden" name="submitter_lastname" value="{visitor:member_lastname}"/>
+                    <input readonly="readonly" type="hidden" name="submitter_email" value="{email}"/>
+                    <input readonly="readonly" type="hidden" name="submitter_id" value="{member_id}"/>
+                  {/exp:zoo_visitor:details}
+                  <!-- END SUBMITTER FIELDS -->
+                  <div class="projectOptionsBut">
+                    <input type="submit" name="submit_add_yourself" value="Add" class="blueButtonPlain marginTop" />
+                    <a id="reset_me" class="blueButtonPlain marginTop" />Deselect</a>
+                  </div>
+                </div>
+              </div>
+            </form>
+        </div>
+      </div>
+    </div>
+  <?php endif; ?>
+  <!-- END RESOURCE OPTIONS -->
+
+  <!-- RESOURCE DETAILS -->
+  <div class="projectDetailContent">
+    <div class="sectionHeading"><h2>Resource Details</h2></div>
+
+    <div class="projectTitleBg projectTitleNoImage"><div class="projectTitle"><?= $parsed_record['title'] ?></div></div>
+
+    <?php if($parsed_record['organization_string']): ?>
+      <div class="projectFieldHeading">Lead Organization: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['organization_string'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['resource_type_string']): ?>
+      <div class="projectFieldHeading">Resource Type: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['resource_type_string'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['env_type_string']): ?>
+      <div class="projectFieldHeading">Environment Type: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['env_type_string'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['audience_string']): ?>
+      <div class="projectFieldHeading">Audience(s): </div>
+      <div class="projectDetailEntry"><?= $parsed_record['audience_string'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['content_string']): ?>
+      <div class="projectFieldHeading">Content: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['content_string'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['description']): ?>
+      <div class="projectFieldHeading">Description: </div>
+      <div class="projectDetailEntry"><p style="float: left; width: 440px; margin-top: 0px;"><?= $parsed_record['description']; ?></p></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['citation']['publication']): ?>
+      <div class="projectFieldHeading">Citation Publication Name: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['citation']['publication'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['begin_date']): ?>
+      <div class="projectFieldHeading">Date Created: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['begin_date'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['citation']['id_type'] && $parsed_record['citation']['id']): ?>
+      <div class="projectFieldHeading">Citation Identifier: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['citation']['id_type'] ?> <?= $parsed_record['citation']['id'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['citation']['volume']): ?>
+      <div class="projectFieldHeading">Citation Volume: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['citation']['volume'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['citation']['number']): ?>
+      <div class="projectFieldHeading">Citation Number: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['citation']['number'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['citation']['page']): ?>
+      <div class="projectFieldHeading">Citation Starting Page: </div>
+      <div class="projectDetailEntry"><?= $parsed_record['citation']['page'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['funding_source_string']): ?>
+      <div class="projectFieldHeading">Funder(s): </div>
+      <div class="projectDetailEntry"><?= $parsed_record['funding_source_string'] ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+    <?php if($resource_document_link_html): ?>
+      <div class="projectFieldHeading">Document Link: </div>
+      <div class="projectDetailEntry"><?= $resource_document_link_html ?></div>
+      <div class="clear"></div>
+    <?php endif; ?>
+
+  </div>
+  <!-- END RESOURCE DETAIL -->
+
+  <!-- SIDEBAR -->
+  <div class="sidebar right marginTop">
+
+    <?php if($has_access): ?><a href="#" class="projectOptionsTogButton">Show Resource Options</a><?php endif; ?>
+
+    <div class="projectSidebar">
+      <div class="sectionHeading"><h2>Team Members</h2></div>
+      <div class="projectInfo withPadding">
+        <?= $record_people_string ?>
+      </div>
+    </div>
+
+    <?php if(count($parsed_record['related_projects']) > 0): ?>
+      <div class="projectSidebar">
+      <div class="sectionHeading"><h2>Associated Projects</h2></div>
+      <ul class="projectLinks">
+      <?php for($i=0; $i<count($parsed_record['related_projects']); $i++): ?>
+        <?php echo '<li'.(($i < count($parsed_record['related_projects'])-1) ? '':'class="last"').'>' ?>
+        <a href="<?= $parsed_record['related_projects'][$i]['url'] ?>">
+        <?php if($parsed_record['related_projects'][$i]['title'] != ""): ?>
+          <?= $parsed_record['related_projects'][$i]['title'] ?>
+        <?php else: ?>
+          <?= $parsed_record['related_projects'][$i]['url']; ?>
+        <?php endif; ?>
+        </a>
+        </li>
+      <?php endfor; ?>
+      </ul>
+      </div>
+    <?php endif; ?>
+
+    <?php if($parsed_record['is_research']): ?>
+      <?= $parsed_record['related_research_html'] ?>
+    <?php endif; ?>
+    <br />
+    <?php if($parsed_record['is_reference']): ?>
+      <?= $parsed_record['related_reference_html'] ?>
+    <?php endif; ?>
+
+  </div>
+  <!-- END SIDEBAR -->
+
+<?php endif; ?>
+
+</div>
+
+<div class="clearBoth">&nbsp;</div>   
+<div id="externalSocialMediaSharingBlock">
+  {snip_scroll_to_top}
+  {snip_social_media_sharing}
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+</div><!-- end #mainContentArea - fixed width, fixed height, centered -->
+
+{snip_global_footer}<!-- include global_footer snippet -->
+
+</div><!-- end #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+<?php
+
+  // grab organization list and convert to JS array for bootstrap
+  $org_results = $this->EE->db->query("SELECT name FROM organizations");
+  $orgs = array();
+  foreach($org_results->result_array() as $row){
+    $orgs[] = $row['name'];
+  }
+  $js_orgs = json_encode($orgs);
+
+?>
+{snip_bring_js}
+<script type="text/javascript">
+$(document).ready(function() {
+  // project options panel
+  $('.projectOptionsPanel').hide();
+  $('.projectOptionsTogButton').on('click',function(){
+    $('.projectOptionsPanel').toggle();
+    $(this).toggleClass('hideOptions');
+    if($(this).text() == 'Show Resource Options'){
+      $(this).text('Hide Resource Options');
+    }
+    else{
+      $(this).text('Show Resource Options'); 
+    }
+    return false;
+  });
+
+  // predictive search for organization fields - using bootstrap
+  var organizations = <?php echo $js_orgs; ?>;
+  $('#myOrganization').typeahead({source: organizations, items:6})
+
+  // predictive search for organization fields
+  var organizations = <?php echo $js_orgs; ?>;
+  $('input[name=organization]').typeahead({source: organizations, items:6})
+
+  // claim your name in the project options window!
+  $('input[name=name]').on('change', function(){
+    var role = $(this).attr('title');
+    $('input[value="'+role+'"]').attr('checked','checked');
+    $('input[name=organization]').val('');
+    $('input[name=organization]').val($(this).siblings('.person_organization').val());
+  });
+
+  // reset add yourself form
+  $('#reset_me').on('click',function(){
+    $('#form_add_yourself').trigger('reset');
+  });
+
+  // add yourself form validation and submit
+  $('#form_add_yourself').validationEngine();
+  $('#form_add_yourself').ajaxForm({
+    target: '#add_yourself_div',
+    url: '{site_url}process_edits_from_detail.php'
+  });
+
+});
+</script>
+
+</body>
+<!-- **** END OF RESOURCE DETAIL PAGE **** -->
+<?php endif; ?>
+
+</html>

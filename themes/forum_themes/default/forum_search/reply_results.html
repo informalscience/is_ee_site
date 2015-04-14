@@ -1,0 +1,8 @@
+<li><a href="{path:viewreply}">{snippet}&hellip;</a> {lang:by} 			<?php
+				$profile_id = "";
+				$profile_string = '{path:member_profile}';
+				$profile_array = explode('/',$profile_string);
+				end($profile_array);
+				$profile_id = prev($profile_array);
+			?>
+			<a href="{path=community/users/profile}/<?= $profile_id ?>">{author}</a></li>

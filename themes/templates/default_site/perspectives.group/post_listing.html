@@ -1,0 +1,180 @@
+<!-- ### BEGIN PERSPECTIVES POST LISTING TEMPLATE EMBED ### -->
+
+<div class="content singleColumn">{!-- begin .content .singleColumn --}
+
+  {if segment_3 != 'category' AND segment_3 != 'archive'}
+
+    {exp:channel:entries channel="ch_simple_page_content" limit="1" disable="pagination|member_data|categories" dynamic="yes"}
+    
+      {if add_a_page_content_header == "Yes"}{!-- Check to see if we have header title/content --}
+        <div class="content singleColumn">
+          <div class="fullContentRow top">
+            <div class="externalFullBlock">
+              <div class="internalFullBlock">
+                <div class="blockHead">
+                  <h1 class="specialHeader">{if alt_title_for_header != ""}{alt_title_for_header}{if:else}{title}{/if}</h1>
+                </div>{!-- end .blockHead --}
+                <div class="staticPage">
+                  {if content_for_page_header != ""}{content_for_page_header}{/if}
+                </div>{!-- end .staticPage --}
+              </div>{!-- end .internalFullBlock --}
+            </div>{!-- end .externalFullBlock --}
+          </div>{!-- end .fullContentRow .top --}
+        </div>{!-- end .content .singleColumn --}
+      {/if}
+        
+      <div class="content singleColumn floatLeft">
+          
+        {if simple_page_content != ""}{!-- Check to see if we have page body content --}
+          <div class="fullContentRow top">{!-- begin .fullContentRow --}      
+            <div class="externalFullBlock">{!-- begin .externalFullBlock --}        
+              <div class="internalFullBlock">{!-- begin .internalFullBlock --}
+                <div class="blockHead">
+                  <h1 class="specialHeader">{if alt_title_for_header != ""}{alt_title_for_header}{if:else}{title}{/if}</h1>
+                </div>{!-- end .blockHead --}        
+                <div class="staticPage">
+                  {simple_page_content}
+                </div>{!-- end .staticPage --}
+              </div>{!-- end .internalFullBlock --}
+            </div>{!-- end .externalFullBlock --}
+          </div>{!-- end .fullContentRow --}
+        {/if}
+        
+      </div><!-- end .content .singleColumn .floatLeft -->
+      
+    {/exp:channel:entries}
+
+  {/if}
+
+  {if segment_3 == 'category'}
+    <div class="content singleColumn">
+      <div class="fullContentRow top">
+        <div class="externalFullBlock">
+          <div class="internalFullBlock">
+            <div class="blockHead">
+              <h1 class="specialHeader">
+                {if segment_2 == 'news'}News{if:else}Posts{/if}{if segment_4 == 'all'} in All Categories{if:else} in the {exp:query sql="SELECT cat_name FROM `exp_categories` WHERE cat_id = '{segment_4}' LIMIT 0,1 "}{cat_name}{/exp:query} Category{/if}
+              </h1>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {/if}
+  
+  {if segment_3 == "archive"}
+      <div class="content singleColumn">
+        <div class="fullContentRow top">
+          <div class="externalFullBlock">
+            <div  class="internalFullBlock">
+              <div class="blockHead">
+                <h1 class="specialHeader">Archive for {if segment_4 == "all"}{segment_4}{/if} {segment_2} Posts {if segment_4 != "all"} from {if segment_5 > 0 AND segment_5 < 13}<?php echo $month_name = date( 'F', mktime(0, 0, 0, '{segment_5}') ); ?>{/if} {segment_4}{/if}</h1>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  {/if} 
+
+</div>{!-- end .content .singleColumn --}
+
+<div id="twoThirdsContentColumn" class="content twoThirdsContentColumn floatLeft">{!-- begin #twoThirdsContentColumn .content .twoThirdsContentColumn .floatLeft --}
+
+  {exp:channel:entries
+    channel="ch_{segment_2}"
+    sort="desc"
+    disable="member_data" 
+    dynamic="no" 
+    show_empty="no" 
+    paginate="bottom" 
+    limit="10"
+    {if segment_3 == 'category'} {if segment_4 != 'all'} category='{segment_4}' {/if} {/if}
+    {if segment_3 == 'archive'} {if segment_4 != 'all'} year='{segment_4}' month='{segment_5}' {/if} {/if}
+  }
+
+    <div class="fullContentRow">{!-- begin .fullContentRow --}
+      <div class="externalFullBlock postList">{!-- begin .externalFullBlock --}
+        <div class="itemBlock{if post_listing_image == ""} noImage{/if}">
+
+          {if no_results}{!-- need some styling in this block --}
+          <div class="staticPage innerLeft">
+            {if segment_3 == 'category'}
+        
+            <div class="form_error clearMarginTop">
+              There are no {segment_2} posts to be found in this category.
+            </div>
+          
+            <h4>Try one of these categories instead:</h4>
+      
+            <ul>
+              {exp:channel:categories channel="ch_{segment_2}" style="linear" show_empty="no" sort="desc" disable="pagination|member_data" dynamic="no"}
+                <li>
+                  <a href="{site_url}{segment_1}/{segment_2}/category/{category_id}">{category_name}</a> 
+                  ({exp:query sql="SELECT COUNT(exp_channel_titles.entry_id) AS the_count FROM `exp_category_posts` LEFT JOIN `exp_channel_titles` ON `exp_channel_titles`.entry_id=`exp_category_posts`.entry_id WHERE cat_id = '{category_id}' AND status='open' "}{the_count}{/exp:query})
+                </li>
+              {/exp:channel:categories}
+            </ul>
+
+            {if:elseif segment_3 == 'archive'}
+
+              <div class="form_error clearMarginTop">
+                There are no {segment_2} posts to be found for this month/year combination.
+              </div>
+              
+              <h4>Try one of these archives instead:</h4>
+              
+              <ul>
+                {exp:channel:month_links channel="ch_{segment_2}" limit="4" sort="desc" style="linear" show_empty="no" disable="pagination|member_data|categories" dynamic="yes" show_future_entries="yes" parent_only="yes"}
+                  <li><a href="{site_url}{segment_1}/{segment_2}/archive/{year}/{month_num}">{month} {year}</a></li>
+                {/exp:channel:month_links}
+              </ul>
+
+            {/if}
+          </div>
+          {/if}
+          
+          {if segment_2 != 'news'}
+            <div class="itemImageBlock">
+              <a href="{url_title_path='perspectives/{segment_2}'}"><img class="postListingImage" src="{post_listing_image}" alt="{title}" class="clearfix" /></a>
+            </div>
+          {/if}
+          
+          <h3><a href="{url_title_path='perspectives/{segment_2}'}">{title}</a></h3>
+          <p>Posted on {entry_date format='%F %d, %Y'} by {author} {categories limit="1"}in {/categories}{categories backspace="3"}<a href="/{segment_1}/{segment_2}/category/{category_id}">{category_name}</a> | {/categories}</p>
+          {if post_summary_excerpt_long}{post_summary_excerpt_long}{if:else}{post_summary_excerpt}{/if}
+          {!-- use long excerpt, if available; if not use short excerpt --}
+          
+          {if segment_2 == 'news'}<a href="#" class="showDetails right">read more</a>
+            <div class="toshow" style="display:none;">
+              {post_main_content}
+              <a href="#" class="closeDetails right">view less</a>
+            </div>
+          {/if}
+
+          <div class="clearBoth">&nbsp;</div>
+        </div>{!-- end .itemBlock --}
+      </div>{!-- end .externalFullBlock --}
+    </div>{!-- end .fullContentRow --}   
+  
+  {snip_perspectives_pagination}
+
+  {/exp:channel:entries}
+  
+</div>{!-- end #twoThirdsContentColumn .content .twoThirdsContentColumn .floatLeft --}
+
+<div id="oneThirdContentColumn" class="floatRight allowFeedPositioning">{!-- begin #oneThirdContentColumn .floatRight --}
+<a class="rssFeed" href="http://informalscience.org/perspectives/rss/{segment_2}"><img class="rss" src="/images/uploads/rss-sidebar-icon.png" alt="RSS"></a>
+  {snip_perspectives_sidebar}
+</div>{!-- end #oneThirdContentColumn .floatRight --}
+
+<div class="clearBoth">&nbsp;</div>
+
+<div id="externalSocialMediaSharingBlock">
+  {snip_scroll_to_top}
+  {!-- snip_social_media_sharing --}
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+
+<!-- ### END PERSPECTIVES POST LISTING TEMPLATE EMBED ### -->

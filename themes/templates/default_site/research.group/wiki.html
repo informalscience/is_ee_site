@@ -1,0 +1,72 @@
+<!DOCTYPE html>{!-- Wiki Template --}
+{snip_browser_sniffer}
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>>
+
+<head>
+
+<title>Informal Science Evidence Wiki : {site_name}</title>
+
+{snip_global_default_meta_ogp_data}
+
+{snip_page_meta_ogp}
+
+<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" />{!-- include the global_styles css template --}
+<link rel="stylesheet" href="{stylesheet='home/home_styles'}" type="text/css" />{!-- include the global_styles css template --}
+<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" /><!-- include the global_styles css template -->
+
+<link rel="stylesheet" href="{site_url}/themes/wiki_themes/default/wiki_style.css" type="text/css" media="screen" title="Global Styles" charset="utf-8" />
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+
+{snip_global_header_links}
+
+{snip_global_header_meta}
+
+</head>
+
+<body id="{structure:top:slug}" class="{structure:top:slug} wiki">{!-- We grab the page top-level slug as id and parent aand page slugs as super-added classes --}
+ 
+{!-- {exp:structure:breadcrumb here_as_title="yes" inc_here="yes"} --}{!-- BREADCRUMBS ARE NOT USED ON HOME PAGE - just saving code --}
+
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding --}
+
+	<div id="externalMastheadWrap">{!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding --}
+      
+		{snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+
+  	{snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+      
+    {snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+
+<script type="text/javascript">
+// provide faux active states for primary and secondary nav elements without having to add pages into structure  
+	var navelement1 = document.getElementById('nav-sub-research');
+		if(navelement1) {
+			navelement1.className += navelement1.className ? ' parent-active' : '';
+		}
+	var navelement2 = document.getElementById('nav-sub-wiki');
+		if(navelement2) {
+			navelement2.className += navelement2.className ? ' parent-active' : '';
+		}
+</script>
+
+		{exp:wiki base_path='research/wiki' wiki="ise_wiki" theme="default"}
+
+    <div class="clearBoth">&nbsp;</div>
+      
+  </div>{!-- end #homeAssetsRow - fixed width, fixed height, centered --}
+
+<div id="externalSocialMediaSharingBlock">
+	{snip_scroll_to_top}
+	{snip_social_media_sharing}
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+</div>{!-- end #mainContentArea --}
+  
+{snip_global_footer}{!-- include global_footer snippet --}
+
+</div>{!-- end #externalPageWrapper --}
+
+</body>
+</html>

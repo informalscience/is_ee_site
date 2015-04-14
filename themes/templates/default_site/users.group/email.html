@@ -1,0 +1,161 @@
+{snip_community_redirect}
+<!-- ### template - users.group/email.html ###  -->
+<?php
+
+$form_message = "";
+
+if($_POST){
+	echo "{exp:zoo_visitor:details member_id='{segment_4}'}";
+		$email_to = '{email}';
+	echo "{/exp:zoo_visitor:details}";
+
+	$from = $_POST['from'];
+	//$real_from = $_POST['real_from'];
+	$real_from = 'admin@informalscience.org';
+	$subject = $_POST['subject'];
+	$message = $_POST['message'];
+	$headers = array();
+	$headers[] = "MIME-Version: 1.0";
+	$headers[] = "Content-type: text/plain; charset=iso-8859-1";
+	$headers[] = "From: <".$real_from.">";
+	$headers[] = "Reply-To: <".$from.">";
+	$headers[] = "X-Mailer: PHP/".phpversion();
+
+	if(mail($email_to, $subject, $message, implode("\r\n", $headers))){
+		$form_message = '<div class="form_success"><span>Success!</span> Sent email.</div>';
+	}
+	else{
+		$form_message =  '<div class="form_error">Failure sending email</div>';
+	}
+
+}
+
+?>
+<body id="{structure:top:slug}">
+<a name="top"></a>
+
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper --}
+
+<div id="externalMastheadWrap">{!-- begin #externalMastheadWrap --}
+<div id="internalMastheadWrap">{!-- begin #internalMastheadWrap --}
+			
+{snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+{snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+{snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+
+<script type="text/javascript">
+// provide faux active states for primary and secondary nav elements without having to add pages into structure  
+	var navelement1 = document.getElementById('nav-sub-community');
+		if(navelement1) {
+			navelement1.className += navelement1.className ? ' parent-active' : '';
+		}
+	var navelement2 = document.getElementById('nav-sub-sub-member-directory');
+		if(navelement2) {
+			navelement2.className += navelement2.className ? ' parent-active' : '';
+		}
+  var navelement3 = document.getElementById('tool-users');
+    if(navelement3) {
+      navelement3.className += navelement3.className ? ' active' : '';
+    }
+</script>
+		
+</div>{!-- end .internalMastheadWrap --}
+</div>{!-- end .externalMastheadWrap --}
+	
+<div id="mainContentArea">{!-- begin .mastheadMainContent --}
+
+<div class="content singleColumn">
+	<div class="fullContentRow top variation">
+		<div class="externalFullBlock">
+			<div class="internalFullBlock">
+				<div class="blockHead">
+					<h1 class="specialHeader">Email User</h1>
+				</div>{!-- end .blockHead --}
+			</div>{!-- end .internalFullBlock --}
+		</div>{!-- end .externalFullBlock --}
+	</div>{!-- end .fullContentRow .top --}
+</div>{!-- end .content .singleColumn --}
+
+{if logged_in AND '{segment_4}' }
+
+	<?= $form_message ?>
+
+	{exp:zoo_visitor:details member_id='{segment_4}'}
+		{if no_results}No Results{/if}
+		
+		{if zoo_visitor_id != segment_4 }
+		
+		<form id="email_form" method="post">
+<input type="hidden" name="XID" value="{XID_HASH}">
+			<div class="projectFormField marginRight">
+				<label class="label left selectTop" for="to">To</label>
+				<input class="projectFieldDrop left" id="to" name="to" readonly="readonly" value="{member_firstname} {member_lastname}" />
+			</div>
+
+			<div class="projectFormField">
+				<label class="label left selectTop" for="from">From Email</label>
+				<input class="projectFieldDrop left validate[required],custom[email]" id="from" name="from" />
+			</div>
+
+			<div class="projectFormField">
+				<label class="label left selectTop" for="subject">Subject</label>
+				<input class="projectFieldFull left validate[required]" id="subject" name="subject" />
+			</div>
+
+			<div class="projectFormField">
+				<label class="label left selectTop" for="message">Message</label>
+				<textarea class="projectTextArea left validate[required]" col rows id="message" name="message"></textarea>
+			</div>
+
+			<input type="hidden" readonly="readonly" id="real_from" name="real_from" value="{email}" />
+
+			<div class="clear"></div>
+			<div class="left">
+				<input type="submit" value="Send Email" class="blueButtonPlain"/>
+			</div>
+			<div class="clearBoth">&nbsp;</div>
+
+		</form>
+		
+		{/if}
+
+	{/exp:zoo_visitor:details}
+
+{if:elseif logged_in}
+
+	<div class="warning_error">You can't email yourself.</div>
+
+{if:else}
+
+	{snip_not_logged_in}
+
+{/if}
+
+<div class="clearBoth">&nbsp;</div>
+		
+  <div id="externalSocialMediaSharingBlock">
+    {snip_scroll_to_top}
+    {!-- snip_social_media_sharing --}
+  </div>
+
+<div class="clearBoth">&nbsp;</div>
+
+</div>{!-- end #mainContentArea --}
+
+{snip_global_footer}{!-- include global_footer snippet --}
+
+</div>{!-- end #externalPageWrapper --}
+
+<!-- START JAVASCRIPT -->
+{snip_bring_js}
+<script type="text/javascript">
+$(document).ready(function() {
+	// using validation plugin to client-side validate form // validation rules are written inline with the HTML
+	$("#email_form").validationEngine();
+	$('#real_from').val('{email}');
+});
+</script>
+<!-- END JAVASCRIPT -->
+
+</body>
+<!-- ### template - users.group/email.html ### -->

@@ -1,0 +1,193 @@
+{snip_community_redirect}
+<!-- begin embed calendar/index.html -->
+<body>
+
+<div id="externalPageWrapper"><!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+<div id="externalMastheadWrap"><!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+<div id="internalMastheadWrap"><!-- begin #internalMastheadWrap - fixed width, maybe fixed height too -->
+
+{snip_global_tool_bar}<!-- include global_tool_bar snippet -->
+{snip_global_logo_and_nav}<!-- include global_logo_and_nav snippet -->
+{snip_global_sub_nav}<!-- include global_sub_nav snippet -->
+
+<script type="text/javascript">
+// provide faux active states for primary and secondary nav elements without having to add pages into structure  
+	var navelement1 = document.getElementById('nav-sub-community');
+		if(navelement1) {
+			navelement1.className += navelement1.className ? ' parent-active' : '';
+		}
+	var navelement2 = document.getElementById('nav-sub-sub-calendar');
+		if(navelement2) {
+			navelement2.className += navelement2.className ? ' parent-active' : '';
+		}
+</script>
+				 
+</div><!-- end .internalMastheadWrap - fixed width, fixed height -->  
+</div><!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding -->
+	
+<div id="mainContentArea"><!-- begin .mastheadMainContent - fixed width, fixed height, centered -->
+
+	<div class="fullContentRow top">
+		<div class="externalFullBlock">
+			<div class="internalFullBlock" style="position:relative;">
+				<div class="blockHead">
+					<h1 class="specialHeader">Calendar</h1>
+					<a id="event-add-button" href="{path=community/calendar/add-event}" class="createProjectButton {if logged_in}calendarAddEvent{/if} right">Add Event</a>
+					{if logged_in}<a href="{path=community/calendar/add-funding}" class="createProjectButton right">Add Funding Deadline</a>{/if}
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- redirect if segment_4 is empty...this is important because we use segment_4 for searching in our entries tag -->
+	{if segment_3 == ""}{redirect='community/calendar/upcoming/all/*'}{/if}
+	{if segment_4 == ""}{redirect='community/calendar/{segment_3}/all/*'}{/if}
+	{if segment_5 == ""}{redirect='community/calendar/{segment_3}/{segment_4}/*'}{/if}
+
+	 
+<div class="sectionHeading"><h2>Search Events & Funding</h2></div>
+<div id="topSearch" class="projectListingToggle left" style="position:relative;">
+	<form id="search_form" method="post">
+		<input class="searchPanelField" type="text" id="search_term" value="{if segment_5 != '*'}{segment_5}{/if}">
+		<div class="SearchContainerSubmit">
+			<input name="" type="image" src="/themes/wiki_themes/default/images/wiki-main-search.jpg">
+		</div>
+	</form>
+
+	<div class="marginTop">
+		<p id="what_page"></p>
+	</div>
+
+	<div class="left">
+		<a class="createProjectButton upcomingEventButton {if segment_3 == 'upcoming'}calendarActive{/if}" href="{path='community'}/{segment_2}/upcoming/all/{segment_5}">Upcoming</a>
+		<a class="createProjectButton pastEventButton {if segment_3 == 'past'}calendarActive{/if}" href="{path='community'}/{segment_2}/past/all/{segment_5}">Past</a>
+	</div>
+
+	<div class="left">
+		<span class="toggleTitle" style="padding-top: 20px;">Filter By:</span>
+		<ul class="toggleSort">
+		<a href="{path='community'}/{segment_2}/{segment_3}/all/{segment_5}"><li {if segment_4 == 'all'}class='active'{/if}>All</li></a>
+		<a href="{path='community'}/{segment_2}/{segment_3}/conference/{segment_5}"><li {if segment_4 == 'conference'}class='active'{/if}>Conference</li></a>
+		<a href="{path='community'}/{segment_2}/{segment_3}/session/{segment_5}"><li {if segment_4 == 'session'}class='active'{/if}>Session</li></a>
+		<a href="{path='community'}/{segment_2}/{segment_3}/workshop/{segment_5}"><li {if segment_4 == 'workshop'}class='active'{/if}>Workshop</li></a>
+		<a href="{path='community'}/{segment_2}/{segment_3}/meeting/{segment_5}"><li {if segment_4 == 'meeting'}class='active'{/if}>Meeting</li></a>
+		<a href="{path='community'}/{segment_2}/{segment_3}/funding/{segment_5}"><li {if segment_4 == 'funding'}class='active'{/if}>Funding Deadline</li></a>
+		</ul>
+	</div>
+	</div>
+	<div class="clear"></div>
+		
+		
+	{exp:channel:entries 
+		status="open" channel="ch_calendar" dynamic="no" limit="10" paginate="bottom"
+		{if segment_3 == 'upcoming'}orderby="entry_date" sort="asc" show_future_entries="yes"{/if}
+		{if segment_3 == 'past'}orderby="expiration_date" sort="desc" show_expired="yes"{/if}
+		{if segment_4 != 'all'}search:event_category="{segment_4}"{/if}
+		{if segment_5 != '*'}search:searchable_title="{segment_5}"{/if}
+	}
+		
+	{if no_results}
+	<script>
+	document.getElementById('what_page').innerHTML = 'No results found';
+	</script>
+	{/if}
+	
+	<!-- hack to create 1-5 out of 15 string -->
+	<script>
+	if({count} == 1) document.getElementById('what_page').innerHTML +=  'Displaying events {absolute_count}-';
+	if({count} == {total_results}) document.getElementById('what_page').innerHTML += '{absolute_count} of {absolute_results}';
+	</script>
+	
+	<!-- print out event/funding information -->
+	<div class="grayBG left bottomMargin">
+	<div class="left">
+	<img height="60" width="60" src="{if image != ""}{image}{if:else}/images/uploads/calendar-no-image-default.png{/if}" />
+	</div>
+	<div class="calendarEntry left">
+	<a class="listingTitle left" href="{path=community/calendar/details}/{url_title}">{title}</a>
+	{if event_category != 'Funding'}<br/><span class="listTitle"><b>Dates: </span><span class="listTitleEntry"> {entry_date format="%F %d, %Y"} - {expiration_date format="%F %d, %Y"}</b></span>
+	{if:else}<br /><span class="listTitle"><b>Deadline: </span><span class="listTitleEntry"> {expiration_date format="%F %d, %Y"}</b></span>
+	{/if}
+	<br /><span class="listTitle">Category:</span><span class="listTitleEntry">{event_category}</span>
+	{if event_category == 'Funding'}<br /><span class="listTitle">Funder: </span><span class="listTitleEntry">{funding_source}{/if}</span>
+	{if event_category != 'Funding'}<br /><span class="listTitle">Institution: </span><span class="listTitleEntry">{institution}{/if}</span>
+	{if event_category != 'Funding'}<br /><span class="listTitle">Host: </span><span class="listTitleEntry">{host}{/if}</span>
+	<br /><span class="listTitle">Description:</span>
+	<span class="listTitleEntry ellipsisMaker">{event_description}</span>
+	{if event_category != 'Funding'}<br /><span class="listTitle">Location:</span> <span class="listTitleEntry">{city}{if city AND state_province}, {/if}{if state_province}{state_province}{/if}</span>{/if}
+	<br /><span class="listTitle">Link:</span><span class="listTitleEntry"> <a href="{event_link}">{event_link}</a></span>
+	</div>
+	</div>
+
+	
+	{paginate}
+	{pagination_links}
+	<div class="pagination">
+
+	{first_page}
+		<a href="{pagination_url}" class="page-first page">1</a>
+		<span class="page">...</span>
+	{/first_page}
+
+	{page}
+		{if current_page}<span class="page-{pagination_page_number} page active">{pagination_page_number}</span>
+		{if:else}<a href="{pagination_url}" class="page-{pagination_page_number} page">{pagination_page_number}</a>
+		{/if}
+	{/page}
+
+	{last_page}
+		<span class="page">...</span>
+		<a href="{pagination_url}" class="page-last page">{total_pages}</a>
+	{/last_page}
+
+	<div class="paginationToggle">
+	{previous_page}
+			<a href="{pagination_url}" class="previousPage"><img src="{site_url}/images/uploads/left.jpg" /></a>
+	{/previous_page}
+
+	{next_page}
+			<a href="{pagination_url}" class="page-next"><img src="{site_url}/images/uploads/right.jpg" /></a>
+	{/next_page}
+	</div>
+
+	</div>
+	{/pagination_links}
+	{/paginate}
+	
+	{/exp:channel:entries}
+		
+<div id="externalSocialMediaSharingBlock">
+	{snip_scroll_to_top}
+	{!-- snip_social_media_sharing --}
+</div>
+
+<div class="clearBoth">&nbsp;</div> 
+</div><!-- end #mainContentArea - fixed width, fixed height, centered -->
+
+{snip_global_footer}<!-- include global_footer snippet -->
+
+</div><!-- end #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding -->
+
+{snip_bring_js}
+<script>
+$(document).ready(function(){
+	$('#search_form').submit(function(){
+		var search_term = $('#search_term').val();
+		window.location = '{site_url}community/calendar/{segment_3}/{segment_4}/'+search_term;
+		return false;
+	});
+
+	// check if logged in user
+	if(document.getElementById("toolbar-login")){
+		$("#event-add-button").on("click",function(e){
+			e.preventDefault();
+			alert("You must be logged in to create an event.");
+			window.location = "/community/users/login?redirect=<?= rawurlencode('/community/calendar/add-event') ?>";
+		});
+	}
+})
+</script>
+
+</body>
+<!-- end embed calendar/index.html -->

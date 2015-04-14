@@ -1,0 +1,436 @@
+{snip_browser_sniffer}<!DOCTYPE html><!-- ### template - global.group/1column_static_pages.html ### -->
+
+<html<?php if( (isset($browser)) && (isset($version)) ) { echo ' class="'.$browser .' v'. $version.'"'; } ?>>
+<head>
+
+<title>{structure:page:title} : {site_name}</title>
+
+{snip_global_default_meta_ogp_data}
+
+{snip_page_meta_ogp}
+
+<link rel="stylesheet" href="{stylesheet='global/styles.css'}" type="text/css" /><!-- include the global_styles css template -->
+<link rel="stylesheet" href="{stylesheet='global/global_styles'}" type="text/css" />{!-- include the global_styles css template --}
+<link rel="stylesheet" href="{stylesheet='global/caise-pimeeting-2012-slideshow.css'}" type="text/css" />
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+<script type="text/javascript" src="/js/slides.min.jquery.js"></script>
+<script type="text/javascript">
+
+		$(function(){
+			$('#slides').slides({
+				preload: true,
+				preloadImage: '/images/caise-pimeeting2012-slideshow/loading.gif',
+				play: 5000,
+				pause: 2500,
+				hoverPause: true,
+				animationStart: function(current){
+					$('.caption').animate({
+						bottom:-35
+					},100);
+					if (window.console && console.log) {
+						// example return of current slide number
+						console.log('animationStart on slide: ', current);
+					};
+				},
+				animationComplete: function(current){
+					$('.caption').animate({
+						bottom:0
+					},200);
+					if (window.console && console.log) {
+						// example return of current slide number
+						console.log('animationComplete on slide: ', current);
+					};
+				},
+				slidesLoaded: function() {
+					$('.caption').animate({
+						bottom:0
+					},200);
+				}
+			});
+		});
+</script>
+
+
+{snip_global_header_links}
+
+{snip_global_header_meta}
+
+</head>
+
+<body id="{structure:top:slug}" class="{structure:parent:slug} {structure:page:slug}  static">{!-- We grab the page top-level slug as id and parent aand page slugs as super-added classes --}
+
+<a name="top"></a>
+
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper - 100% width, 100% full height, 0% margin, 0% padding --}
+
+  <div id="externalMastheadWrap">{!-- begin #externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding --}
+    
+    <div id="internalMastheadWrap">{!-- begin #internalMastheadWrap - fixed width, maybe fixed height too --}
+          
+      {snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+      
+      {snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+      
+      {snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+        
+    </div>{!-- end .internalMastheadWrap - fixed width, fixed height --}
+    
+  </div>{!-- end .externalMastheadWrap - 100% width, 100% full height, 0% margin, 0% padding --}
+    
+  <div id="mainContentArea">{!-- begin .mastheadMainContent - fixed width, fixed height, centered --}
+    
+    <div class="content singleColumn">
+      
+      {exp:channel:entries channel="ch_simple_page_content" limit="1" disable="pagination|member_data" dynamic="yes"}
+
+        {if add_a_page_content_header == "Yes"}{!-- Check to see if we have header title/content --}
+          <div class="content singleColumn">
+            <div class="fullContentRow top">
+              <div class="externalFullBlock">
+                <div class="internalFullBlock">
+                  <div class="blockHead">
+                    <h1 class="specialHeader">{if alt_title_for_header != ""}{alt_title_for_header}{if:else}{title}{/if}</h1>
+                  </div>{!-- end .blockHead --}
+                  {if content_for_page_header != ""}{content_for_page_header}{/if}
+                </div>{!-- end .internalFullBlock --}
+              </div>{!-- end .externalFullBlock --}
+            </div>{!-- end .fullContentRow .top --}
+          </div>{!-- end .content .singleColumn --}
+        {/if}
+      
+        <div class="content singleColumn floatLeft">
+          
+          {if simple_page_content != ""}{!-- Check to see if we have page body content --}
+            <div class="fullContentRow top">{!-- begin .fullContentRow --}      
+              <div class="externalFullBlock staticPage">{!-- begin .externalFullBlock --}        
+              <div class="internalFullBlock">{!-- begin .internalFullBlock --}    
+         
+    <div id="container">
+		<div id="example">
+			<img src="/images/caise-pimeeting2012-slideshow/new-ribbon.png" width="112" height="112" alt="New Ribbon" id="ribbon">
+			<div id="slides">
+				<div class="slides_container">
+					<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/pimeetingslide.jpg" width="575" height="426" alt="Slide 1">
+						<div class="caption" style="bottom:0">
+							<p>A slideshow of images from the 2012 ISE PI Meeting held March 14-16th at the Omni Shoreham Hotel in Washington, DC.</p>
+						</div>
+					</div>
+					
+	<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image59.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Dennis Schatz, NSF ISE Program Officer and Cluster Coordinator, welcomes attendees and introduces fellow program officers and Dr. Joan Ferrini-Mundy.</p>
+						</div>
+					</div>
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image22.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Dr. Joan Ferrini-Mundy, Assistant Director, Directorate for Education and Human Resources, welcomes meeting attendees and provides updates on the ISE Program.</p>
+						</div>
+					</div>
+
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image50.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>CAISE Cognizant Program Officer, Al DeSena provides opening remarks about the Informal Science Education Program and CAISE.</p>
+						</div>
+					</div>
+
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image4.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Nancy Maryboy and David Begay, PI and Co-PI of the Cosmic Serpent project, look over the meeting program with Ben Dickow, CAISE "Entree" initiative leader.</p>
+						</div>
+					</div>
+
+
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image5.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Barinetta Scott, PI of the Human Condition project, participates in discussions about STEM Media.</p>
+						</div>
+					</div>
+
+
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image6.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Pamela Hawkins, Branch Chief, Division of Grants and Agreements answers questions about award management during technical assistance session.</p>
+						</div>
+					</div>
+
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image7.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p> Laura Buckley (center right) and Angela Turner (far right), both of the NSF DGA, answer questions on award management.</p>
+						</div>
+					</div>
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image8.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p> Sandra Toro Martell, NSF ISE Program Officer, shares the NSF perspective on the Online Project Monitoring System (OPMS) during technical assistance sessions.</p>
+						</div>
+					</div>
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image9.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Gary Silverstein, Senior Study Director at Westat, presents on the progress of the Online Project Monitoring System (OPMS).</p>
+						</div>
+					</div>
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image11.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Monica Smith, Exhibition Program Manager for the Lemelson Center at the National Museum of American History (right) discusses the OPMS with Hannah Putman of Westat.</p>
+						</div>
+					</div>
+
+
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image13.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Taking a break between technical assistance sessions on Wednesday, March 14th. </p>
+						</div>
+					</div>
+
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image14.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Marilyn Johnson from OMSI, Larry Bell of Museum of Science Boston and Steve Curwood of the World Media Foundation.</p>
+						</div>
+					</div>
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image15.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Trevor Nesbit, CAISE Web Strategist searches the Informal Commons and ISE Timeline with Al DeSena. </p>
+						</div>
+					</div>
+
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image16.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Barinetta Scott (second from left) talks with John Falk, CAISE co-PI (far right) during the welcoming reception.</p>
+						</div>
+					</div>
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image17.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Enjoying the spring weather during the Wednesday evening welcoming reception on.</p>
+						</div>
+					</div>
+
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image18.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p> Julieanna Richardson, PI for ScienceMakers, poses with Sandra Welch, NSF ISE Program Officer, during the welcoming reception.  </p>
+						</div>
+					</div>
+
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image19.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Kirsten Ellenbogen (center), Co-Principal Investigator for CAISE, Joe Heimlich of Ohio State University (left) and Chris Myers, PI of the Wild Research and Saving Species projects during the welcoming reception.</p>
+						</div>
+					</div>
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image20.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Jamie Bell, CAISE PI and Project Director, opens the meeting on Thursday morning.</p>
+						</div>
+					</div>
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image24.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>NSF ISE Program Officers pose before visiting project posters on Thursday morning.</p>
+						</div>
+					</div>
+
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image25.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Lee Gutkind of Arizona State University speaks with grant writer Carol Inman about the To Think To Write To publish conference project.</p>
+						</div>
+					</div>
+
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image26.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Julieanna Richardson (right) shares information about her project, ScienceMakers.</p>
+						</div>
+					</div>
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image27.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Marlene Klineman of TERC (center) discusses her Math off the Shelf project with poster session attendees.</p>
+						</div>
+					</div>
+
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image28.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Meeting attendees participate in surveys for evaluation of the ISE Program with SRI International. </p>
+						</div>
+					</div>
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image29.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Dennis Schatz moderates a panel discussion with Maureen Callanan from UC Santa Cruz, Daniel Rockmore from Dartmouth, Chris Myers from Miami University of Ohio and Michael Heithaus from Florida International University.
+						</div>
+					</div>
+
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image31.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Maureen Callanan answers a question from Dennis Schatz during a lunchtime panel on scientists and public engagement.</p>
+						</div>
+					</div>
+
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image32.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Lynn Dierking of Oregon State University asks a question during the lunchtime panel on scientists and public engagement.  </p>
+						</div>
+					</div>
+
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image33.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Darrell Porcello of Lawrence Hall of Science (LHS) presents information about the Informal Commons, a web resource developed by CAISE, Ideum, and LHS.</p>
+						</div>
+					</div>
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image34.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Sherry Hsi from LHS presents the ISE Timeline, an interactive and dynamic tool that documents the history of informal science education projects, people, events, and institutions.</p>
+						</div>
+					</div>
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image35.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Sue Ellen McCann, CAISE Senior Advisor and Executive Producer for KQED (standing far left), addresses a breakout group on media in STEM education.</p>
+						</div>
+					</div>
+
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image37.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Attendees nominate and vote for breakout topics during the Open Space sessions on Friday morning.</p>
+						</div>
+					</div>
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image38.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Nolan Doesken of the The Community Collaborative Rain, Hail and Snow Network project talks with John McLaughlin of NOAA during breakfast on Friday morning.</p>
+						</div>
+					</div>
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image39.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Elisabeth Soep, Senior producer of Youth Radio explains her Do It! project poster to Vera Michalchik of SRI International.</p>
+						</div>
+					</div>
+
+
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image48.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Elizabeth Farnsworth, PI for Go-Botany, shares her project poster with Chris Myers. </p>
+						</div>
+					</div>
+
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image49.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Jenny Lam, PI of the IMX (I AM X) discusses her poster during poster sessions. </p>
+						</div>
+					</div>
+
+
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image40.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Geoffrey Schladow (left) shares his 3D visualization tool of freshwater resources.</p>
+						</div>
+					</div>
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image41.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Kea Anderson of SRI International reviews the nominated topics for Open Space sessions on Friday afternoon.</p>
+						</div>
+					</div>
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image42.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>CAISE Co-PI Kevin Crowley announces topics for Open Space sessions. Each nominator is invited to explain their interests to the meeting attendees. </p>
+						</div>
+					</div>
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image43.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Kate Taylor of WGBH Educational Foundation consults with NSF ISE Program Officer Valentine Kass.</p>
+						</div>
+					</div>
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image44.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Monya Ruffin, NSF Program Officer, offers her reflections on the PI Meeting and the frontiers of Informal Science Education.</p>
+						</div>
+					</div>
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image46.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>Dennis Schatz, pictured with CAISE advisor Bruce Lewenstein and Valentine Kass, delivers his closing comments.</p>
+						</div>
+					</div>
+<div class="slide">
+						<img src="/images/caise-pimeeting2012-slideshow/Image47.jpg" width="575" height="426" alt="Slide 2"></a>
+						<div class="caption">
+							<p>CAISE Project Director and Principal Investigator Jamie Bell, thanks meeting attendees and delivers his final closing comments.</p>
+						</div>
+					</div>
+
+			
+				</div>
+				<a href="#" class="prev"><img src="/images/caise-pimeeting2012-slideshow/arrow-prev.png" width="24" height="43" alt="Arrow Prev"></a>
+				<a href="#" class="next"><img src="/images/caise-pimeeting2012-slideshow/arrow-next.png" width="24" height="43" alt="Arrow Next"></a>
+			</div>
+		
+			     <img src="/images/caise-pimeeting2012-slideshow/large-frame.png" width="640" height="426" alt="Example Frame" id="frame">
+		</div>
+		
+<!--
+
+<div id="footer">
+			<p> National Science Foundation Informal Science Education Program <br />2012 Principal Investigator Meeting</p>
+		</div>
+-->
+
+	</div>
+                </div>{!-- end .internalFullBlock --}        
+              </div>{!-- end .externalFullBlock --}        
+            </div>{!-- end .fullContentRow --}
+          {/if}
+        
+        </div><!-- end .content .singleColumn .floatLeft -->
+        
+      {/exp:channel:entries}  
+      
+    </div><!-- end .content .singleColumn -->
+    
+    <div class="clearBoth">&nbsp;</div>
+		
+      <div id="externalSocialMediaSharingBlock">
+        {snip_scroll_to_top}
+        {snip_social_media_sharing}
+      </div>
+    
+    <div class="clearBoth">&nbsp;</div>
+   
+  </div>{!-- end #mainContentArea --}
+  
+  {snip_global_footer}{!-- include global_footer snippet --}
+
+</div>{!-- end #externalPageWrapper --}
+
+</body>
+</html>

@@ -1,0 +1,281 @@
+{snip_community_redirect}
+<!-- begin embed groups/documents -->
+{snip_group_found}
+<?php
+
+// do we have enough permission to view/edit group? comment/uncomment code depending on privilege level (super-admin, group-admin, group-member, logged-in, anyone)
+  $group_access = false;
+  $is_admin = false;
+  $is_member = false;
+  $is_pending_member = false;
+  $is_logged_in = false;
+
+  // are we a super admin?
+  if($this->EE->session->userdata['group_id'] == 1){
+    $group_access = true;
+    $is_admin = true;
+  }
+
+  // get all group member data - this will be used to see if user is a group admin, group member, or group pending member
+  $all_members = array();
+  $admin_members = array();
+  $current_members = array();
+  $pending_members = array();
+  $all_members_query = 
+  "SELECT groups_members.member_id, groups_members.status, groups_members.is_admin, exp_members.screen_name 
+  FROM groups_members
+  LEFT JOIN exp_members 
+  ON groups_members.member_id=exp_members.member_id 
+  WHERE groups_members.group_id = '{$group_id}'";
+
+  $members_results = $this->EE->db->query($all_members_query);
+  if($members_results->num_rows()){
+    foreach($members_results->result_array() as $row){
+      $all_members[] = $row;
+      
+      if($row['is_admin'] == 1){
+        $admin_members[] = $row;
+        $current_members[] = $row;
+
+        // are we the group admin?
+        if($row['member_id'] == $my_id){
+          $group_access = true;
+          $is_admin = true;
+        }
+
+      }
+      else if($row['status'] == 1){
+        $current_members[] = $row;
+
+        // are we a member?
+        if($row['member_id'] == $my_id){
+          $group_access = true;
+          $is_member = true;
+        }
+      }
+      else if($row['status'] == 0){
+        $pending_members[] = $row;
+
+        // are we a pending member?
+        if($row['member_id'] == $my_id){
+          // $group_access = true;
+          $is_pending_member = true;
+        }
+      }
+
+    }
+  }             
+
+  // are we logged in?
+  if($my_id != "" && $my_id != 0){
+    // $group_access = true;
+    $is_logged_in = true;
+  }
+  // do we just not care who views this page?
+  // $group_access = true;
+
+// is this a public group?
+$is_public = false;
+if($group_data['is_public'] == 1){
+  $is_public = true;
+}
+
+// if we don't have the proper permissions...redirect them to the no-access page
+if(!$group_access){
+  if(!$is_logged_in){
+    header('Location: '.$site_url.'community/groups/no-access/login');
+  }
+  else if(!$is_admin){
+    header('Location: '.$site_url.'community/groups/no-access/admin');
+  }
+  else{
+    header('Location: '.$site_url.'community/groups/no-access');  
+  }
+  exit();
+}
+
+?>
+{snip_group_heading}
+<?php
+
+// what are the current group documents? 
+$document_array = array();
+$current_documents_query = "SELECT * FROM groups_documents WHERE group_id='{$group_id}' ";
+$document_results = $this->EE->db->query($current_documents_query);
+if($document_results->num_rows() > 0){
+  foreach($document_results->result_array() as $row){
+    $document_array[] = $row;
+  }
+}
+
+// create html for current documents
+$group_documents_html = "";
+$site_url = '{site_url}';
+$group_documents_html.= '<div class="current_docs">';
+$group_documents_html.= '<div class="currentDocList left" style="margin-right: 20px;">';
+$group_documents_html.= '<h2>Current Document(s)</h2>';
+if(count($document_array) < 1){
+  $group_documents_html.= '<div class="noCurrentDocuments documentList">No Current Documents</div>';
+}
+else{
+  foreach($document_array as $single_doc){
+    $group_documents_html.= '<div>';
+    $group_documents_html.= '<div class="documentList">';
+    $group_documents_html.= '<a href="'.$site_url.'documents/group_documents/'.rawurldecode($single_doc['document_url']).'">'.$single_doc['document_name'].'</a>';
+    $group_documents_html.= '</div>';
+    $group_documents_html.= '<div class="documentListActions">';
+    $group_documents_html.= '<a class="downloadDocument" target="_blank" href="'.$site_url.'documents/group_documents/'.rawurldecode($single_doc['document_url']).'">Download</a>';
+    $group_documents_html.= '<a id="'.$single_doc['id'].'" href="#" class="remove_doc removeAddLink">Remove</a>';
+    $group_documents_html.= '<input type="hidden" readonly="readonly" class="document_secret" value="'.$single_doc['document_secret'].'" />';
+    $group_documents_html.= '<div class="removeMessage"></div>';
+    $group_documents_html.= '</div>';
+    $group_documents_html.= '<div class="clear"></div>';
+    $group_documents_html.= '</div>';
+  }
+}
+$group_documents_html.= '</div>';
+$group_documents_html.= '</div>';
+
+
+?>
+<body>
+
+<a name="top"></a>
+<div id="externalPageWrapper">{!-- begin #externalPageWrapper --}
+
+<div id="externalMastheadWrap">{!-- begin #externalMastheadWrap --}
+<div id="internalMastheadWrap">{!-- begin #internalMastheadWrap --}
+      
+{snip_global_tool_bar}{!-- include global_tool_bar snippet --}
+{snip_global_logo_and_nav}{!-- include global_logo_and_nav snippet --}
+{snip_global_sub_nav}{!-- include global_sub_nav snippet --}
+
+<script type="text/javascript">
+// provide faux active states for primary and secondary nav elements without having to add pages into structure  
+  var navelement1 = document.getElementById('nav-sub-community');
+    if(navelement1) {
+      navelement1.className += navelement1.className ? ' parent-active' : '';
+    }
+  var navelement2 = document.getElementById('nav-sub-groups');
+    if(navelement2) {
+      navelement2.className += navelement2.className ? ' parent-active' : '';
+    }
+</script>
+    
+</div>{!-- end .internalMastheadWrap --}
+</div>{!-- end .externalMastheadWrap --}
+  
+<div id="mainContentArea">{!-- begin .mastheadMainContent --}
+
+<?= $group_top_box ?>
+<?= $group_tools ?>
+<div class="fullContentRow">
+
+  <div class="externalFullBlock">
+    <div class="internalFullBlock" style="position:relative;">
+      <div class="blockHead">
+        <h1 class="specialHeader">Edit Documents</h1>
+      </div>
+    </div>
+  </div>
+  
+  <div class="grayBG marginTop left">
+    
+    <div class="left">
+      <?= $group_documents_html ?>
+    </div>
+
+    <div class="left">
+      <div class="new_docs">
+        <h2>Add New Documents</h2>
+        <form id="add_new_document" method="post" enctype="multipart/form-data">
+          <input type="hidden" name="XID" value="{XID_HASH}" />
+          <div>
+            <input style="width: 470px;" class="validate[required]" type="file" name="document" />
+            <input name="user_id" type="hidden" value="<?=$my_id?>" />
+            <input name="group_id" type="hidden" readonly="readonly" value="<?=$group_id?>" />
+            <div class="clear"></div>
+            <input id="add_document_submit" type="submit" value="Add Document" class="blueButtonPlain marginTop" name="submit_form" />
+            <div id="target"></div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<div id="target_approval_status" style="width:400px;height:125px;display:none;"></div>
+<a id="hidden_link" href="#target_approval_status" class="fancybox" style="display:none;">Click Me</a>
+
+<div class="clearBoth">&nbsp;</div>
+<div id="externalSocialMediaSharingBlock">
+	{snip_scroll_to_top}
+</div>
+
+<div class="clearBoth">&nbsp;</div>
+</div>{!-- end #mainContentArea --}
+
+{snip_global_footer}{!-- include global_footer snippet --}
+
+</div>{!-- end #externalPageWrapper --}
+
+<!-- START JAVASCRIPT -->
+{snip_bring_js}
+<script type="text/javascript">
+$(document).ready(function() {
+  $(".fancybox").fancybox();
+
+  // add documents
+  $('#add_new_document').validationEngine();
+  var form_options = {
+    url: '{path="groups/process_documents.php"}',
+    clearForm: true,
+    success: function(response){
+      console.log(response);
+      try {
+        json = $.parseJSON(response);
+        $("#target_approval_status").html(json.message);
+        $(".noCurrentDocuments").remove();
+        $(".currentDocList").append(json.doc);
+      } catch (e) {
+        $("#target_approval_status").html(response);
+      }
+      $('#hidden_link').trigger('click');
+    }
+  }
+  $('#add_new_document').ajaxForm(form_options);
+
+  // remove documents
+  $(document).on('click','.remove_doc',function(){
+    if(confirm("Are you sure you want to delete this document?")){
+      var messageBox = $('#target_approval_status');
+      var idString = $(this).attr('id');
+      var secretString = $(this).siblings('.document_secret').val();
+      var dataString = 'action=delete&id='+idString+'&secret='+secretString;
+
+      var buttonClicked = $(this);
+      $.ajax({
+        url: '{path="groups/process_documents.php"}',
+        type: "GET",
+        data: dataString,
+        success: function(response){
+          (messageBox).html(response);
+          buttonClicked.parent().parent().remove();
+        },
+        error: function(response){
+          (messageBox).html(response);
+        }
+      });
+      $('#hidden_link').fancybox().trigger('click');
+      return false;
+    }
+  });
+  
+});
+</script>
+<!-- END JAVASCRIPT -->
+
+</body>
+<!-- end embed groups/documents -->

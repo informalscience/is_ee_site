@@ -1,0 +1,255 @@
+	.networkToggleResources{
+			padding: 20px 24px 20px 0px;
+		}
+		
+		.networkToggleResources .leftToggleColResources{
+			width: 650px;
+			float: left;
+			margin-right: 20px;		
+		}
+		
+		.networkToggleResources .leftToggleColResources .resourceTypeBlock{
+			width: 305px;
+			float: left;
+			height: 92px;
+			margin: 0 20px 20px 0;
+			padding: 0;
+		}
+		
+		.networkToggleResources .leftToggleColResources .resourceTypeBlock .right{
+			display:inline-block;
+		}
+		
+		.networkToggleResources .leftToggleColResources .resourceTypeBlock a{
+			order: medium none;
+			background-color: #f2f6f9;
+			display: block;
+			height: 92px;
+			margin: 0;
+			padding: 0;
+			text-decoration: none;
+			vertical-align: middle;
+			width: 292px;
+		}
+		.networkToggleResources .leftToggleColResources .resourceTypeBlock a.active{
+			background-color: #d56533;
+			
+		}
+		.networkToggleResources .leftToggleColResources .resourceTypeBlock a:hover{
+			background-color: #d56533;	
+		}
+		.networkToggleResources .leftToggleColResources .resourceTypeBlock a:hover h4{
+			color: #fff !important;
+		}
+		.networkToggleResources .leftToggleColResources .resourceTypeBlock a:hover img{
+			src color: #fff !importan;
+		}
+		
+		.networkToggleResources .leftToggleColResources .resourceTypeBlock a.active h4{
+			color: #fff !important;
+		}
+		
+		.networkToggleResources .leftToggleColResources .resourceTypeBlock a img{
+			border: medium none;
+			clear: none;
+			float: left;
+			text-decoration: none;
+			margin: 20px 15px 0px 15px;
+		}
+		
+		.networkToggleResources .leftToggleColResources .resourceTypeBlock h4{
+			clear: none;
+			color: #3e6e94;
+			display: table-cell;
+			font-family: "Lato-Bold",sans-serif;
+			font-size: 14px;
+			height: 92px;
+			margin: 0;
+			text-transform: uppercase;
+			vertical-align: middle;
+			width: 200px;
+		}
+		
+		.icon2:hover {
+			src: url('/images/uploads/sticky/2a.png');
+		}
+		
+		.current-topics{
+			border: 8px solid #ebebeb;
+			border-radius: 10px;
+			height: 100%;
+			margin-top: 25px;
+		}
+		
+		.current-topics a > h5{
+			margin: 10px 10px 10px 15px;
+			color: #00394E !important;
+		}
+		.current-topics p{
+			margin: 10px 10px 10px 15px;
+		}
+		.separator{
+			border-bottom: 1px solid #ebebeb;
+			width:90%;
+			margin: 0px 10px  25px 10px;
+			text-align:center;
+		}
+		
+		.selected-links p{
+			margin: 10px 10px 23px 15px;
+			border-bottom: 1px solid #ebebeb;
+		}
+		
+		.last-link{
+			border-bottom: none !important;
+		}
+		
+		.selected-links a > h5{
+			border-bottom : none ;
+			padding-bottom : 0px ;
+		}
+		
+		
+		.icon_er1{
+			background-image: url("/images/uploads/sticky/1b_Media.png");
+			background-position: 30px 14px;
+			background-repeat: no-repeat;
+			height: 100px;
+			width: 14%;	
+		}
+		
+		.icon_er1:hover, .icon_er1.active {
+			background-image: url("/images/uploads/sticky/1a_Media.png");
+			background-position: 31px 14px;
+		}
+		
+		.icon_er2{
+			background-image: url("/images/uploads/sticky/2b_Public.png");
+			background-position: 30px 14px;
+			background-repeat: no-repeat;
+			height: 100px;
+			width: 14%;	
+		}
+		
+		.icon_er2:hover, .icon_er2.active {
+			background-image: url("/images/uploads/sticky/2a_Public.png");
+			background-position: 31px 14px;
+		}
+		
+		.icon_er3{
+			background-image: url("/images/uploads/sticky/3b_Professional.png");
+			background-position: 30px 14px;
+			background-repeat: no-repeat;
+			height: 100px;
+			width: 14%;	
+		}
+		
+		.icon_er3:hover, .icon_er3.active {
+			background-image: url("/images/uploads/sticky/3a_Professional.png");
+			background-position: 31px 14px;
+		}
+		
+		.icon_er4{
+			background-image: url("/images/uploads/sticky/4b_Exhibitions.png");
+			background-position: 30px 14px;
+			background-repeat: no-repeat;
+			height: 100px;
+			width: 14%;	
+		}
+		
+		.icon_er4:hover, .icon_er4.active {
+			background-image: url("/images/uploads/sticky/4a_Exhibitions.png");
+			background-position: 31px 14px;
+		}
+		
+		.icon_er5{
+			background-image: url("/images/uploads/sticky/5b_Education.png");
+			background-position: 30px 14px;
+			background-repeat: no-repeat;
+			height: 100px;
+			width: 14%;	
+		}
+		
+		.icon_er5:hover, .icon_er5.active {
+			background-image: url("/images/uploads/sticky/5a_Education.png");
+			background-position: 31px 14px;
+		}
+		
+		
+		.result a > button {
+			background-color: #19526c;	
+			border:none;
+		}
+		
+		.result a > button:hover {
+			background-color: #d56533 !important;	
+			border: none;
+		}
+		
+		.showMoreResults a, .showMoreResults button{
+			background-color: #19526c;	
+			border:none;
+		}
+		
+		
+		.showMoreResults a:hover, .showMoreResults button:hover{
+			background-color: #d56533;	
+			border: none;
+		}
+		
+		.recordLink{
+			background: url("images/uploads/right_arrow.png") no-repeat scroll 100% center rgba(0, 0, 0, 0);
+			color: #007099 !important;
+			font-size: 14px;
+			margin: 0 20px 20px 0;
+			overflow: hidden;
+			
+			position: relative;
+			text-decoration: none;
+			padding-left: 0px;
+		}
+		
+		.recordLink:hover{
+			background-color: #f7f8f8 !important;
+		}
+		
+		.current-topics a h4{
+			margin: 10px 10px 10px 15px;
+		}
+		
+		.selected-links a h4 {
+			margin: 10px 10px 10px 15px;
+		}
+
+		.current-topics a h4:first-of-type {margin-top:23px !important;}
+
+		.selected-links a h4:first-of-type {margin-top:23px !important;}
+		
+		.lightbox h3{
+			text-transform: uppercase !important;
+		}
+		
+		.resources a{
+			color: transparent !important;
+		}
+		
+		@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) { 
+			.resources-block1 img {
+				margin-left:-2px !important;
+				margin-top: -2px !important;	
+			}
+			
+			.resources-block3 img {
+				margin-left:-2px !important;
+				margin-top: -2px !important;	
+			}
+			
+		   .resources-block5 img {
+				margin-left:-2px !important;
+				margin-top: -2px !important;	
+			}	
+		}
+
+.moreResultsButton{
+  margin-top: 10px !important;
+}

@@ -1,0 +1,112 @@
+<div class="projectOptionsPanel" style="display: block;">
+	
+	<?php 
+		require_once('/var/www/ee/get_data.php');
+		require_once('/var/www/ee/ncs_tools/parse_single_result.php');
+	?>
+	<div class="sectionHeading">
+		<h2>Recent Site Activity</h2>
+	</div>
+	
+	<div class="recentActivity">
+
+		<span class="toggleTitle">Filter by:</span>
+		<ul class="toggleSort recentToggleSort">
+			<li><a class="switch_section" href="#" title="Events">Events</a></li>
+			<li><a class="switch_section" href="#" title="Evaluation_Reports">Evaluation Reports</a></li>
+			<li><a class="switch_section" href="#" title="Research">Research</a></li>
+			<li><a class="switch_section" href="#" title="Group_Posts">Group</a></li>
+			<li><a class="switch_section" href="#" title="Projects">Projects</a></li>
+			<li class="clearMarginRight"><a class="switch_section" href="#" title="News">News & Perspectives</a></li>
+		</ul>
+
+		<div class="show_hide_section" id="Events">
+			<div class="subSectionTitle">Events</div>
+			<ul class="isBulleted">
+				{exp:channel:entries status="open" channel="ch_calendar" dynamic="no" limit="5" orderby="entry_date" sort="asc" show_future_entries="yes"}
+				<li><span><a href="{site_url}community/calendar/details/{url_title}">{title}</a></span></li>
+				{/exp:channel:entries}
+			</ul>
+			<a href="{site_url}/community/calendar" class="blueButton viewAllRecent">View All Events<span class="arrowCircle">&nbsp;</span></a>
+		</div>
+		
+		<div class="show_hide_section" style="display:none;" id="Evaluation_Reports">
+			<div class="subSectionTitle">Evaluation Reports</div>
+			<ul class="isBulleted">
+				<?php 
+					$recent_url = "http://api.informalscience.org/search/json?resourceType=Evaluation+Reports&sortDescendingBy=dateAdded&n=5";
+					$recent_results = json_decode(get_data($recent_url),true);
+					if($recent_results != "" && isset($recent_results['results'])){
+						foreach($recent_results['results'] as $single_result){
+							$single_record = $single_result['record'];
+              $parsed_record = parse_single_result($single_record);
+								
+							echo '<li><span><a href="'.$parsed_record['record_url'].'">'.$parsed_record['title'].'</a></span></li>';
+						}
+					}
+				?>
+			</ul>
+			<a href="{site_url}evaluation/browse" class="blueButton viewAllRecentEval">View All Evaluation Reports<span class="arrowCircle">&nbsp;</span></a>
+		</div>
+		
+		<div class="show_hide_section" style="display:none;" id="Research">
+			<div class="subSectionTitle">Research</div>
+			<ul class="isBulleted">
+				<?php 
+					$recent_url = "http://api.informalscience.org/search/json?resourceType=Research+Products&sortDescendingBy=dateAdded&n=5";
+					$recent_results = json_decode(get_data($recent_url),true);
+					if($recent_results != "" && isset($recent_results['results'])){
+						foreach($recent_results['results'] as $single_result){
+							$single_record = $single_result['record'];
+              $parsed_record = parse_single_result($single_record);
+								
+							echo '<li><span><a href="'.$parsed_record['record_url'].'">'.$parsed_record['title'].'</a></span></li>';
+						}
+					}
+				?>
+			</ul>
+			<a href="{site_url}research/browse" class="blueButton viewAllRecent">View All Research<span class="arrowCircle">&nbsp;</span></a>
+		</div>
+		
+		<div class="show_hide_section" style="display:none;" id="Group_Posts">
+			<div class="subSectionTitle">Groups</div>
+			<ul class="isBulleted">
+      {exp:query sql="SELECT * FROM groups ORDER BY id DESC LIMIT 0,5"}
+        <li><span><a href="{site_url}community/groups/details?id={id}">{name}</a></span></li>
+      {/exp:query}
+			</ul>
+			<a href="{site_url}community/groups" class="blueButton viewAllRecent">View All Groups<span class="arrowCircle">&nbsp;</span></a>
+		</div>
+		
+		<div class="show_hide_section" style="display:none;" id="Projects">
+			<div class="subSectionTitle">Projects</div>
+			<ul class="isBulleted">
+				<?php 
+					$recent_url = "http://api.informalscience.org/search/json?resourceType=Project+Descriptions&sortDescendingBy=dateAdded&n=5";
+					$recent_results = json_decode(get_data($recent_url),true);
+					if($recent_results != "" && isset($recent_results['results'])){
+						foreach($recent_results['results'] as $single_result){
+							$single_record = $single_result['record'];
+              $parsed_record = parse_single_result($single_record);
+								
+							echo '<li><span><a href="'.$parsed_record['record_url'].'">'.$parsed_record['title'].'</a></span></li>';
+						}
+					}
+				?>
+			</ul>
+			<a href="{site_url}projects/browse" class="blueButton viewAllRecent">View All Projects<span class="arrowCircle">&nbsp;</span></a>
+		</div>
+
+		<div class="show_hide_section" style="display:none;" id="News">
+			<div class="subSectionTitle">News & Perspectives</div>
+			<ul class="isBulleted">
+				{exp:channel:entries status="open" channel="ch_blog|ch_news" dynamic="no" limit="5"}
+				<li><span><a href="{site_url}perspectives/{if channel == 'News'}news{if:else}blog{/if}/{url_title}">{title}</a></span></li>
+				{/exp:channel:entries}
+			</ul>
+			<a href="{site_url}perspectives/blog" class="blueButton viewAllRecent">View All Perspectives<span class="arrowCircle">&nbsp;</span></a>
+		</div>
+
+	</div>
+		
+</div>

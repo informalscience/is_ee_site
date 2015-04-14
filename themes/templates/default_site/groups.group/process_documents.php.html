@@ -1,0 +1,137 @@
+<?php
+
+require_once("/var/www/ee/site_tools/functions.php");
+
+$this->EE =& get_instance();
+$db = $this->EE->db;
+
+ee()->security->restore_xid();
+
+$form_validation = true;
+$form_error = "";
+
+if($_GET && isset($_GET['action'])){
+	if($_GET['action'] == 'delete'){
+		
+		$id = "";
+		$secret = "";
+
+		$id = $this->EE->db->escape_str($_GET['id']);
+		$secret = $this->EE->db->escape_str($_GET['secret']);
+
+		$form_validation = true;
+		$form_error = "";
+
+		// does document exist?
+		$secret_query = "SELECT * FROM groups_documents WHERE id = '{$id}'";
+		$secret_results = $this->EE->db->query($secret_query);
+		if($secret_results->num_rows()){
+			foreach($secret_results->result_array() as $row){
+				$db_secret = $row['document_secret'];
+			}	
+		}
+		else{
+			$form_error = 'Error deleting document (document does not exist)';
+			$form_validation = false;
+		}
+
+		if($form_validation){
+			if($secret == $db_secret){
+				$delete_query = "DELETE FROM groups_documents WHERE id = '{$id}'";
+				if(!$this->EE->db->query($delete_query)){
+					$form_error = "Error deleting document (database query malformed)";
+					$form_validation = false;
+				}
+			}
+			else{
+				$form_error = "Error deleting this document";
+				$form_validation = false;
+			}
+		}
+
+		if(!$form_validation){
+			echo '<div class="form_error">'.$form_error.'</div>';
+		}
+		else{
+			echo '<div class="form_success"><span>Success!</span>Removed group document.</div>';
+		}
+		
+
+	}
+}
+
+if($_POST && isset($_POST['submit_form'])){
+
+	$group_id = "";
+	$document_url = "";
+	$document_name = "";
+	$document_secret = "";
+	$member_id = "";
+
+	// move uploaded file
+	if($_FILES['document']['error'] == 0){
+		$name = $_FILES['document']['name'];
+		$type = $_FILES['document']['type'];
+		$tmp_name = $_FILES['document']['tmp_name'];
+		$size = $_FILES['document']['size'];
+
+		// check for right file type
+  	$ext = pathinfo($_FILES['document']['name'], PATHINFO_EXTENSION);
+		if($ext != 'doc' && $ext != 'docx' && $ext !='pdf' && $ext !='jpg' && $ext !='jpeg' && $ext !='png' && $ext !='gif' && $ext !='ppt' && $ext !='pptx' && $ext != 'xls' && $ext != 'xlsx'){ // we want to only allow doc, docx, pdf
+			$form_error = "Please upload a file with format .doc, .docx, .ppt, .pptx, .xls, .xlsx, .jpeg, .jpg, .png, OR .pdf";
+			$form_validation = false;
+		}
+		else{
+			$document_name = $name;
+			$document_url = date('Y-m-d')."_".$name;
+			$upload_dir = "/var/www/ee/documents/group_documents/";
+			move_uploaded_file($tmp_name, $upload_dir.$document_url);
+		}
+	}
+	else{
+		$form_error = "Error uploading file";
+		$form_validation = false;
+	}
+
+	if(isset($_POST['group_id']))	$group_id = $this->EE->db->escape_str($_POST['group_id']);
+	if(isset($_POST['user_id'])) $member_id = $this->EE->db->escape_str($_POST['user_id']);
+
+	$document_secret = md5(mt_rand());
+
+	// time to insert file metadata into database
+	if($form_validation){
+		if($document_url != "" && $document_name != "" && $group_id != "" && $member_id){
+			$file_query = "INSERT INTO 
+			groups_documents (group_id,document_url,document_name,document_secret,member_id)
+			VALUES
+			('{$group_id}','{$document_url}','{$document_name}','{$document_secret}','{$member_id}')";
+			if(!$this->EE->db->query($file_query)){
+				$form_error = "Error inserting into database";
+				$form_validation = false;
+			}
+			else {
+			  $result_object = array();
+			  $result_object["message"] = generate_success_message("Added group document");
+
+			  $document = array();
+			  $document["id"] = $this->EE->db->insert_id();
+			  $document["document_name"] = $document_name;
+			  $document["document_url"] = $document_url;
+			  $document["document_secret"] = $document_secret;
+
+			  $result_object["doc"] = make_document_html_on_group_documents_page($document);
+			  echo json_encode($result_object);
+			  exit();
+
+			}
+		}
+	}
+
+	// send back success/failure message
+	if(!$form_validation){
+		echo generate_error_message($form_error);
+	}
+
+}
+
+?>
