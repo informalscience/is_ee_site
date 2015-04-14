@@ -1,0 +1,441 @@
+/**
+ * @class
+ * @param {object} [options]
+ * @param {string} [options.containerId=informalcommons-widget] The container element into which the widget should be placed.
+ * @classdesc Create a simple widget to search the Informal Commons catalog.
+ */
+var InformalcommonsWidget = function(options)
+{
+    options = options || {};
+    var config = 
+    {
+        containerId:options.containerId || "informalcommons-widget",
+        
+        searchURL:'http://api.informalscience.org/search/json'
+    }
+    
+    var _this = this;
+    
+    this.renderElementIds =
+    {
+        'resultsContainer': config.containerId + '-searchResults',
+        'outerWrapper': config.containerId + '-outerWrapper'
+    }
+    
+    var renderHTML = function()
+    {
+        var cont = config.containerId;
+        return '<div id="' + this.renderElementIds.outerWrapper + '">' + this.searchBarHTML + '</div>'
+                + '<div id="' + this.renderElementIds.resultsContainer + '"></div>';
+    }
+    
+    this.draw = function()
+    {
+        var elem = document.getElementById(config.containerId);
+        elem.innerHTML = renderHTML.call(this);
+    }
+    
+    /**
+     * Initialize the widget. This function must be called after the DOM is ready
+     * so that the target container element (where the widget will be placed) is available.
+     */
+    this.init = function()
+    {
+        this.draw();
+        this.attachSearchHandler();
+    }
+    
+    /**
+    * Attaches form-submit handler to the search form. If you override (or change)
+    * {@link InformalcommonsWidget#searchBarHTML}, you may need to override (or change) this
+    * method.
+    * @see {@link InformalcommonsWidget#searchBarHTML}
+    */
+    this.attachSearchHandler = function()
+    {
+        // TODO (if support for IE<9 is desired): replace this with an older way of finding the element.
+        // (getElementsByClassName isn't supported in older IE versions).
+        var elems = document.getElementById("MasterPageForm");
+        this.attachEvent(elems, 'submit', this.searchFormSubmitHandler);
+		//var elems = document.getElementsByClassName('informalcommonsWidget-searchForm');
+        //if(!elems.length)
+        //    return;
+        //for(var i=0; i<elems.length; ++i)
+        //{
+        //    this.attachEvent(elems[i], 'submit', this.searchFormSubmitHandler);
+        //}
+    }
+    
+    /**
+     * Encode parameters into a string and create a url to submit to search endpoint.
+     * @param {Object} params
+     * @return {string}
+     * TODO: support parameters that have an array as the value.
+     */
+    this.prepareSearchUrl = function(params, options)
+    {
+        options = options || {};
+        
+        var encodedParams = [];
+        for(var param in params)
+        {
+            if(param === '')
+                continue;
+            if(params.hasOwnProperty(param))
+			{
+				if(options.encodeParameters)
+                	encodedParams.push(encodeURIComponent(param) + '=' + encodeURIComponent(params[param]));
+				else
+					encodedParams.push(param + '=' + params[param]);
+			}
+        }
+        encodedParams.push('callback=' + generateCallback.call(this, params));
+        return url = config.searchURL + '?' + encodedParams.join('&');
+    }
+    
+    /**
+     * Submit a search and display the results.
+     * @param {Object} params - the request parameters to submit to the search endpoint
+     */
+    this.search = function(params, options)
+    {
+        options = options || {};
+        var url = this.prepareSearchUrl(params, options);
+        this.searchInitiatedCallback(params);
+        submitJsonRequest(url);
+    }
+    
+    this.searchWithUrl = function(url)
+    {
+        // split query variables apart (and remove callback param if there's already one there)
+        var parts = url.split('?');
+        var queryVarObj = {};
+        if(parts.length > 1)
+        {
+            var queryVars = parts[1].split('&');
+            var cbkIdx = -1;
+            for(var i=0; i<queryVars.length; ++i)
+            {
+                if(queryVars[i].indexOf('callback=') === 0)
+                    continue;
+                
+                var varParts = queryVars[i].split('=');
+                if(varParts.length < 2)
+                    varParts[1] = '';
+                queryVarObj[varParts[0]] = varParts[1];
+            }
+        }
+        
+        this.search(queryVarObj, {'encodeParameters':false});
+    }
+    
+    this.showResults = function(data, searchParams)
+    {
+        var formattedResults = [];
+        var html = '';
+        if(!data.numReturned)
+        {
+            html = this.noResultsHtml(searchParams);
+        }
+        else
+        {
+            for(var i=0; i<data.results.length; i++)
+            {
+                formattedResults.push(this.searchResultRecordRenderer(data.results[i]));
+            }
+            html = this.searchResultsHeaderHtml(data)
+                + '<ul class="informalcommonsWidget-resultList"><li>'
+                + formattedResults.join('</li><li>') + '</li></ul>';
+// TO DO ADD PAGINATION TO SEARCH RESULTS FOOTER	
+	    html = this.searchResultsFooterHtml = (data)
+		+ '<div class="informalcommonsWidget-resultsFooter">'  
+            	+ searchResultsPaginationHtml(data)
+            	+ '</div>';
+}
+
+        }
+        var elem = document.getElementById(this.renderElementIds.resultsContainer);
+        elem.innerHTML = html;
+        this.attachPaginationButtonHandlers(elem, data.pagination);
+    }
+    
+    this.attachPaginationButtonHandlers = function(parentElem, paginationData)
+    {
+        var prevHandler = function()
+        {
+            _this.searchWithUrl(paginationData.HREFprevPage);
+        }
+        var nextHandler = function()
+        {
+            _this.searchWithUrl(paginationData.HREFnextPage);
+        }
+        // TODO (if support for IE<9 is desired): replace this with an older way of finding the element.
+        // (getElementsByClassName isn't supported in older IE versions).
+        var buttons = parentElem.getElementsByClassName('informalcommonsWidget-pagination-button');
+        for(var i=0; i<buttons.length; ++i)
+        {
+            var btn = buttons[i];
+            var classes = btn.className.split(' ');
+            // TODO (if support for IE < 9 is desired): indexOf isn't supported in older IE.
+            if(classes.indexOf('disabled') > -1)
+                continue;
+            var handler;
+            if(classes.indexOf('prev') > -1)
+                handler = prevHandler;
+            else if(classes.indexOf('next') > -1)
+                handler = nextHandler;
+            else
+                continue;
+            this.attachEvent(btn, 'click', handler);
+        }
+    }
+    
+    /**
+     * This method is fired when the search form is submitted.
+     * @see {@link InformalcommonsWidget#searchBarHTML}
+     */
+    this.searchFormSubmitted = function(form)
+    {
+        var term = form.term.value;
+        this.search({'qq':term});
+    }
+    
+    this.searchFormSubmitHandler = function(evt)
+    {
+        evt = evt || window.event;
+        var tgt = evt.target || evt.srcElement;
+        _this.searchFormSubmitted(tgt);
+        if(evt.preventDefault)
+            evt.preventDefault();
+        else
+            evt.returnValue = false;
+        return false;
+    }
+    
+    // library-less method to attach events to elements
+    this.attachEvent = function(elem, type, handler)
+    {
+        if(elem.addEventListener)
+            elem.addEventListener(type, handler, false);
+        else
+            elem.attachEvent('on'+type, handler);
+    }
+    
+    var generateCallback = function(searchParams)
+    {
+        var randFuncName = 'callback' + Math.round(Math.random() * 10000000);
+        window[randFuncName] = function(data)
+        {
+            callback.call(_this, data, searchParams);
+            delete(window[randFuncName]);
+        }
+        return randFuncName;
+    }
+    
+    var callback = function(data, searchParams)
+    {
+        this.showResults(data, searchParams);
+    }
+    
+    var submitJsonRequest = function(url)
+    {
+        var elem = document.createElement('script');
+        elem.setAttribute('src', url);
+        document.getElementsByTagName('head')[0].appendChild(elem);
+    }
+    
+    
+}
+
+/**
+ * This callback is executed when a search is submitted to the service. This stub implementation
+ * just shows a simple "loading" message in the search results area.
+ * Override this method to customize the widget's behavior when a search is submitted.
+ * @param {object} params - The request parameters that will be sent to the search service.
+ */
+InformalcommonsWidget.prototype.searchInitiatedCallback = function(params)
+{
+    var elem = document.getElementById(this.renderElementIds.resultsContainer);
+    elem.innerHTML = 'loading...';
+}
+
+/**
+ * HTML markup for the search form. If you change this markup, and it no longer 
+ * contains a form with the class "informalcommonsWidget-searchForm" or an input
+ * element with the name "term", you may need to change 
+ * {@link InformalcommonsWidget#attachSearchHandler} and 
+ * {@link InformalcommonsWidget#searchFormSubmitted} as well.
+ */
+InformalcommonsWidget.prototype.searchBarHTML = '<div class="informalcommonsWidget-search">'
+                            + '<form class="informalcommonsWidget-searchForm">'
+                            + '<input type="text" class="informalcommonsWidget-term" name="term"></input>'
+                            + '<input type="submit" value="search" class="informalcommonsWidget-searchButton"></input>'
+                            + '</form></div>';
+
+/**
+ * Generate HTML markup to display if a search returns no results.
+ * @param {object} searchParams - the query parameters that were submitted to the search service.
+ */
+InformalcommonsWidget.prototype.noResultsHtml = function(searchParams)
+{
+    if(searchParams.hasOwnProperty('qq'))
+        return 'Your search for "' + searchParams.qq + '" returned no results.';
+    else
+        return 'Sorry, your search returned no results.';
+}
+
+/**
+ * Generate HTML markup for a header that's placed at the top of the search results.
+ * @param {object} data - The complete result data returned from the search service.
+ * The most relevant members of the result data are listed here.
+ * @param {number} data.totalNumResults
+ * @param {number} data.numReturned
+ * @param {number} data.numberPerPage
+ * @param {number} data.recordNumberStart
+ * @param {number} data.recordNumberEnd
+ * @see {@link InformalcommonsWidget#searchResultsPaginationHtml}
+ */
+InformalcommonsWidget.prototype.searchResultsHeaderHtml = function(data)
+{
+    return '<div class="informalcommonsWidget-resultsHeader">'
+            + data.recordNumberStart + '-' + data.recordNumberEnd
+            + ' of ' + data.totalNumResults + ' results'
+            + this.searchResultsPaginationHtml(data)
+            + '</div>';
+}
+
+/** Generate HTML markup for pagination in the search results footer 
+
+InformalcommonsWidget.prototype.searchResultsFooterHtml = function(data)
+{
+    return '<div class="informalcommonsWidget-resultsFooter">'  
+            + this.searchResultsPaginationHtml(data)
+            + '</div>';
+}
+*/
+
+/**
+ * Generate HTML markup for previous and next page buttons for pagination.
+ * @param {object} data - The complete result data returned from the search service.
+ * The most relevant members of the result data are listed here.
+ * @param {number} data.totalNumResults
+ * @param {number} data.numReturned
+ * @param {number} data.numberPerPage
+ * @param {number} data.recordNumberStart
+ * @param {number} data.recordNumberEnd
+ * @param {object} data.pagination
+ * @param {number} data.pagination.currentPageNum
+ * @param {string|FALSE} data.pagination.HREFPrevPage - URL to retrieve the previous
+ * page of results (or false, if the current result set is the 1st page).
+ * @param {string|FALSE} data.pagination.HREFNextPage - URL to retrieve the next page
+ * of results (or false, if the current result set is the last page).
+ * @param {string} data.pagination.HREFfirstPage
+ * @param {string} data.pagination.HREFlastPage
+ */
+InformalcommonsWidget.prototype.searchResultsPaginationHtml = function(data)
+{
+    var prevExtraClass = (data.pagination.HREFprevPage)
+                ? ' '
+                : ' disabled';
+                
+    var prevBtn = '<span class="informalcommonsWidget-pagination-button prev'
+                + prevExtraClass + '"> <img src="http://higherlogicdownload.s3.amazonaws.com/ASTC/bb3be056-bfde-43a2-ac96-4ceb7c97fa01/UploadedImages/arrow_left.png"></span>';
+                
+    var nextExtraClass = (data.pagination.HREFnextPage)
+                ? ''
+                : ' disabled';
+                
+    var nextBtn = '<span class="informalcommonsWidget-pagination-button next'
+                + nextExtraClass + '"> <img src="http://higherlogicdownload.s3.amazonaws.com/ASTC/bb3be056-bfde-43a2-ac96-4ceb7c97fa01/UploadedImages/arrow_right.png"> </span>';
+                
+    return '<div class="informalcommonsWidget-pagination">'
+            + prevBtn
+            + '<span class="divider"></span>'
+            + nextBtn
+            + '</div>';
+}
+
+
+/**
+ * Generate HTML markup for a single record. This stub implementation lists all
+ * the data in the record. Override or replace this method to customize the
+ * display of a result record.
+ * @param {Object} record
+ * @return {string} HTML markup
+ */
+InformalcommonsWidget.prototype.searchResultRecordRenderer = function(record)
+{
+    var html = '';
+    html += '<div>' + this.resultNodeHtml(record.record.icSpecific) + '</div>'
+           + '<div>' + this.resultNodeHtml(record.record.resource) + '</div>'
+           + '<div>' + this.resultNodeHtml(record.record.optional) + '</div>';
+    return html;
+}
+
+/**
+ * Generate HTML markup for a single node of a result record. This is a helper 
+ * method for {@link InformalcommonsWidget#searchResultRecordRenderer}, and is 
+ * probably not useful for real-world use.
+ * @param {*} node - The result node to mark up as HTML
+ * @param {string} fallbackLabel - The label to use if the node doesn't have a
+ * displayLabel property specified
+ * @return {string}
+ */
+InformalcommonsWidget.prototype.resultNodeHtml = function(node, fallbackLabel)
+{
+    label = node.displayLabel || fallbackLabel || '';
+    var html = this.resultNodeLabelHtml(label);
+    for(var obj in node)
+    {
+        if(!node.hasOwnProperty(obj))
+            continue;
+        else if(obj == 'displayLabel')
+            continue;
+        else if(obj == 'values' || (node[obj] instanceof Array))
+            html += this.resultNodeArrayHtml(node[obj]);
+        else if(obj == 'value' || (typeof node[obj] == 'string'))
+            html += this.resultNodeValueHtml(node[obj]);
+        else if(node[obj] instanceof Object)
+            html += this.resultNodeHtml(node[obj], obj);
+        else
+            html += node[obj];
+    }
+    return html;
+}
+/**
+ * This is a helper method used by {@link InformalcommonsWidget#resultNodeHtml} and 
+ * is probably not useful for
+ * real-world use.
+ */
+InformalcommonsWidget.prototype.resultNodeLabelHtml = function(label)
+{
+    return '<span class="resultNodeLabel">' + label + '</span>';
+}
+/**
+ * This is a helper method used by {@link InformalcommonsWidget#resultNodeHtml}
+ * and is probably not useful for real-world use.
+ */
+InformalcommonsWidget.prototype.resultNodeArrayHtml = function(arr)
+{
+    var html = '<ul class="resultNodeList">';
+    for(var i=0; i<arr.length; i++)
+    {
+        html += '<li class="resultNodeArrayItem">' + this.resultNodeHtml(arr[i]) + '</li>';
+    }
+    html += '</ul>';
+    return html;
+}
+/**
+ * This is a helper method used by {@link InformalcommonsWidget#resultNodeHtml
+ * and is probably not useful for real-world use.
+ */
+InformalcommonsWidget.prototype.resultNodeValueHtml = function(val)
+{
+    return '<span class="resultNodeValue">' + val + '</span>';
+	    
+}
+
+
+
+
+
